@@ -67,21 +67,26 @@ $(window).load(function () {
                     label: ["Thing.name"]
                 });
 	// Image search part
-	debugger;
-	var moreButton = $('<button>')
-            .addClass("more-button")
-            .text("More images...")
-            .click(function () {
-    //            var widget = $('#image_container').data("vieImageSearch");
-    //            widget.triggerSearch(widget.options.entity, widget.options.page_num+1);
-	$('.tag')
-            .click(function (ev) {
+	$('.tag').live('click',function(ev){
                 var uri = $(this).attr('title');
-				debugger;
                 $('#image_container')
                 .vieImageSearch({
                     entity: uri
                 });
+		});
+
+	var moreButton = $('<button>')
+            .addClass("more-button")
+            .text("assign image search...")
+            .click(function () {
+    //            var widget = $('#image_container').data("vieImageSearch");
+    //            widget.triggerSearch(widget.options.entity, widget.options.page_num+1);
+				$('.tag').click(function(ev){
+					var uri = $(this).attr('title');
+					$('#image_container')
+						.vieImageSearch({
+							entity: uri
+						});
 				});
             });
             
@@ -103,3 +108,4 @@ $(window).load(function () {
             });
 	
 });
+

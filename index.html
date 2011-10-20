@@ -27,7 +27,16 @@
 	<script type="text/javascript" src="./lib/jquery.tabSlideOut.v1.3.js"></script>
     <script type="text/javascript" src="./lib/vie.widget.auto_tagger.js"></script>
 	<script type="text/javascript" src="./lib/vie.widget.image_search.js"></script>
-    
+    <script type="text/javascript">
+	$(function() {
+	$('.tag').live('click',function(){
+                var uri = $(this).attr('title');
+                $('#image_container')
+                .vieImageSearch({
+                    entity: uri
+                });
+		});});
+	</script>
 	<style>
         #image_container {
             max-height:300px;
@@ -82,7 +91,7 @@
         <span rel="geo"><span about="http://dbpedia.org/resource/Washington,_D.C._metropolitan_area_GEO" typeof="GeoCoordinates"><span property="latitude" content="38.886757"></span><span property="longitude" content="-77.041626"></span></span></span></span>
         The House has passed a short-term spending bill that keeps the government 
         running for six weeks and buys time for future budget negotiations. The 352-66 vote sends 
-        the measure to President <span about="http://dbpedia.org/resource/Barack_Obama" typeof="Person"><span property="name">Barack Obama</span></span> 
+        the measure to President <span about="http://dbpedia.org/resource/Barack_Obama" typeof="Person"><span property="name">Barack Hussein Obama</span></span> 
         in time to avert a government shutdown at midnight. 
         The legislation gives Congress and the White House more time to iron out their differences 
         on a pile of unfinished budget work totaling more than $1 trillion. It also ends a fight 
