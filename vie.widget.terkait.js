@@ -50,9 +50,17 @@ $(window).load(function () {
                             var lbl = ($.isArray(name))? name[0] : name;
 							return lbl.replace(/"/g, "").replace(/@[a-z]+/, '');
                         }
-                    }]
+                    }],
+					end_query: function(){
+							$('.tag').click(function(ev){
+							var uri = $(this).attr('title');
+							$('#image_container')
+							.vieImageSearch({
+								entity: uri
+							});
+					});}
                 });
-				
+
 	$('#tag_container .places .tags')
                 .vieAutoTag({
                     vie : myVIE,
@@ -64,35 +72,20 @@ $(window).load(function () {
                     },
                     element: elem,
                     filter: ["Place"],
-                    label: ["Thing.name"]
+                    label: ["Thing.name"],
+					end_query: function(){
+							$('.tag').click(function(ev){
+							var uri = $(this).attr('title');
+							$('#image_container')
+							.vieImageSearch({
+								entity: uri
+							});
+					});}
                 });
 	// Image search part
-	$('.tag').live('click',function(ev){
-                var uri = $(this).attr('title');
-                $('#image_container')
-                .vieImageSearch({
-                    entity: uri
-                });
-		});
-
-	var moreButton = $('<button>')
-            .addClass("more-button")
-            .text("assign image search...")
-            .click(function () {
-    //            var widget = $('#image_container').data("vieImageSearch");
-    //            widget.triggerSearch(widget.options.entity, widget.options.page_num+1);
-				$('.tag').click(function(ev){
-					var uri = $(this).attr('title');
-					$('#image_container')
-						.vieImageSearch({
-							entity: uri
-						});
-				});
-            });
             
     // set-up of the Image-widget
     $('#image_container')
-            .before(moreButton)
             .vieImageSearch({
                 vie    : myVIE,
             	bin_size: 8,
@@ -106,6 +99,18 @@ $(window).load(function () {
                     }
                 }
             });
-	
+	var i = 10; 
+	$('#image_container img').each(function () {
+		i+= 10; 
+		$(this)
+		.css({
+			"z-index" : i, 
+			bottom: i + "px", 
+			position: "absolute", 
+			left: i + "px"})
+		.click(function () { 
+			$(this).css({"z-index" : 0});
+		})
+	});
 });
 
