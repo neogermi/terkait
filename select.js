@@ -1,5 +1,5 @@
-javascript:window.s7ng6n = {};
-s7ng6n.loadScript = function (url, callback) {
+javascript:window.terkait = {};
+terkait.loadScript = function (url, callback) {
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");
     script.src = url;
@@ -20,7 +20,7 @@ s7ng6n.loadScript = function (url, callback) {
     };
     head.appendChild(script);
 };
-s7ng6n.selector = function () {
+terkait.selector = function () {
     jQuery('font,:header,div,span,p,article,header,section,q')
     .filter(function () {
         var $this = jQuery(this);
@@ -34,8 +34,8 @@ s7ng6n.selector = function () {
                 && (words !== null && words.length > 4)}).css({"background-color":"red"});
 };
 if (window.jQuery) {
-    s7ng6n.selector();
+    terkait.selector();
 } else {
-    s7ng6n.loadScript('https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js', s7ng6n.selector);
+    terkait.loadScript('https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js', terkait.selector);
 };
 void(0);
