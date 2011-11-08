@@ -1,0 +1,40 @@
+{
+  // Required
+  "name": "terkait",
+  "version": "0.1",
+
+  // Recommended
+  "description": "A user interface to trigger a semantic search for related content.",
+  "icons": { 
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png"
+  },
+
+  "browser_action": {
+    "default_icon":  "icons/icon18.png",
+    "default_title": "Show related content"
+  },
+
+  // Add any of these that you need
+  "background_page": "background.html",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "css": ["terkait.css"],
+      "js": [
+      	"lib/jquery.js",
+      	"lib/underscore.js",
+      	"lib/backbone.js",
+      	"lib/rdfquery.js",
+      	"lib/vie.js",
+      	"terkait.js"]
+    }
+  ],
+  "permissions": [
+    "notifications", "tabs", "http://*/*", "https://*/*"
+  ],
+  "homepage_url": "http://github.com/neogermi/terkait",
+  "minimum_chrome_version": "15.0",
+  "offline_enabled": false
+}

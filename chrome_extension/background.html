@@ -1,0 +1,22 @@
+<html>
+  <script>
+          //React when a browser action's icon is clicked.
+          chrome.browserAction.onClicked.addListener(function(tab) {
+            chrome.tabs.getSelected(null, function (tab) {
+              chrome.tabs.sendRequest(tab.id, {action: "create"}, function(response) {
+                  if (response.success) {
+                      chrome.tabs.sendRequest(tab.id, {action: "recommend"}, function(response) {
+                          if (response.success) {
+                              
+                          } else {
+                              
+                          }   
+                      });
+                  } else {
+                      //TODO
+                  }
+              });
+            });
+         });
+  </script>
+</html>

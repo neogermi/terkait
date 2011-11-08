@@ -1,0 +1,53 @@
+#terkait-wrapper {
+  font-size: 62.5%;
+  text-align: center;
+  position:fixed;
+  top:0px;
+  right:0px;
+  height: 100%;
+  z-index:9999;
+}
+ 
+#terkait-wrapper:before {
+  content: '';
+  display: inline-block;
+  height: 100%; 
+  vertical-align: middle;
+ }
+ 
+#terkait-container {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 2.5em 1.5em;
+  border: #a0a0a0 solid 1px;
+  background: #f5f5f5;
+  box-shadow: 0px 0px 3em grey;
+  border-radius: 0.5em;
+  height:75%;
+  width:30em;
+  right:-25em;
+  position:relative;
+  background-repeat:no-repeat;
+  background-size:10em;
+ }
+ 
+ #terkait-container .entities {
+  background-color: transparent;
+  border: #a0a0a0 solid 1px;
+  overflow-y:auto;
+  position:absolute;
+  top: 3em;
+  bottom:1em;
+  right:1.5em;
+  left:1em;
+ }
+ 
+ #terkait-container .entities .container > * {
+ 
+ }
+ 
+ /* Text of interest */
+ .terkait-toi:hover, .terkait-toi .active {
+   -webkit-transition:background 1s;
+   background-color: rgba(255, 255, 153, 0.7);
+ }
