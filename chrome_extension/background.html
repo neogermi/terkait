@@ -1,4 +1,13 @@
 <html>
+    <script type="text/javascript" src="./lib/jquery.js"></script>    
+    <script type="text/javascript" src="./lib/underscore.js"></script>        
+    <script type="text/javascript" src="./lib/backbone.js"></script>
+    <script type="text/javascript" src="./lib/rdfquery.js"></script>    
+      
+    <!-- vie.js itself -->
+    <script type="text/javascript" src="./lib/vie.js"></script>
+    <script type="text/javascript" src="./lib/schemaOrg/schema.json"></script>
+    <script type="text/javascript" src="./lib/schemaOrg/wrapper.js"></script>
   <script>
           //React when a browser action's icon is clicked.
           chrome.browserAction.onClicked.addListener(function(tab) {
@@ -18,5 +27,41 @@
               });
             });
          });
+          
+          var appendType = function (parentId, id, subtypes, v) {
+              var sid = VIE.Util.toCurie(id, false, v.namespaces);
+              var menuId = chrome.contextMenus.create({
+                  type : "normal",
+                  title: sid,
+                  parentId : parentId,
+                  contexts : ["selection"],
+                  onclick : function (id) {
+                      return function (data, window) {
+                          chrome.tabs.getSelected(null, function (tab) {
+                              chrome.tabs.sendRequest(tab.id, {action: "annotateSelectionAs", args : [{id : id}]}, function(response){
+                                 //TODO: feedback?
+                              });
+                          });
+                      };
+                      }(id)
+              });
+              for (var i = 0; i < subtypes.length; i++) {
+                  appendType(menuId, subtypes[i].id, subtypes[i].subtypes, v);
+              }
+          };
+
+          var terkaitCM = chrome.contextMenus.create({
+              type : "normal",
+              title: "Annotate as...",
+              contexts : ["selection"]
+          }, function () {
+              var parentId = this["args"][0]["generatedId"];
+              
+              var v = new VIE();
+              v.loadSchemaOrg();
+              var typeHierarchy = v.types.get("Thing").hierarchy();
+              
+              appendType(parentId, typeHierarchy.id, typeHierarchy.subtypes, v);
+          });
   </script>
 </html>

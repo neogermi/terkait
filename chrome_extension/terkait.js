@@ -60,6 +60,10 @@ window.terkait = {
             return {
               foundElems : elems.size() > 0  
             };
+        },
+        
+        annotate: function (selection, type) {
+            //TODO
         }
     };
 }
@@ -77,7 +81,13 @@ chrome.extension.onRequest.addListener(
           } catch (e) {
               sendResponse({error: e});
           }
-      }
-    else
-      sendResponse({error: "unknown request!" + request});
+        }
+        else if (request.action === "annotateSelectionAs") {
+            window.terkait.annotate(window.getSelection(), request["args"]["id"]);
+            sendResponse({success: true});
+        }
+        else {
+            sendResponse({error: "unknown request!" + request});
+            console.log("unknown request", request);
+        }
 });

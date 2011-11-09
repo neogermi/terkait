@@ -32,7 +32,7 @@
     }
   ],
   "permissions": [
-    "notifications", "tabs", "http://*/*", "https://*/*"
+    "contextMenus", "tabs", "http://*/*", "https://*/*"
   ],
   "homepage_url": "http://github.com/neogermi/terkait",
   "minimum_chrome_version": "15.0",
