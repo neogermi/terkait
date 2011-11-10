@@ -1,45 +1,3 @@
-// ### Handle dependencies
-//
-// VIE tries to load its dependencies automatically. 
-// Please note that this autoloading functionality only works on the server.
-// On browser Backbone needs to be included manually.
-
-// Require [underscore.js](http://documentcloud.github.com/underscore/) 
-// using CommonJS require if it isn't yet loaded.
-//
-// On node.js underscore.js can be installed via:
-//
-//     npm install underscore
-var _ = this._;
-if (!_ && (typeof require !== 'undefined')) { _ = require('underscore')._; }
-if (!_) {
-    throw 'VIE requires underscore.js to be available';
-}
-
-// Require [Backbone.js](http://documentcloud.github.com/backbone/) 
-// using CommonJS require if it isn't yet loaded.
-//
-// On node.js Backbone.js can be installed via:
-//
-//     npm install backbone
-var Backbone = this.Backbone;
-if (!Backbone && (typeof require !== 'undefined')) { Backbone = require('backbone'); }
-if (!Backbone) {
-    throw 'VIE requires Backbone.js to be available';
-}
-
-// Require [jQuery](http://jquery.com/) using CommonJS require if it 
-// isn't yet loaded.
-//
-// On node.js jQuery can be installed via:
-//
-//     npm install jquery
-var jQuery = this.jQuery;
-if (!jQuery && (typeof require !== 'undefined')) { jQuery = require('jquery'); }
-if (!jQuery) {
-    throw 'VIE requires jQuery to be available';
-}
-
 var VIE;
 VIE = function(config) {
     this.config = (config) ? config : {};
@@ -98,7 +56,7 @@ VIE.prototype.service = function(name) {
 
 VIE.prototype.getServicesArray = function() {
   var res = [];
-  _(this.services).each(function(service, i){res.push(service);});
+  _.each(this.services, function(service, i){res.push(service);});
   return res;
 };
 
@@ -144,8 +102,23 @@ VIE.prototype.find = function(options) {
 };
 
 
-if(typeof(exports) !== 'undefined' && exports !== null) {
+if(typeof exports === 'object') {
+    // Running under Node.js or other CommonJS environment
     exports.VIE = VIE;
+
+    var root = this;
+    var jQuery = this.jQuery;
+    if (!jQuery) {
+        jQuery = require('jquery');
+    }
+    var Backbone = root.Backbone;
+    if (!Backbone) {
+        Backbone = require('backbone');
+    }
+    var _ = this._;
+    if (!_) {
+        _ = require('underscore')._;
+    }
 }
 
 VIE.prototype.Able = function(){
@@ -236,7 +209,7 @@ VIE.prototype.Findable.prototype = new VIE.prototype.Able();
 // extension to jQuery to compare two arrays on equality
 // found: <a href="http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays">http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays</a>
 jQuery.fn.compare = function(t) {
-    if (this.length != t.length) { return false; }
+    if (this.length !== t.length) { return false; }
     var a = this.sort(),
         b = t.sort();
     for (var i = 0; t[i]; i++) {
@@ -252,20 +225,22 @@ jQuery.fn.compare = function(t) {
 if (!Array.prototype.remove) {
   Array.prototype.remove = function () {
     var args = this.remove.arguments;
+    var i;
 
     if (args[0] && args[0] instanceof Array) {
       var a = args[0];
-      for (var i = 0; i < a.length; i++) {
+      for (i = 0; i < a.length; i++) {
         this.remove(a[i]);
       }
     } else {
-      for (var i = 0; i < args.length; i++) {
+      for (i = 0; i < args.length; i++) {
         while(true) {
           var index = this.indexOf(args[i]);
-          if (index !== -1)
+          if (index !== -1) {
             this.splice(index, 1);
-          else
+          } else {
             break;
+          }
         }
       }
     }
@@ -280,7 +255,7 @@ if (!Array.prototype.unduplicate) {
 	    var sorted_arr = this.sort();
 	    var results = [];
 	    for (var i = 0; i < sorted_arr.length; i++) {
-	        if (i === sorted_arr.length-1 || sorted_arr[i] != sorted_arr[i+1]) {
+	        if (i === sorted_arr.length-1 || sorted_arr[i] !== sorted_arr[i+1]) {
 	            results.push(sorted_arr[i]);
 	        }
 	    }
@@ -300,7 +275,9 @@ VIE.Util = {
         for (var k in namespaces.toObj()) {
             if (uri.indexOf(namespaces.get(k)) === 1) {
                 var pattern = new RegExp("^" + "<" + namespaces.get(k));
-                if (k === '') delim = '';
+                if (k === '') {
+                    delim = '';
+                }
                 return ((safe)? "[" : "") + 
                         uri.replace(pattern, k + delim).replace(/>$/, '') +
                         ((safe)? "]" : "");
@@ -311,12 +288,12 @@ VIE.Util = {
 
 	// checks, whether the given string is a CURIE.
     isCurie : function (something, namespaces) {
-    	try {
-    		 VIE.Util.toUri (something, namespaces);
-    		 return true;
-    	} catch (e) {
-    		return false;
-    	}
+        try {
+            VIE.Util.toUri(something, namespaces);
+            return true;
+        } catch (e) {
+            return false;
+        }
     },
 
 	// converts a given CURIE (or save CURIE) into a URI, based
@@ -360,11 +337,11 @@ VIE.prototype.Entity = function(attrs, opts) {
         } else if (ns.isCurie(attr)) {
             a = ns.uri(attr);
         } else if (!ns.isUri(attr)) {
-        	if (attr.indexOf(":") === -1) {
+            if (attr.indexOf(":") === -1) {
                 a = '<' + ns.base() + attr + '>';
-        	} else {
+            } else {
                 a = '<' + attr + '>';
-        	}
+            }
         }
         return a;
     };
@@ -419,23 +396,25 @@ VIE.prototype.Entity = function(attrs, opts) {
         get: function (attr) {
             attr = mapAttributeNS(attr, self.vie.namespaces);
             var value = Backbone.Model.prototype.get.call(this, attr);
-            
             if (_.isArray(value)) {
                 value = _.map(value, function(v) {
-                    if (self.vie.entities.get(v)) {
-                        return self.vie.entities.get(v);
-                    }
-                    else if (attr === '@type' && self.vie.types.get(v)) {
+                    if (attr === '@type' && self.vie.types.get(v)) {
                         return self.vie.types.get(v);
+                    } else if (self.vie.entities.get(v)) {
+                        return self.vie.entities.get(v);
                     } else {
                         return v;
                     }
                 }, this);
             } else {
-                if (self.vie.entities.get(value)) {
-                    value = self.vie.entities.get(value);
-                } else if (attr === '@type' && self.vie.types.get(value)) {
+                if (typeof value !== "string") {
+                    return value;
+                } 
+                
+                if (attr === '@type' && self.vie.types.get(value)) {
                     value = self.vie.types.get(value);
+                } else if (self.vie.entities.get(value)) {
+                    value = self.vie.entities.get(value);
                 }
             }
             return value;
@@ -447,10 +426,12 @@ VIE.prototype.Entity = function(attrs, opts) {
         },
         
         set : function(attrs, options) {
-            if (!attrs) return this;
-            if (attrs.attributes) 
+            if (!attrs) {
+                return this;
+            }
+            if (attrs.attributes) {
                 attrs = attrs.attributes;
-          
+            }
             _.each (attrs, function (value, key) {
                 var newKey = mapAttributeNS(key, self.vie.namespaces);
                 if (key !== newKey) {
@@ -464,13 +445,13 @@ VIE.prototype.Entity = function(attrs, opts) {
                        !jQuery.isArray(value) &&
                        !value.isCollection) {
                        var child = new self.vie.Entity(value, options);
-                       self.vie.entities.add(child);
+                       self.vie.entities.addOrUpdate(child);
                        attrs[key] = child.getSubject();
                    } else if (value.isCollection) {
-                       attrs[key] = [];
+                       //attrs[key] = [];
                        value.each(function (child) {
-                           self.vie.entities.add(child);
-                           attrs[key].push(child.getSubject());
+                           self.vie.entities.addOrUpdate(child);
+                           //attrs[key].push(child.getSubject());
                        });
                    }
                }
@@ -485,7 +466,7 @@ VIE.prototype.Entity = function(attrs, opts) {
         
         getSubject: function(){
             if (typeof this.id === "undefined") {
-                this.id = this.get(this.idAttribute);
+                this.id = this.attributes[this.idAttribute];
             }
             if (typeof this.id === 'string') {
                 if (this.id.substr(0, 7) === 'http://' || this.id.substr(0, 4) === 'urn:') {
@@ -542,9 +523,9 @@ VIE.prototype.Entity = function(attrs, opts) {
             var instanceLD = {};
             var instance = this;
             _.each(instance.attributes, function(value, name){
-                var entityValue = instance.get(name);
+                var entityValue = value; //instance.get(name);
 
-                if (name === '@type' && entityValue) {
+                if (name === '@type' && typeof entityValue === 'object') {
                     entityValue = entityValue.id;
                 }
 
@@ -562,7 +543,7 @@ VIE.prototype.Entity = function(attrs, opts) {
             
             return instanceLD;
         },
-        
+
         setOrAdd: function (arg1, arg2) {
             var entity = this;
             if (typeof arg1 === "string" && arg2) {
@@ -578,16 +559,16 @@ VIE.prototype.Entity = function(attrs, opts) {
                 }
             return this;
         },
-        
-        _setOrAddOne: function (prop, value) {
-            var val = this.get(prop);
-            // if value is an entity, convert it to string
-            value = (value.id)? value.id : value;
-            
+
+        _setOrAddOne: function (attr, value) {
+            var obj;
+            attr = mapAttributeNS(attr, self.vie.namespaces);
+            var val = Backbone.Model.prototype.get.call(this, attr);
+
+            // No value yet, use the set method
             if (!val) {
-                // No value yet, use the set method
-                var obj = {};
-                obj[prop] = value;
+                obj = {};
+                obj[attr] = value;
                 this.set(obj);
             }
             else {
@@ -605,13 +586,13 @@ VIE.prototype.Entity = function(attrs, opts) {
                 }
                 if (!contains) {
                     val.push(value);
-                    var obj = {};
-                    obj[prop] = val;
+                    obj = {};
+                    obj[attr] = val;
                     this.set(obj);
                 }
             }
         },
-        
+
         hasType: function(type){
             type = self.vie.types.get(type);
             return this.hasPropertyValue("@type", type);
@@ -655,13 +636,19 @@ VIE.prototype.Collection = Backbone.Collection.extend({
     model: VIE.prototype.Entity,
     
     get: function(id) {
-        if (id == null) return null;
+        if (id === null) {
+            return null;
+        }
         
         id = (id.getSubject)? id.getSubject() : id;        
         if (typeof id === "string" && id.indexOf("_:") === 0) {
-            //bnode!
-            id = id.replace("_:bnode", 'c');
-            return this._byCid[id];
+            if (id.indexOf("bnode") === 2) {
+                //bnode!
+                id = id.replace("_:bnode", 'c');
+                return this._byCid[id];
+            } else {
+                return this._byId["<" + id + ">"];
+            }
         } else {
             id = this.toReference(id);
             return this._byId[id];
@@ -670,6 +657,7 @@ VIE.prototype.Collection = Backbone.Collection.extend({
 
     addOrUpdate: function(model) {
         var collection = this;
+        var existing;
         if (_.isArray(model)) {
             var entities = [];
             _.each(model, function(item) {
@@ -682,18 +670,19 @@ VIE.prototype.Collection = Backbone.Collection.extend({
             model = new this.model(model);
         }
 
-        if (!model.id) {
-            this.add(model);
-            return model;
+        if (model.id && this.get(model.id)) {
+            existing = this.get(model.id);
         }
-
-        if (this.get(model.id)) {
-            var existing = this.get(model.id);
+        if (this.getByCid(model.cid)) {
+            var existing = this.getByCid(model.cid);
+        }
+        if (existing) {
             if (model.attributes) {
                 return existing.set(model.attributes);
             }
             return existing.set(model);
         }
+
         this.add(model);
         return model;
     },
@@ -810,8 +799,8 @@ VIE.prototype.Type = function (id, attrs) {
             this.supertypes.addOrOverwrite(supertype);
             try {
                 // only for validation of attribute-inheritance!
-            	// if this throws an error (inheriting two attributes
-            	// that cannot be combined) we reverse all changes. 
+                // if this throws an error (inheriting two attributes
+                // that cannot be combined) we reverse all changes. 
                 this.attributes.list();
             } catch (e) {
                 supertype.subtypes.remove(this);
@@ -841,17 +830,17 @@ VIE.prototype.Type = function (id, attrs) {
     };
 
     this.instance = function (attrs, opts) {
-    	attrs = (attrs)? attrs : {};
-    	
-    	for (var a in attrs) {
-    		if (a.indexOf('@') !== 0 && !this.attributes.get(a)) {
-    			throw new Error("Cannot create an instance of " + this.id + " as the type does not allow an attribute '" + a + "'!");
-    		}
-    	}
-    	
-    	attrs['@type'] = this.id;
-    	
-    	return new this.vie.Entity(attrs, opts);
+        attrs = (attrs)? attrs : {};
+
+        for (var a in attrs) {
+            if (a.indexOf('@') !== 0 && !this.attributes.get(a)) {
+                throw new Error("Cannot create an instance of " + this.id + " as the type does not allow an attribute '" + a + "'!");
+            }
+        }
+
+        attrs['@type'] = this.id;
+
+        return new this.vie.Entity(attrs, opts);
     };
         
     // returns the id of the type.
@@ -902,7 +891,9 @@ VIE.prototype.Types = function () {
     //(for convenience issues).
     //Returnes **undefined** if no type has been found.
     this.get = function (id) {
-        if (!id) return undefined;
+        if (!id) {
+            return undefined;
+        }
         if (typeof id === 'string') {
             var lid = this.vie.namespaces.isUri(id) ? id : this.vie.namespaces.uri(id);
             return this._types[lid];
@@ -959,14 +950,16 @@ VIE.prototype.Types = function () {
             var idx = 0;
             for (var y = 0; y < copy.length; y++) {
                 var b = self.vie.types.get(copy[y]);                
-                if (b.subsumes(a))
+                if (b.subsumes(a)) {
                     idx = y;
+                }
             }
             copy.splice(idx+1,0,a);
         }
         
-        if (!desc) 
+        if (!desc) {
             copy.reverse();
+        }
         return copy;
     };
 };
@@ -1054,7 +1047,7 @@ VIE.prototype.Attributes = function (domain, attrs) {
             } else if (id instanceof this.vie.Type) {
                 id.domain = this.domain;
                 id.vie = this.vie;
-            	this._local[id.id] = id;
+                this._local[id.id] = id;
                 return id;
             } else {
                 throw "Wrong argument to VIE.Types.add()!";
@@ -1198,7 +1191,7 @@ VIE.prototype.Namespaces = function (base, namespaces) {
 	this._base = base;
     
     this.base = function (ns) {
-    	// getter
+        // getter
         if (!ns) { 
             return this._base;
         }
@@ -1218,7 +1211,7 @@ VIE.prototype.Namespaces = function (base, namespaces) {
     //ambiguities in the namespaces. Use `addOrReplace()`
     //to simply overwrite them. 
     this.add = function (k, v) {
-    	//we can also pass multiple namespaces as an object.
+        //we can also pass multiple namespaces as an object.
         if (typeof k === "object") {
             for (var k1 in k) {
                 this.add(k1, k[k1]);
@@ -1273,7 +1266,9 @@ VIE.prototype.Namespaces = function (base, namespaces) {
     
     // get a namespace (or *undefined*) for a given prefix.
     this.get = function (k) {
-    	if (k === "") return this.base();
+        if (k === "") {
+            return this.base();
+        }
         return this._namespaces[k];
     };
 
@@ -1324,12 +1319,12 @@ VIE.prototype.Namespaces = function (base, namespaces) {
     
     // checks whether the given string is a CURIE.
     this.isCurie = function (something) {
-    	return VIE.Util.isCurie(something, this);
+        return VIE.Util.isCurie(something, this);
     };
     
     // transforms a CURIE into a URI.
     this.uri = function (curie) {
-        return VIE.Util.toUri (curie, this);
+        return VIE.Util.toUri(curie, this);
     };
     
     // checks wether the given string is a URI.
@@ -1348,6 +1343,18 @@ VIE.prototype.ClassicRDFa.prototype = {
             jsonEntities.push(entity.toJSONLD());
         });
         return jsonEntities;
+    },
+
+    findPredicateElements: function(subject, element, allowNestedPredicates) {
+        return this.vie.services.rdfa._findPredicateElements(subject, element, allowNestedPredicates);
+    },
+
+    getPredicate: function(element) {
+        return this.vie.services.rdfa.getElementPredicate(element);
+    },
+
+    getSubject: function(element) {
+        return this.vie.services.rdfa.getElementSubject(element);
     }
 };
 
@@ -1445,7 +1452,7 @@ VIE.prototype.DBPediaService.prototype = {
              //rule to transform a DBPedia person into a VIE person
              {
                 'left' : [
-                    '?subject a <http://dbpedia.org/ontology/Person>',
+                    '?subject a <http://dbpedia.org/ontology/Person>'
                  ],
                  'right': function(ns){
                      return function(){
@@ -1466,29 +1473,29 @@ VIE.prototype.DBPediaService.prototype = {
 
         var service = this;
         var entity = loadable.options.entity;
-        if(!entity){
-            console.warn("DBPediaConnector: No entity to look for!");
+        if (!entity) {
+            //console.warn("DBPediaConnector: No entity to look for!");
             loadable.resolve([]);
-        };
+        }
         var success = function (results) {
-        	var id = entity.replace(/^</, '').replace(/>$/, '');
+            var id = entity.replace(/^</, '').replace(/>$/, '');
 
-        	if (results[id]) {
-    			var e = service.vie.entities.get(entity);
-        		if (!e) {
-        			var attrs = {
-        		        '@subject': entity,
-        		        '@type': results[id]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
-        			};
-        			delete results[id]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"];
-        			jQuery.extend(attrs, results[id]);
-        			service.vie.entities.add(attrs);
-        			e = service.vie.entities.get(entity);
-        		}
-        		loadable.resolve([e]);
-        	} else {
-        		loadable.reject(undefined);
-        	}
+            if (results[id]) {
+                var e = service.vie.entities.get(entity);
+                if (!e) {
+                    var attrs = {
+                        '@subject': entity,
+                        '@type': results[id]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+                    };
+                    delete results[id]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"];
+                    jQuery.extend(attrs, results[id]);
+                    service.vie.entities.add(attrs);
+                    e = service.vie.entities.get(entity);
+                }
+                loadable.resolve([e]);
+            } else {
+                loadable.reject(undefined);
+            }
         };
         var error = function (e) {
             loadable.reject(e);
@@ -1542,77 +1549,54 @@ DBPediaConnector.prototype = {
 };
 })();
 
-/* TODO: give same functionality as RdfaService or remove
-
 VIE.prototype.RdfaRdfQueryService = function(options) {
     if (!options) {
         options = {};
     }
     this.vie = null;
-    this.name = 'rdfa';
-
-    if (typeof jQuery.rdf !== 'function') {
-        throw "RdfQuery is not loaded";
-    }
+    this.name = 'rdfardfquery';
 };
 
 VIE.prototype.RdfaRdfQueryService.prototype = {
+    
+    analyze: function(analyzable) {
+        analyzable.reject("Not yet implemented");
+    },
+        
+    load : function(loadable) {
+        analyzable.reject("Not yet implemented");
+    },
 
-    load: function(loadable){
-        var service = this;
-        var correct = loadable instanceof this.vie.Loadable;
+    save : function(savable) {
+        var correct = savable instanceof this.vie.Savable;
         if (!correct) {
-            throw "Invalid Loadable passed";
+            analyzable.reject("Invalid Savable passed");
+        }
+    
+        if (!savable.options.element) {
+            analyzable.reject("Unable to write entity to RDFa, no element given");
+        }
+    
+        if (!savable.options.entity) {
+            analyzable.reject("Unable to write to RDFa, no entity given");
         }
         
-        var element = loadable.options.element ? loadable.options.element : jQuery(document);
+        if (!jQuery.rdf) {
+            analyzable.reject("No rdfQUery found.");
+        }
         
-        var rdf = jQuery(element).rdfa();
+        var entity = savable.options.entity;
         
-        jQuery.each(jQuery(element).xmlns(), function(prefix, ns){
-            service.vie.namespaces.addOrReplace(prefix, ns.toString());
-        });
-        
-        var entities = {}
-        rdf.where('?subject ?property ?object').each(function(){
-            var subject = this.subject.toString();
-            if (!entities[subject]) {
-                entities[subject] = {
-                    '@subject': subject
-                };
-            }
-            var propertyUri = this.property.toString();
-            
-            var val;
-            if (typeof this.object.value === "string") {
-                val = this.object.value;
-            }
-            else {
-                val = this.object.toString();
-            }
-            if (!entities[subject][propertyUri]) {
-                entities[subject][propertyUri] = val;
-            }
-            else 
-                if (!_.isArray(entities[subject][propertyUri])) {
-                    entities[subject][propertyUri] = [entities[subject][propertyUri]];
-                    entities[subject][propertyUri].push(val);
-                }
-                else {
-                    entities[subject][propertyUri].push(val);
-                }
-        });
-        
-        var vieEntities = [];
-        jQuery.each(entities, function(){
-            vieEntities.push(service.vie.entities.addOrUpdate(this));
-        });
-        loadable.resolve(vieEntities);
+        var triples = [];
+        triples.push(entity.getSubject() + " a " + entity.get('@type'));
+        //TODO: add all attributes!
+        jQuery(savable.options.element).rdfa(triples);
+    
+        savable.resolve();
     }
+    
 };
-
-
-*/VIE.prototype.RdfaService = function(options) {
+VIE.prototype.RdfaService = function(options) {
     if (!options) {
         options = {};
     }
@@ -1697,8 +1681,8 @@ VIE.prototype.RdfaService.prototype = {
         //}
 
         for (predicate in entity) {
-            value = entity[predicate]; 
-            if (typeof value !== "object" || toString.call(value) !== '[object Array]') {
+            value = entity[predicate];
+            if (!_.isArray(value)) {
                 continue;
             }
             valueCollection = new this.vie.Collection();
@@ -1710,7 +1694,7 @@ VIE.prototype.RdfaService.prototype = {
     
         entity['@subject'] = subject;
         if (type) {
-        	entity['@type'] = type;
+            entity['@type'] = type;
         }
         
         var entityInstance = new this.vie.Entity(entity);
@@ -1801,18 +1785,17 @@ VIE.prototype.RdfaService.prototype = {
     },
     
     _getElementType : function (element) {
-    	var type;
-     	if (jQuery(element).attr('typeof')) {
-	     	type = jQuery(element).attr('typeof');
-		     	if (type.indexOf("://") !== -1) {
-		     	return "<" + type + ">";
-	     	}
-	     	else {
-		     	return type;
-	     	}
-     	}
-     	return null;
-     },
+        var type;
+        if (jQuery(element).attr('typeof')) {
+            type = jQuery(element).attr('typeof');
+            if (type.indexOf("://") !== -1) {
+                return "<" + type + ">";
+            } else {
+                return type;
+            }
+        }
+        return null;
+    },
     
     getElementSubject : function(element) {
         var service = this;
@@ -1824,7 +1807,7 @@ VIE.prototype.RdfaService.prototype = {
         }
         var subject = undefined;
         jQuery(element).closest(this.subjectSelector).each(function() {
-            if (jQuery(this).attr('about')) {
+            if (jQuery(this).attr('about') !== undefined) {
                 subject = jQuery(this).attr('about');
                 return true;
             }
@@ -1985,11 +1968,12 @@ VIE.prototype.RdfaService.prototype = {
     },
     
     writeElementValue : function(predicate, element, value) {
-    	
-    	//TODO: this is a hack, please fix!
-     	if (value instanceof Array && value.length > 0) value = value[0];
+        //TODO: this is a hack, please fix!
+        if (value instanceof Array && value.length > 0) {
+            value = value[0];
+        }
         
-     	// The `content` attribute can be used for providing machine-readable
+        // The `content` attribute can be used for providing machine-readable
         // values for elements where the HTML presentation differs from the
         // actual value.
         var content = element.attr('content');
@@ -2029,8 +2013,8 @@ VIE.prototype.RdfaService.prototype = {
                 for (i = 0; i < e.attributes.length; i += 1) {
                     var attr = e.attributes[i];
                     if (/^xmlns(:(.+))?$/.test(attr.nodeName)) {
-                        prefix = /^xmlns(:(.+))?$/.exec(attr.nodeName)[2] || '';
-                        value = attr.nodeValue;
+                        var prefix = /^xmlns(:(.+))?$/.exec(attr.nodeName)[2] || '';
+                        var value = attr.nodeValue;
                         if (prefix === '' || value !== '') {
                             obj[prefix] = attr.nodeValue;
                         }
@@ -2065,11 +2049,11 @@ VIE.prototype.StanbolService = function(options) {
             enhancer : "http://fise.iks-project.eu/ontology/",
             entityhub: "http://www.iks-project.eu/ontology/rick/model/",
             entityhub2: "http://www.iks-project.eu/ontology/rick/query/",
-            rdfs: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            rdfschema: "http://www.w3.org/2000/01/rdf-schema#",
             dc  : 'http://purl.org/dc/terms/',
             foaf: 'http://xmlns.com/foaf/0.1/',
             schema: 'http://schema.org/',
-            rdfschema: 'http://www.w3.org/2000/01/rdf-schema#',
             geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#'
         }
     };
@@ -2143,6 +2127,28 @@ VIE.prototype.StanbolService.prototype = {
                      };
                  }(this.namespaces)
              },
+             {
+             'left' : [
+                     '?subject a foaf:Person',
+                     '?subject rdfschema:label ?label'
+                  ],
+                  'right': function(ns){
+                      return function(){
+                          return [
+                              jQuery.rdf.triple(this.subject.toString(),
+                                  'a',
+                                  '<' + ns.base() + 'Person>', {
+                                      namespaces: ns.toObj()
+                                  }),
+                              jQuery.rdf.triple(this.subject.toString(),
+                                  '<' + ns.base() + 'name>',
+                                  this.label, {
+                                      namespaces: ns.toObj()
+                                  })
+                              ];
+                      };
+                  }(this.namespaces)
+              },
              {
                  'left' : [
                      '?subject a dbpedia:Place',
@@ -2223,14 +2229,8 @@ VIE.prototype.StanbolService.prototype = {
         var limit = (typeof findable.options.limit === "undefined") ? 20 : findable.options.limit;
         var offset = (typeof findable.options.offset === "undefined") ? 0 : findable.options.offset;
         var success = function (results) {
-            // TODO: Return an array of vie entities
-            var resultArray = _(results).map(
-                function(v,k){
-                    v.id=k;
-                    return v;
-                }
-            );
-            findable.resolve(resultArray);
+            var entities = service._enhancer2Entities(service, results);
+            findable.resolve(entities);
         };
         var error = function (e) {
             findable.reject(e);
@@ -2335,8 +2335,8 @@ VIE.prototype.StanbolService.prototype = {
         });
 
         _(entities).each(function(ent){
-            ent["@type"] = ent["@type"].concat(ent["rdfs:type"]);
-            delete ent["rdfs:type"];
+            ent["@type"] = ent["@type"].concat(ent["rdf:type"]);
+            delete ent["rdf:type"];
             _(ent).each(function(value, property){
                 if(value.length === 1){
                     ent[property] = value[0];
@@ -2355,7 +2355,7 @@ VIE.prototype.StanbolService.prototype = {
 
     _enhancer2EntitiesNoRdfQuery: function (service, results) {
         jsonLD = [];
-        _.forEach(results.results, function(value, key) {
+        _.forEach(results, function(value, key) {
             var entity = {};
             entity['@subject'] = '<' + key + '>';
             _.forEach(value, function(triples, predicate) {
@@ -2442,7 +2442,7 @@ StanbolConnector.prototype = {
     load: function (uri, success, error, options) {
         if (!options) { options = {}; }
         uri = uri.replace(/^</, '').replace(/>$/, '');
-        var url = this.baseUrl + this.entityhubUrlPrefix + "/sites/entity?id=" + uri;
+        var url = this.baseUrl + this.entityhubUrlPrefix + "/sites/entity?id=" + escape(uri);
         var proxyUrl = this._proxyUrl();
         var format = options.format || "application/rdf+json";
         
@@ -2498,7 +2498,6 @@ StanbolConnector.prototype = {
                     type: "text/plain"
                 } : "name=" + term + "&limit=" + limit + "&offset=" + offset,
             dataType: format,
-            contentType: proxyUrl ? undefined : "text/plain",
             accepts: {"application/rdf+json": "application/rdf+json"}
         });
     },
@@ -2540,7 +2539,7 @@ VIE.prototype.view.Collection = Backbone.View.extend({
     },
 
     addItem: function(entity, collection) {
-        if (collection != this.collection) {
+        if (collection !== this.collection) {
             return;
         }
 
@@ -2556,6 +2555,17 @@ VIE.prototype.view.Collection = Backbone.View.extend({
 
         // TODO: Ordering
         this.el.append(entityElement);
+
+        // Ensure we catch all inferred predicates. We add these via JSONLD
+        // so the references get properly Collectionized.
+        var service = this.service;
+        jQuery(entityElement).parent('[rev]').each(function() {
+            var predicate = jQuery(this).attr('rev');
+            var relations = {};
+            relations[predicate] = new service.vie.Collection();
+            relations[predicate].addOrUpdate(service.vie.entities.get(service.getElementSubject(this)));
+            entity.set(relations);
+        });
         
         this.trigger('add', entityView);
         this.entityViews[entity.cid] = entityView;

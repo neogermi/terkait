@@ -8,6 +8,14 @@ if (!window.terkait) {
     
 window.terkait = {
         
+        vie : function() {
+            var v = new VIE();
+            v.loadSchemaOrg();
+            v.use(new v.StanbolService({url : "http://dev.iks-project.eu:8081", proxyDisabled: true}));
+            v.use(new v.RdfaRdfQueryService());
+            return v;
+        }(),
+        
         create : function () {
             if (jQuery('#terkait-container').size() > 0) {
                 //clear former results!
@@ -41,10 +49,9 @@ window.terkait = {
                var hasText = text.length > 0;
                var numWords = (words === null)? 0 : words.length;
                var area = $this.height() * $this.width();
-               var isShown = $this.css('display') !== "none" && $this.css('visibility') !== "hidden";
+               var isShown = area > 0 && $this.css('display') !== "none" && $this.css('visibility') !== "hidden";
                
-               return (area > 0 &&
-                       isShown &&
+               return (isShown &&
                        hasText && 
                        numWords > 5 &&
                        (children.size() === emptyChildren.size()));
@@ -56,15 +63,82 @@ window.terkait = {
         recommend: function() {
             var elems = this.selector();
             elems.addClass("terkait-toi");
-            // var v = new VIE();
+            elems.each(function () {
+                var $this = $(this);
+                window.terkait.vie
+                .analyze({element: $this})
+                .using('stanbol')
+                .execute()
+                .done(function(entities) {
+                    //TODO!
+                    console.log(entities);
+                })
+                .fail(function(f){
+                    //TODO!
+                });
+            });
             return {
               foundElems : elems.size() > 0  
             };
         },
         
-        annotate: function (selection, type) {
-            //TODO
-        }
+        annotate: function (type, sendResponse) {
+            var rng = window.terkait._getRangeObject();
+            if (rng && rng.startContainer === rng.endContainer && 
+                rng.startOffset !== rng.endOffset) {
+                rng.expand("word"); //expands to word boundaries
+                var selectedText = $(rng.cloneContents()).text();
+                rng.deleteContents();
+                var $elem = $("<span>" + selectedText + "</span>").addClass("terkait-annotation");
+                rng.insertNode($elem.get(0));
+                
+                var text = rng.toString();
+                
+                var entity = new window.terkait.vie.Entity({
+                    '@type' : window.terkait.vie.types.get(type),
+                    'name'  : text
+                });
+                window.terkait.vie.entities.add(entity);
+                
+                window.terkait.vie
+                .save({entity: entity, element: $elem})
+                .using('rdfardfquery')
+                .execute()
+                .done(function() {
+                    sendResponse({success: true});
+                })
+                .fail(function() {
+                    sendResponse({success: false});
+                });
+                return true;
+            } else {
+                return false;
+            }
+            
+        },
+        
+        _getRangeObject: function () {
+            try {
+                var selectionObject;
+                if (window.getSelection) {
+                    selectionObject = window.getSelection();
+                }
+                else if (document.selection) {
+                    selectionObject = document.selection.createRange();
+                }
+                if (selectionObject.getRangeAt)
+                    return selectionObject.getRangeAt(0);
+                else { // Safari!
+                    var range = document.createRange();
+                    range.setStart(selectionObject.anchorNode,selectionObject.anchorOffset);
+                    range.setEnd(selectionObject.focusNode,selectionObject.focusOffset);
+                    return range;
+                }
+            } catch (e) {
+                //nothing to be ranged
+                return undefined;
+            }
+        },
     };
 }
 
@@ -83,8 +157,7 @@ chrome.extension.onRequest.addListener(
           }
         }
         else if (request.action === "annotateSelectionAs") {
-            window.terkait.annotate(window.getSelection(), request["args"]["id"]);
-            sendResponse({success: true});
+            var res = window.terkait.annotate(request["args"]["id"], sendResponse);
         }
         else {
             sendResponse({error: "unknown request!" + request});

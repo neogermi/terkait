@@ -28,6 +28,8 @@
       	"lib/backbone.js",
       	"lib/rdfquery.js",
       	"lib/vie.js",
+      	"lib/schemaOrg/schema.json",
+      	"lib/schemaOrg/wrapper.js",
       	"terkait.js"]
     }
   ],
