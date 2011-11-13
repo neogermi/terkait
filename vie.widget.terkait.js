@@ -131,6 +131,7 @@ $(window).load(function () {
 	var entityCard = $('<div class ="entity_card">');
 	var entityList = $('<div class ="entity_list">');
 	var entityData = $('<div class ="entity_data">');
+	var image_tag = $('<div class ="tag_image">');
 	
 		entityCard.css({
 					width:"400px",
@@ -153,6 +154,7 @@ $(window).load(function () {
 					});
 	
 	
+	entityList.append(image_tag);
 	entityCard.append(entityList);
 	entityCard.append(entityData);
 	return entityCard;
