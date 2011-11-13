@@ -10,7 +10,7 @@ $(window).load(function () {
 	$('body').append(sideDiv);
     $('.slide-out-div').tabSlideOut({
             tabHandle: '.handle',                     //class of the element that will become your tab
-            pathToTabImage: './utils/img/terkait.png', //path to the image for the tab //Optionally can be set using css
+            pathToTabImage: './utils/img/terkait.png', //path to the image for the tab //Optional ly can be set using css
             imageHeight: '173px',                     //height of tab image           //Optionally can be set using css
             imageWidth: '40px',                       //width of tab image            //Optionally can be set using css
             tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
@@ -51,6 +51,7 @@ $(window).load(function () {
 							return lbl.replace(/"/g, "").replace(/@[a-z]+/, '');
                         }
                     }],
+                   // render: render_entity,
 					end_query: function(){
 					debugger;
 							$(this).find('.tag').each(function(ev){
@@ -126,8 +127,36 @@ $(window).load(function () {
 		
 					});}
                 });
+	render_entity_card = function(entity){
+	var entityCard = $('<div class ="entity_card">');
+	var entityList = $('<div class ="entity_list">');
+	var entityData = $('<div class ="entity_data">');
 	
-            
+		entityCard.css({
+					width:"400px",
+					height:"230px",
+					border:"2px solid"
+					});
+	
+	entityList.css({
+					width:"120px",
+					height:"230px",
+					borderRight:"2px solid"
+					});
+					
+	entityData.css({
+					width:"280px",
+					height:"230px",
+					marginLeft: "120px",
+					marginTop: "-230px",
+					paddingLeft: "10px"
+					});
+	
+	
+	entityCard.append(entityList);
+	entityCard.append(entityData);
+	return entityCard;
+	};           
     render = function(data){
 			var self = this;
             
@@ -185,8 +214,8 @@ $(window).load(function () {
 														height: "100px",
 														width: "100px",
 														opacity: 0.5
-													})
-												})
+													});
+												});
 													}
 			}						
             
