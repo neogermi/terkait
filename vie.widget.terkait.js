@@ -10,7 +10,7 @@ $(window).load(function () {
 	$('body').append(sideDiv);
     $('.slide-out-div').tabSlideOut({
             tabHandle: '.handle',                     //class of the element that will become your tab
-            pathToTabImage: './utils/img/terkait.png', //path to the image for the tab //Optionally can be set using css
+            pathToTabImage: './utils/img/terkait.png', //path to the image for the tab //Optional ly can be set using css
             imageHeight: '173px',                     //height of tab image           //Optionally can be set using css
             imageWidth: '40px',                       //width of tab image            //Optionally can be set using css
             tabLocation: 'right',                      //side of screen where tab lives, top, right, bottom, or left
@@ -51,8 +51,8 @@ $(window).load(function () {
 							return lbl.replace(/"/g, "").replace(/@[a-z]+/, '');
                         }
                     }],
+                   // render: render_entity,
 					end_query: function(){
-					debugger;
 							$(this).find('.tag').each(function(ev){
 							
 								var uri = $(this).attr('title');
@@ -126,8 +126,40 @@ $(window).load(function () {
 		
 					});}
                 });
+				
+	render_entity_card = function(entity){
+	var entityCard = $('<div class ="entity_card">');
+	var entityList = $('<div class ="entity_list">');
+	var entityData = $('<div class ="entity_data">');
+	var image_tag = $('<div class ="tag_image">');
 	
-            
+		entityCard.css({
+					width:"400px",
+					height:"230px",
+					border:"2px solid"
+					});
+	
+	entityList.css({
+					width:"120px",
+					height:"230px",
+					borderRight:"2px solid"
+					});
+					
+	entityData.css({
+					width:"280px",
+					height:"230px",
+					marginLeft: "120px",
+					marginTop: "-230px",
+					paddingLeft: "10px"
+					});
+	
+	
+	entityList.append(image_tag);
+	entityCard.append(entityList);
+	entityCard.append(entityData);
+	return entityCard;
+	};          
+	
     render = function(data){
 			var self = this;
             
@@ -137,59 +169,27 @@ $(window).load(function () {
             // clear the container element
             $(self.element).empty();
             //rendering
-            for (var p = 0; p < photos.length && p < this.options.bin_size; p++) {
-                var photo = photos[p];
-                var image = $('<a class="' + self.widgetBaseClass + '-image" target="_blank" href="' + photo.original + '"></a>')
-                    .append($('<img height="100px" width = "100px" src="' + photo.thumbnail + '" />'));
-                $(self.element).append(image);
-				if(p!=0){
-											$(image).css({
-													"z-index" : 0, 
-													position: "relative",
-													top: -p*100+"px",
-													opacity: 0.5,
-													left: p*30 + "px"})
-												.hover(function () { 
-													$(this).css({
-														"z-index":  10,
-														height: "120px",
-														width: "120px",
-														opacity: 1
-													})},
-												
-												function () { 
-													$(this).css({
-														"z-index":  0,
-														height: "100px",
-														width: "100px",
-														opacity: 0.5
-													})
-												});}
-				else{$(image).css({
-													"z-index" : 1, 
-													position: "relative",
-													top: -p*100+"px",
-													opacity: 1,
-													left: p*30 + "px"})
-												.hover(function () { 
-													$(this).css({
-														"z-index":  10,
-														height: "120px",
-														width: "120px",
-														opacity: 1
-													})},
-												
-												function () { 
-													$(this).css({
-														"z-index":  0,
-														height: "100px",
-														width: "100px",
-														opacity: 0.5
-													})
-												})
-													}
-			}						
-            
-            return this;}
-});
+			var ul = $('<ul>');
+			for (var p = 0; p < photos.length && p < this.options.bin_size; p++) {
+				var photo = photos[p];
+				var li = $('<li class="slider_item">');
+				var a = $('<a class="' + self.widgetBaseClass + '-image" target="_blank" href="' + photo.original + '"></a>');
+				var img = $('<img src="' + photo.thumbnail + '" />');
+				var div = $('<div>');
+				div.css({"height":"200px", "width": "200px"});
+				a.append(img);
+				div.append(a);
+				li.append(a);
+				ul.append(li);
+				
+			}
+			ul.appendTo($(self.element));
+            ul.anythingSlider({theme: 'minimalist-round'});
+			$('.tag_images img').each(function(){
+				debugger;
+				var img_pad = (150-$(this).height())/2+"px "+(200-$(this).width())/2+"px";
+				$(this).css({"max-height":"150px", "max-width": "200px", padding: img_pad,"background-color":"black"});
+			});	
 
+			return this;}
+});

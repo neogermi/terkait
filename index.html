@@ -11,6 +11,15 @@
     <!-- jQuery TipTip plugin -->
     <script type="text/javascript"          src="./utils/tiptip/jquery.tipTip.js"></script>
     <link rel="stylesheet" type="text/css" href="./utils/tiptip/jquery.tipTip.css" media="screen" />
+	
+    <!-- jQuery Coda-slider plugin -->
+    <script type="text/javascript"          src="./utils/coda-slider/jquery.coda-slider-2.0.js"></script>
+    <link rel="stylesheet" type="text/css" href="./utils/coda-slider/coda-slider-2.0.css" media="screen" />
+
+    <!-- jQuery anything-slider plugin -->
+    <script type="text/javascript"          src="./utils/anythingSlider/js/jquery.anythingslider.js"></script>
+    <link rel="stylesheet" type="text/css" href="./utils/anythingSlider/css/anythingslider.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="./utils/anythingSlider/css/theme-minimalist-round.css" media="screen" />
     
     <!--  VIE dependencies: Underscore &amp; Backbone -->
 	<script type="text/javascript" src="./lib/rdfquery.js"></script>        
@@ -27,15 +36,12 @@
 	<script type="text/javascript" src="./lib/jquery.tabSlideOut.v1.3.js"></script>
     <script type="text/javascript" src="./lib/vie.widget.auto_tagger.js"></script>
 	<script type="text/javascript" src="./lib/vie.widget.image_search.js"></script>
-    <script type="text/javascript">
-	$(function() {
-	$('.tag').live('click',function(){
-                var uri = $(this).attr('title');
-                $('#image_container')
-                .vieImageSearch({
-                    entity: uri
-                });
-		});});
+	<script>
+		// Set up Sliders
+		// **************
+		$(function(){
+			$('#slider1').anythingSlider();
+		});
 	</script>
 	<style>
         #image_container {
@@ -99,6 +105,7 @@
         have been offset by cuts elsewhere.
     </section>
     <br />
+
     <section>
         <span about="http://dbpedia.org/resource/Cupertino,_California" typeof="City"><span property="name">CUPERTINO, California</span>
         <span rel="geo"><span about="http://dbpedia.org/resource/Cupertino,_California_GEO" typeof="GeoCoordinates"><span property="latitude" content="37.317501"></span><span property="longitude" content="-122.041946"></span></span></span></span>
