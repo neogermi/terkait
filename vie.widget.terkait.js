@@ -132,7 +132,8 @@ $(window).load(function () {
 	var entityList = $('<div class ="entity_list">');
 	var entityData = $('<div class ="entity_data">');
 	var image_tag = $('<div class ="tag_image">');
-	
+	var video_tag = $('<div class ="tag_video">');
+	var news_tag = $('<div class ="tag_news">');
 		entityCard.css({
 					width:"400px",
 					height:"230px",
@@ -155,6 +156,8 @@ $(window).load(function () {
 	
 	
 	entityList.append(image_tag);
+	entityList.append(video_tag);
+	entityList.append(news_tag);
 	entityCard.append(entityList);
 	entityCard.append(entityData);
 	return entityCard;
