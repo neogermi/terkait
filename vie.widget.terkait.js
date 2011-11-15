@@ -51,13 +51,10 @@ $(window).load(function () {
 							return lbl.replace(/"/g, "").replace(/@[a-z]+/, '');
                         }
                     }],
-                   // render: render_entity,
 					end_query: function(){
 							$(this).find('.tag').each(function(ev){
-							
 								var uri = $(this).attr('title');
 								var img_container = $(this).find('.tag_images');
-	
 								// set-up of the Image-widget
 								img_container
 									.vieImageSearch({
@@ -115,7 +112,8 @@ $(window).load(function () {
 											gimage : {
 												use: true
 											}
-										}
+										},
+										render: render
 								});
 								//start search
 								img_container
@@ -174,7 +172,7 @@ $(window).load(function () {
 				var a = $('<a class="' + self.widgetBaseClass + '-image" target="_blank" href="' + photo.original + '"></a>');
 				var img = $('<img src="' + photo.thumbnail + '" />');
 				var div = $('<div>');
-				div.css({"height":"200px", "width": "200px"});
+				div.css({"height":"90px", "width": "90px"});
 				a.append(img);
 				div.append(a);
 				li.append(a);
@@ -182,11 +180,16 @@ $(window).load(function () {
 				
 			}
 			ul.appendTo($(self.element));
-            ul.anythingSlider({theme: 'minimalist-round'});
+            ul.anythingSlider({
+				theme: 'minimalist-round'
+				//,autoPlay: true
+				,expand: true
+			});
 			$('.tag_images img').each(function(){
-				debugger;
-				var img_pad = (150-$(this).height())/2+"px "+(200-$(this).width())/2+"px";
-				$(this).css({"max-height":"150px", "max-width": "200px", padding: img_pad,"background-color":"black"});
+				var max_height = 70;
+				var max_width = 70;
+				var img_pad = Math.round((max_height-$(this).height())/2)+"px "+Math.round((max_width-$(this).width())/2)+"px";
+				$(this).css({"max-height":max_height+"px", "max-width": max_width+"px", padding: img_pad,"background-color":"black"});
 			});	
 
 			return this;}
