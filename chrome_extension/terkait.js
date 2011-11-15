@@ -1,11 +1,5 @@
 if (!window.terkait) {
     
-    jQuery.extend(jQuery.expr[':'],{
-        inline: function(a) {
-            return jQuery(a).css('display') === 'inline';
-        }
-    });
-    
 window.terkait = {
         
         vie : function() {
@@ -63,19 +57,58 @@ window.terkait = {
         recommend: function() {
             var elems = this.selector();
             elems.addClass("terkait-toi");
+            var meta = $('<span>');
             elems.each(function () {
-                var $this = $(this);
-                window.terkait.vie
-                .analyze({element: $this})
-                .using('stanbol')
-                .execute()
-                .done(function(entities) {
-                    //TODO!
-                    console.log(entities);
-                })
-                .fail(function(f){
-                    //TODO!
+                var text = $(this).text();
+                meta.text(meta.text() + "\n" + text);
+            });
+            window.terkait.vie
+            .analyze({element: meta})
+            .using('stanbol')
+            .execute()
+            .done(function(entities) {
+                //filtering for the interesting entities
+                var entitiesOfInterest = [];
+                for (var e = 0; e < entities.length; e++) {
+                    var entity = entities[e];
+                    var isEntityOfInterest = (!entity.isof("enhancer:Enhancement")) && 
+                        (entity.isof("Person") || 
+                         entity.isof("Place") || 
+                         entity.isof("Organization") || 
+                         entity.isof("skos:Concept"));
+                    var hasAnnotations = entity.has("enhancer:hasEntityAnnotation") || 
+                                         entity.has("enhancer:hasTextAnnotation");
+                    
+                    if (isEntityOfInterest && hasAnnotations) {
+                        entitiesOfInterest.push(entity);
+                    }
+                }
+                //sorting by "relevance" (number of occurrences in the text)
+                entitiesOfInterest.sort(function (a, b) {
+                    var numOfEntityAnnotsA = 
+                        ($.isArray(a.get("enhancer:hasEntityAnnotation")))? a.get("enhancer:hasEntityAnnotation").length : 1;
+                    var numOfTextAnnotsA = 
+                        ($.isArray(a.get("enhancer:hasTextAnnotation")))? a.get("enhancer:hasTextAnnotation").length : 1; 
+                    var sumA = numOfEntityAnnotsA + numOfTextAnnotsA;
+                    var numOfEntityAnnotsB = 
+                        ($.isArray(b.get("enhancer:hasEntityAnnotation")))? b.get("enhancer:hasEntityAnnotation").length : 1;
+                    var numOfTextAnnotsB = 
+                        ($.isArray(b.get("enhancer:hasTextAnnotation")))? b.get("enhancer:hasTextAnnotation").length : 1; 
+                    var sumB = numOfEntityAnnotsB + numOfTextAnnotsB;
+                        
+                    if (sumA == sumB)
+                        return 0;
+                    else if (sumA < sumB)
+                        return 1;
+                    else
+                        return -1;
                 });
+                //TODO: now what? expose them with an event?
+                console.log(entitiesOfInterest.length, entitiesOfInterest);
+            })
+            .fail(function(f){
+                console.warn(f);
+                //TODO!
             });
             return {
               foundElems : elems.size() > 0  
@@ -140,7 +173,7 @@ window.terkait = {
             }
         },
     };
-}
+};
 
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
