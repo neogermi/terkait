@@ -5,7 +5,7 @@ window.terkait = {
         vie : function() {
             var v = new VIE();
             v.loadSchemaOrg();
-            v.use(new v.StanbolService({url : "http://dev.iks-project.eu:8081", proxyDisabled: true}));
+            v.use(new v.StanbolService({url : "http://dev.iks-project.eu:8080", proxyDisabled: true}));
             v.use(new v.RdfaRdfQueryService());
             return v;
         }(),
@@ -24,7 +24,7 @@ window.terkait = {
                         function () {jQuery(this).animate({"right" : "-25em"})}
                 )
                 .appendTo(jQuery('<div id="terkait-wrapper">').appendTo(jQuery('body')))
-                .append(jQuery('<div id="terkait-persons" class="entities"></div>').append(jQuery('<div class="container">')));
+                .append(jQuery('<div id="terkait-entities" class="entities"></div>').append(jQuery('<div class="container">')));
                 };
         },
                 
@@ -103,8 +103,10 @@ window.terkait = {
                     else
                         return -1;
                 });
-                //TODO: now what? expose them with an event?
-                console.log(entitiesOfInterest.length, entitiesOfInterest);
+                for (var i = 0; i < entitiesOfInterest.length; i++) {
+                    this.render(entitiesOfInterest[i]);
+                }
+                console.log("rendering:", entitiesOfInterest.length, entitiesOfInterest);
             })
             .fail(function(f){
                 console.warn(f);
@@ -113,6 +115,15 @@ window.terkait = {
             return {
               foundElems : elems.size() > 0  
             };
+        },
+        
+        render: function (entity, selector) {
+            if (selector) {
+                //TODO: append to current accordion
+            } else {
+                //TODO: create new accordion
+                //TODO: append accordion to jQuery('#terkait-entities > .container')
+            }
         },
         
         annotate: function (type, sendResponse) {
