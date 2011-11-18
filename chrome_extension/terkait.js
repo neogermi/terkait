@@ -134,16 +134,15 @@ window.terkait = {
             } else {
                 //append at the end of the container!
                 jQuery('#terkait-entities > .container').append(div);
-				jQuery('#terkait-container .container').append('<div id="accordion"><dl><dt>First entity</dt><dd><h2>This is the first entity</h2><p>here should come the entity</p></dd><dt>Second slide</dt><dd><h2>Here is the second slide</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd><dt>One more slide</dt><dd><h2>One more slide to go here</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd></dl></div>');
-				$('#accordion').easyAccordion({ autoStart: false });
             }
         },
         
         renderPerson: function (entity) {
-            var div = jQuery('<div>');
+            var div = jQuery('<div id="accordion"></div>');
             //TODO: create new accordion in div and return that
-            
-            //TODO: foreach attribute that could be used:
+        	 
+			 //jQuery('#terkait-container .container').append('');
+			//TODO: foreach attribute that could be used:
             if (entity.has("name")) {
                 var name = entity.get("name");
                 if (jQuery.isArray(name) && name.length > 0) {
@@ -154,9 +153,12 @@ window.terkait = {
                         }
                     }
                     if (jQuery.isArray(name)) name = name[0]; //just take the first
+					div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to test</p></dd><dt>'+name+'</dt><dd><h2>Here '+name+'</h2><p>This is the card for '+name+'</p></dd></dl>');
                 }
                 //TODO: Guy!
             }
+			//initialize accordion
+			div.easyAccordion({ autoStart: false });            
             return div;
         },
         
@@ -167,8 +169,29 @@ window.terkait = {
         },
         
         renderPlace: function (entity) {
-            var div = jQuery('<div>');
+            //var div = jQuery('<div>');
             //TODO: create new accordion
+            var div = jQuery('<div id="accordion"></div>');
+            //TODO: create new accordion in div and return that
+        	 
+			 //jQuery('#terkait-container .container').append('');
+			//TODO: foreach attribute that could be used:
+            if (entity.has("name")) {
+                var name = entity.get("name");
+                if (jQuery.isArray(name) && name.length > 0) {
+                    for (var i = 0; i < name.length; i++) {
+                        if (name[i].indexOf('@en') > -1) {
+                            name = name[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(name)) name = name[0]; //just take the first
+					div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to test</p></dd><dt>'+name+'</dt><dd><h2>Here '+name+'</h2><p>This is the card for '+name+'</p></dd></dl>');
+                }
+                //TODO: Guy!
+            }
+			//initialize accordion
+			div.easyAccordion({ autoStart: false });            
             return div;
         },
 
