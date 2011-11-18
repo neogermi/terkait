@@ -118,18 +118,6 @@ window.terkait = {
             };
         },
 		
-		render: function (entity, selector) {
-            if (selector) {
-                //TODO: append to current accordion
-            } else {
-                //TODO: create new accordion
-				debugger;
-				jQuery('#terkait-container .container').append('<div id="accordion"><dl><dt>First entity</dt><dd><h2>This is the first entity</h2><p></p></dd><dt>Second slide</dt><dd><h2>Here is the second slide</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd><dt>One more slide</dt><dd><h2>One more slide to go here</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd></dl></div>');
-				$('#accordion').easyAccordion({ autoStart: false });
-                //TODO: append accordion to jQuery('#terkait-entities > .container')
-            }
-        },
-        
         render: function (entity, selector) {
             var div = null;
             if (entity.isof("Person")) {
@@ -146,6 +134,8 @@ window.terkait = {
             } else {
                 //append at the end of the container!
                 jQuery('#terkait-entities > .container').append(div);
+				jQuery('#terkait-container .container').append('<div id="accordion"><dl><dt>First entity</dt><dd><h2>This is the first entity</h2><p>here should come the entity</p></dd><dt>Second slide</dt><dd><h2>Here is the second slide</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd><dt>One more slide</dt><dd><h2>One more slide to go here</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd></dl></div>');
+				$('#accordion').easyAccordion({ autoStart: false });
             }
         },
         
@@ -181,7 +171,7 @@ window.terkait = {
             //TODO: create new accordion
             return div;
         },
-        
+
         annotate: function (type, sendResponse) {
             var rng = window.terkait._getRangeObject();
             if (rng && rng.startContainer === rng.endContainer && 
