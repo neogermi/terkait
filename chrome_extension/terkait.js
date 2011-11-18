@@ -5,7 +5,7 @@ window.terkait = {
         vie : function() {
             var v = new VIE();
             v.loadSchemaOrg();
-            v.use(new v.StanbolService({url : "http://dev.iks-project.eu:8080", proxyDisabled: true}));
+            v.use(new v.StanbolService({url : "http://dev.iks-project.eu:8081", proxyDisabled: true}));
             v.use(new v.RdfaRdfQueryService());
             return v;
         }(),
@@ -60,7 +60,7 @@ window.terkait = {
             var meta = $('<span>');
             elems.each(function () {
                 var text = $(this).text();
-                meta.text(meta.text() + "\n" + text);
+                meta.text(meta.text() + " " + text.replace(/"/g, '\\"'));
             });
             window.terkait.vie
             .analyze({element: meta})
@@ -104,7 +104,7 @@ window.terkait = {
                         return -1;
                 });
                 for (var i = 0; i < entitiesOfInterest.length; i++) {
-                    this.render(entitiesOfInterest[i]);
+                    window.terkait.render(entitiesOfInterest[i]);
                 }
                 console.log("rendering:", entitiesOfInterest.length, entitiesOfInterest);
             })
