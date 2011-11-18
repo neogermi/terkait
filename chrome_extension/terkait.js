@@ -151,7 +151,8 @@ window.terkait = {
         },
         
         renderPerson: function (entity) {
-            var div = jQuery('<div id="accordion"></div>');
+        	   //var div = jQuery('<div id="accordion"></div>');
+        	var div = jQuery('<div>');
             //TODO: create new accordion in div and return that
         	 
 			 //jQuery('#terkait-container .container').append('');
@@ -166,7 +167,52 @@ window.terkait = {
                         }
                     }
                     if (jQuery.isArray(name)) name = name[0]; //just take the first
-					div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to test</p></dd><dt>'+name+'</dt><dd><h2>Here '+name+'</h2><p>This is the card for '+name+'</p></dd></dl>');
+					//div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to test</p></dd><dt>'+name+'</dt><dd><h2>Here '+name+'</h2><p>This is the card for '+name+'</p></dd></dl>');
+                    var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+                    div.append("<p> Person  :" + res +"</p>");
+                }
+                //TODO: Guy!
+            }
+            if (entity.has("givenName")) {
+                var givenName = entity.get("name");
+                if (jQuery.isArray(givenName) && givenName.length > 0) {
+                    for (var i = 0; i < givenName.length; i++) {
+                        if (givenName[i].indexOf('@en') > -1) {
+                            givenName = givenName[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(givenName)) givenName = givenName[0]; //just take the first
+					div.append("<p> Person GIVENNAME :" + givenName +"</p>");
+                }
+                //TODO: Guy!
+            }
+            
+            if (entity.has("birthDate")) {
+                var birthDate = entity.get("birthDate");
+                if (jQuery.isArray(birthDate) && birthDate.length > 0) {
+                    for (var i = 0; i < birthDate.length; i++) {
+                        if (birthDate[i].indexOf('@en') > -1) {
+                            birthDate = birthDate[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(birthDate)) birthDate = birthDate[0]; //just take the first
+					div.append("<p> Person BIRTHDATE :" + birthDate +"</p>");
+                }
+                //TODO: Guy!
+            }
+            if (entity.has("text")) {
+                var description = entity.get("text");
+                if (jQuery.isArray(description) && description.length > 0) {
+                    for (var i = 0; i < description.length; i++) {
+                        if (description[i].indexOf('@en') > -1) {
+                            description = description[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(description)) description = description[0]; //just take the first
+					div.append("<p> Person DESCRIPTION: " + description +"</p>");
                 }
                 //TODO: Guy!
             }
@@ -176,15 +222,54 @@ window.terkait = {
         },
         
         renderOrganization: function (entity) {
-            var div = jQuery('<div>');
-            //TODO: create new accordion
-            return div;
+        	 var div = jQuery('<div>');
+             //TODO: create new accordion
+             if (entity.has("name")) {
+                 var name = entity.get("name");
+                 if (jQuery.isArray(name) && name.length > 0) {
+                     for (var i = 0; i < name.length; i++) {
+                         if (name[i].indexOf('@en') > -1) {
+                             name = name[i];
+                             break;
+                         }
+                     }
+                     if (jQuery.isArray(name)) name = name[0]; //just take the first
+ 					div.append("<p> Organization NAME : " + name +"</p>");
+                 }
+             }
+             if (entity.has("url")) {
+                 var url = entity.get("url");
+                 if (jQuery.isArray(url) && url.length > 0) {
+                     for (var i = 0; i < url.length; i++) {
+                         if (url[i].indexOf('@en') > -1) {
+                             url = url[i];
+                             break;
+                         }
+                     }
+                     if (jQuery.isArray(url)) url = url[0]; //just take the first
+ 					div.append("<p> Organization URL: " + url +"</p>");
+                 }
+             }
+             if (entity.has("telephone")) {
+                 var telephone = entity.get("telephone");
+                 if (jQuery.isArray(telephone) && telephone.length > 0) {
+                     for (var i = 0; i < telephone.length; i++) {
+                         if (telephone[i].indexOf('@en') > -1) {
+                             telephone = telephone[i];
+                             break;
+                         }
+                     }
+                     if (jQuery.isArray(telephone)) telephone = telephone[0]; //just take the first
+ 					div.append("<p> Organization TELEPHONE : " + telephone +"</p>");
+                 }
+             }
+             return div;
         },
         
         renderPlace: function (entity) {
-            //var div = jQuery('<div>');
+        	var div = jQuery('<div>');
             //TODO: create new accordion
-            var div = jQuery('<div id="accordion"></div>');
+            //var div = jQuery('<div id="accordion"></div>');
             //TODO: create new accordion in div and return that
         	 
 			 //jQuery('#terkait-container .container').append('');
@@ -198,10 +283,23 @@ window.terkait = {
                             break;
                         }
                     }
-                    if (jQuery.isArray(name)) name = name[0]; //just take the first
-					div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to test</p></dd><dt>'+name+'</dt><dd><h2>Here '+name+'</h2><p>This is the card for '+name+'</p></dd></dl>');
+                   if (jQuery.isArray(name)) name = name[0]; //just take the first
+                   var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+					div.append('<p> Place NAME : '+ res + '</p>');
                 }
-                //TODO: Guy!
+            }
+            if (entity.has("geo")) {
+                var geoCoordinates = entity.get("geo");
+                var url = geoCoordinates.get("url");
+                div.append("<p>"+ url + "</P>");
+            }
+            if (entity.has("country")) {
+                var country = entity.get("country");
+                div.append("<p> Country :"+ country + "</P>");
+            }
+            if (entity.has("website")) {
+                var website = entity.get("website");
+                div.append("<p> Place Website :"+ website + "</P>");
             }
 			//initialize accordion
 			div.easyAccordion({ autoStart: false });            
