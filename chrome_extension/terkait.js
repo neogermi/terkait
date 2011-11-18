@@ -131,12 +131,55 @@ window.terkait = {
         },
         
         render: function (entity, selector) {
-            if (selector) {
-                //TODO: append to current accordion
-            } else {
-                //TODO: create new accordion
-                //TODO: append accordion to jQuery('#terkait-entities > .container')
+            var div = null;
+            if (entity.isof("Person")) {
+                div = window.terkait.renderPerson(entity);
+            } else if (entity.isof("Organization")) {
+                div = window.terkait.renderOrganization(entity);
+            } else if (entity.isof("Place")) {
+                div = window.terkait.renderPlace(entity);
             }
+            
+            if (selector) {
+                //append to current accordion!
+                jQuery(selector).append(div);
+            } else {
+                //append at the end of the container!
+                jQuery('#terkait-entities > .container').append(div);
+            }
+        },
+        
+        renderPerson: function (entity) {
+            var div = jQuery('<div>');
+            //TODO: create new accordion in div and return that
+            
+            //TODO: foreach attribute that could be used:
+            if (entity.has("name")) {
+                var name = entity.get("name");
+                if (jQuery.isArray(name) && name.length > 0) {
+                    for (var i = 0; i < name.length; i++) {
+                        if (name[i].indexOf('@en') > -1) {
+                            name = name[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(name)) name = name[0]; //just take the first
+                }
+                //TODO: Guy!
+            }
+            return div;
+        },
+        
+        renderOrganization: function (entity) {
+            var div = jQuery('<div>');
+            //TODO: create new accordion
+            return div;
+        },
+        
+        renderPlace: function (entity) {
+            var div = jQuery('<div>');
+            //TODO: create new accordion
+            return div;
         },
         
         annotate: function (type, sendResponse) {
