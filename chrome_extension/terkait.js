@@ -7,6 +7,7 @@ window.terkait = {
             v.loadSchemaOrg();
             v.use(new v.StanbolService({url : "http://dev.iks-project.eu:8081", proxyDisabled: true}));
             v.use(new v.RdfaRdfQueryService());
+            v.use(new v.DBPediaService());
             return v;
         }(),
         
@@ -104,7 +105,21 @@ window.terkait = {
                         return -1;
                 });
                 for (var i = 0; i < entitiesOfInterest.length; i++) {
-                    window.terkait.render(entitiesOfInterest[i]);
+                    var entity = entitiesOfInterest[i];
+                    window.terkait.render(entity);
+
+                    //trigger a search in DBPedia to ensure to have "all" properties
+                    window.terkait.vie
+                    .load({entity: entity.id})
+                    .using('dbpedia')
+                    .execute()
+                    .done(function(entities) {
+                        for (var e = 0; e < entities.length; e++) {
+                            var updated = window.terkait.vie.entities.get(entities[e].id);
+                            updated.change();
+                        }
+                    });
+                    
                 }
                 console.log("rendering:", entitiesOfInterest.length, entitiesOfInterest);
             })

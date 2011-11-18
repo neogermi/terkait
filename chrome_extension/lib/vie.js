@@ -1,5 +1,9 @@
-var VIE;
-VIE = function(config) {
+(function(){var root = this,
+    jQuery = root.jQuery,
+    Backbone = root.Backbone,
+    _ = root._;
+
+var VIE = root.VIE = function(config) {
     this.config = (config) ? config : {};
     this.services = {};
     this.entities = new this.Collection();
@@ -106,16 +110,12 @@ if(typeof exports === 'object') {
     // Running under Node.js or other CommonJS environment
     exports.VIE = VIE;
 
-    var root = this;
-    var jQuery = this.jQuery;
     if (!jQuery) {
         jQuery = require('jquery');
     }
-    var Backbone = root.Backbone;
     if (!Backbone) {
         Backbone = require('backbone');
     }
-    var _ = this._;
     if (!_) {
         _ = require('underscore')._;
     }
@@ -323,13 +323,91 @@ VIE.Util = {
     blankNodeID : function () {
       this._blankNodeSeed += 1;
       return '_:bnode' + this._blankNodeSeed.toString(16);
-    }    
+    },
+    
+    rdf2Entities: function (service, results) {
+        //transform data from Stanbol into VIE.Entities
+
+        if (typeof jQuery.rdf !== 'function') {
+            return this._enhancer2EntitiesNoRdfQuery(service, results);
+        }
+        var rdf = jQuery.rdf().load(results, {});
+
+        //execute rules here!
+        if (service.rules) {
+            var rules = jQuery.rdf.ruleset();
+            for (var prefix in service.namespaces.toObj()) {
+                if (prefix !== "") {
+                    rules.prefix(prefix, service.namespaces.get(prefix));
+                }
+            }
+            for (var i = 0; i < service.rules.length; i++) {
+                rules.add(service.rules[i]['left'], service.rules[i]['right']);
+            }
+            rdf = rdf.reason(rules, 10); // execute the rules only 10 times to avoid looping
+        }
+        var entities = {};
+        rdf.where('?subject ?property ?object').each(function() {
+            var subject = this.subject.toString();
+            if (!entities[subject]) {
+                entities[subject] = {
+                    '@subject': subject,
+                    '@context': service.namespaces.toObj(),
+                    '@type': []
+                };
+            }
+            var propertyUri = this.property.toString();
+            var propertyCurie;
+
+            propertyUri = propertyUri.substring(1, propertyUri.length - 1);
+            try {
+                property = jQuery.createCurie(propertyUri, {namespaces: service.namespaces.toObj()});
+            } catch (e) {
+                property = propertyUri;
+                console.warn(propertyUri + " doesn't have a namespace definition in '", service.namespaces.toObj());
+            }
+            entities[subject][property] = entities[subject][property] || [];
+
+            function getValue(rdfQueryLiteral){
+                if(typeof rdfQueryLiteral.value === "string"){
+                    if (rdfQueryLiteral.lang)
+                        return rdfQueryLiteral.toString();
+                    else
+                        return rdfQueryLiteral.value;
+                    return rdfQueryLiteral.value.toString();
+                } else if (rdfQueryLiteral.type === "uri"){
+                    return rdfQueryLiteral.toString();
+                } else {
+                    return rdfQueryLiteral.value;
+                }
+            }
+            entities[subject][property].push(getValue(this.object));
+        });
+
+        _(entities).each(function(ent){
+            ent["@type"] = ent["@type"].concat(ent["rdf:type"]);
+            delete ent["rdf:type"];
+            _(ent).each(function(value, property){
+                if(value.length === 1){
+                    ent[property] = value[0];
+                }
+            });
+        });
+
+        var vieEntities = [];
+        jQuery.each(entities, function() {
+            var entityInstance = new service.vie.Entity(this);
+            entityInstance = service.vie.entities.addOrUpdate(entityInstance);
+            vieEntities.push(entityInstance);
+        });
+        return vieEntities;
+    },
     
 };
 VIE.prototype.Entity = function(attrs, opts) {
 
     var self = this;
-    
+
     var mapAttributeNS = function (attr, ns) {
         var a = attr;
         if (ns.isUri (attr) || attr.indexOf('@') === 0) {
@@ -345,7 +423,7 @@ VIE.prototype.Entity = function(attrs, opts) {
         }
         return a;
     };
-        
+
     if ('@type' in attrs) {
         if (_.isArray(attrs['@type'])) {
             attrs['@type'] = _.map(attrs['@type'], function(val){
@@ -366,7 +444,7 @@ VIE.prototype.Entity = function(attrs, opts) {
         // provide "Thing" as the default type if none was given
         attrs['@type'] = self.vie.types.get("Thing").id;
     }
-    
+
     //the following provides full seamless namespace support
     //for attributes. It should not matter, if you
     //query for `model.get('name')` or `model.get('foaf:name')`
@@ -382,17 +460,17 @@ VIE.prototype.Entity = function(attrs, opts) {
             attrs[newKey] = value;
         }
     }, self.vie);
-    
+
     var Model = Backbone.Model.extend({
         idAttribute: '@subject',
 
         initialize: function(attributes, options) {
             if (attributes['@subject']) {
                 this.id = this['@subject'] = this.toReference(attributes['@subject']);
-            }            
+            }
             return this;
         },
-                
+
         get: function (attr) {
             attr = mapAttributeNS(attr, self.vie.namespaces);
             var value = Backbone.Model.prototype.get.call(this, attr);
@@ -409,8 +487,8 @@ VIE.prototype.Entity = function(attrs, opts) {
             } else {
                 if (typeof value !== "string") {
                     return value;
-                } 
-                
+                }
+
                 if (attr === '@type' && self.vie.types.get(value)) {
                     value = self.vie.types.get(value);
                 } else if (self.vie.entities.get(value)) {
@@ -424,7 +502,7 @@ VIE.prototype.Entity = function(attrs, opts) {
             attr = mapAttributeNS(attr, self.vie.namespaces);
             return Backbone.Model.prototype.has.call(this, attr);
         },
-        
+
         set : function(attrs, options) {
             if (!attrs) {
                 return this;
@@ -441,7 +519,7 @@ VIE.prototype.Entity = function(attrs, opts) {
             }, this);
             _.each (attrs, function (value, key) {
                if (key.indexOf('@') === -1) {
-                   if (typeof value === "object" && 
+                   if (typeof value === "object" &&
                        !jQuery.isArray(value) &&
                        !value.isCollection) {
                        var child = new self.vie.Entity(value, options);
@@ -458,12 +536,12 @@ VIE.prototype.Entity = function(attrs, opts) {
             }, this);
             return Backbone.Model.prototype.set.call(this, attrs, options);
         },
-        
+
         unset: function (attr, opts) {
             attr = mapAttributeNS(attr, self.vie.namespaces);
             return Backbone.Model.prototype.unset.call(this, attr, opts);
         },
-        
+
         getSubject: function(){
             if (typeof this.id === "undefined") {
                 this.id = this.attributes[this.idAttribute];
@@ -476,11 +554,11 @@ VIE.prototype.Entity = function(attrs, opts) {
             }
             return this.cid.replace('c', '_:bnode');
         },
-        
+
         getSubjectUri: function(){
             return this.fromReference(this.getSubject());
         },
-        
+
         isReference: function(uri){
             var matcher = new RegExp("^\\<([^\\>]*)\\>$");
             if (matcher.exec(uri)) {
@@ -488,7 +566,7 @@ VIE.prototype.Entity = function(attrs, opts) {
             }
             return false;
         },
-        
+
         toReference: function(uri){
             if (typeof uri !== "string") {
                 return uri;
@@ -498,7 +576,7 @@ VIE.prototype.Entity = function(attrs, opts) {
             }
             return '<' + uri + '>';
         },
-        
+
         fromReference: function(uri){
             if (typeof uri !== "string") {
                 return uri;
@@ -508,7 +586,7 @@ VIE.prototype.Entity = function(attrs, opts) {
             }
             return uri.substring(1, uri.length - 1);
         },
-        
+
         as: function(encoding){
             if (encoding === "JSON") {
                 return this.toJSON();
@@ -516,9 +594,9 @@ VIE.prototype.Entity = function(attrs, opts) {
             if (encoding === "JSONLD") {
                 return this.toJSONLD();
             }
-            throw "Unknown encoding " + encoding;
+            throw new Error("Unknown encoding " + encoding);
         },
-        
+
         toJSONLD: function(){
             var instanceLD = {};
             var instance = this;
@@ -538,9 +616,9 @@ VIE.prototype.Entity = function(attrs, opts) {
                 // TODO: Handle collections separately
                 instanceLD[name] = entityValue;
             });
-            
+
             instanceLD['@subject'] = instance.getSubject();
-            
+
             return instanceLD;
         },
 
@@ -550,7 +628,7 @@ VIE.prototype.Entity = function(attrs, opts) {
                 // calling entity.setOrAdd("rdfs:type", "example:Musician")
                 entity._setOrAddOne(arg1, arg2);
             }
-            else 
+            else
                 if (typeof arg1 === "object") {
                     // calling entity.setOrAdd({"rdfs:type": "example:Musician", ...})
                     _(arg1).each(function(val, key){
@@ -597,7 +675,7 @@ VIE.prototype.Entity = function(attrs, opts) {
             type = self.vie.types.get(type);
             return this.hasPropertyValue("@type", type);
         },
-        
+
         hasPropertyValue: function(property, value) {
             var t = this.get(property);
             if (!(value instanceof Object)) {
@@ -610,7 +688,7 @@ VIE.prototype.Entity = function(attrs, opts) {
                 return t === value;
             }
         },
-        
+
         isof: function (type) {
             var types = this.get('@type');
             
@@ -634,13 +712,13 @@ VIE.prototype.Entity = function(attrs, opts) {
             }
             return false;
         },
-        
+
         isEntity: true,
-        
+
         vie: self.vie
     });
-    
-    return new Model(attrs, opts);    
+
+    return new Model(attrs, opts);
 };
 VIE.prototype.Collection = Backbone.Collection.extend({
     model: VIE.prototype.Entity,
@@ -687,10 +765,22 @@ VIE.prototype.Collection = Backbone.Collection.extend({
             var existing = this.getByCid(model.cid);
         }
         if (existing) {
-            if (model.attributes) {
-                return existing.set(model.attributes);
+            var newAttribs = {};
+            _.each(model.attributes, function(value, attribute) {
+                if (!existing.has(attribute)) {
+                    newAttribs[attribute] = value;
+                    return true;
+                }
+                if (existing.get(attribute) === value) {
+                    return true;
+                }
+                newAttribs[attribute] = value;
+            });
+
+            if (!_.isEmpty(newAttribs)) {
+                existing.set(newAttribs);
             }
-            return existing.set(model);
+            return existing;
         }
 
         this.add(model);
@@ -727,10 +817,10 @@ VIE.prototype.Collection = Backbone.Collection.extend({
 
 // Adding capability of handling type/class structure and inheritance to VIE. 
 if (VIE.prototype.Type) {
-	throw "ERROR: VIE.Type is already defined. Please check your installation!";
+	throw new Error("ERROR: VIE.Type is already defined. Please check your installation!");
 }
 if (VIE.prototype.Types) {
-	throw "ERROR: VIE.Types is already defined. Please check your installation!";
+	throw new Error("ERROR: VIE.Types is already defined. Please check your installation!");
 }
 
 // The constructor of a VIE.Type. 
@@ -767,7 +857,7 @@ VIE.prototype.Type = function (id, attrs) {
         if (type) {
             return type.subsumes(this.id);
         } else {
-            throw "No valid type given";
+            throw new Error("No valid type given");
         }
     };
     
@@ -793,7 +883,7 @@ VIE.prototype.Type = function (id, attrs) {
             }
             return false;
         } else {
-            throw "No valid type given";
+            throw new Error("No valid type given");
         }
     };
     
@@ -822,7 +912,7 @@ VIE.prototype.Type = function (id, attrs) {
                 this.inherit(supertype[i]);
             }
         } else {
-            throw "Wrong argument in VIE.Type.inherit()";
+            throw new Error("Wrong argument in VIE.Type.inherit()");
         }
         return this;
     };
@@ -884,7 +974,7 @@ VIE.prototype.Types = function () {
             	this._types[id.id] = id;
                 return id;
             } else {
-                throw "Wrong argument to VIE.Types.add()!";
+                throw new Error("Wrong argument to VIE.Types.add()!");
             }
         }
     };
@@ -979,10 +1069,10 @@ VIE.prototype.Types = function () {
 
 // Adding capability of handling attribute structure and inheritance to VIE. 
 if (VIE.prototype.Attribute) {
-	throw "ERROR: VIE.Attribute is already defined. Please check your installation!";
+	throw new Error("ERROR: VIE.Attribute is already defined. Please check your installation!");
 }
 if (VIE.prototype.Attributes) {
-	throw "ERROR: VIE.Attributes is already defined. Please check your installation!";
+	throw new Error("ERROR: VIE.Attributes is already defined. Please check your installation!");
 }
 
 //The constructor of a VIE.Attribute. 
@@ -990,13 +1080,13 @@ if (VIE.prototype.Attributes) {
 //This creates a attribute that describes a **knows** relationship between persons.
 VIE.prototype.Attribute = function (id, range, domain) {
     if (id === undefined || typeof id !== 'string') {
-        throw "The attribute constructor needs an 'id' of type string! E.g., 'Person'";
+        throw new Error("The attribute constructor needs an 'id' of type string! E.g., 'Person'");
     }
     if (range === undefined) {
-        throw "The attribute constructor needs 'range'.";
+        throw new Error("The attribute constructor needs 'range'.");
     }
     if (domain === undefined) {
-        throw "The attribute constructor needs a 'domain'.";
+        throw new Error("The attribute constructor needs a 'domain'.");
     }
     
     this._domain = domain;
@@ -1047,7 +1137,7 @@ VIE.prototype.Attributes = function (domain, attrs) {
     //a VIE.Attribute element.
     this.add = function (id, range) {
         if (this.get(id)) {
-            throw "Attribute '" + id + "' already registered for domain " + this.domain.id + "!";
+            throw new Error("Attribute '" + id + "' already registered for domain " + this.domain.id + "!");
         } 
         else {
             if (typeof id === "string") {
@@ -1060,7 +1150,7 @@ VIE.prototype.Attributes = function (domain, attrs) {
                 this._local[id.id] = id;
                 return id;
             } else {
-                throw "Wrong argument to VIE.Types.add()!";
+                throw new Error("Wrong argument to VIE.Types.add()!");
             }
         }
     };
@@ -1072,7 +1162,7 @@ VIE.prototype.Attributes = function (domain, attrs) {
             delete this._local[a.id];
             return a;
         }
-        throw "The attribute " + id + " is inherited and cannot be removed from the domain " + this.domain.id + "!";
+        throw new Error("The attribute " + id + " is inherited and cannot be removed from the domain " + this.domain.id + "!");
     };
     
     //retrieve a `VIE.Attribute` from the attributes by it's id.
@@ -1083,7 +1173,7 @@ VIE.prototype.Attributes = function (domain, attrs) {
         } else if (id instanceof this.vie.Attribute) {
             return this.get(id.id);
         } else {
-            throw "Wrong argument in VIE.Attributes.get()";
+            throw new Error("Wrong argument in VIE.Attributes.get()");
         }
     };
     
@@ -1092,11 +1182,12 @@ VIE.prototype.Attributes = function (domain, attrs) {
     this._inherit = function () {
         var attributes = jQuery.extend(true, {}, this._local);
         
-        var inherited = this.domain.supertypes.list().map(
+        var inherited = _.map(this.domain.supertypes.list(),
             function (x) {
                return x.attributes; 
-            });
-        
+            }
+        );
+
         var add = {};
         var merge = {};
         
@@ -1184,7 +1275,7 @@ VIE.prototype.Attributes = function (domain, attrs) {
 // Adding capability of handling different namespaces to VIE. 
 
 if (VIE.prototype.Namespaces) {
-	throw "ERROR: VIE.Namespaces is already defined. Please check your installation!";
+	throw new Error("ERROR: VIE.Namespaces is already defined. Please check your installation!");
 }
 
  
@@ -1196,7 +1287,7 @@ VIE.prototype.Namespaces = function (base, namespaces) {
 	// Within VIE, we can define a base namespace, to support easier syntax for
 	// querying types of entities.
 	if (!base) {
-        throw "Please provide a base namespace!";
+        throw new Error("Please provide a base namespace!");
     }
 	this._base = base;
     
@@ -1209,7 +1300,7 @@ VIE.prototype.Namespaces = function (base, namespaces) {
         else if (typeof ns === "string") {
             this._base = ns;
         } else {
-            throw "Please provide a valid namespace!";
+            throw new Error("Please provide a valid namespace!");
         }
         return this;
     };
@@ -1236,13 +1327,13 @@ VIE.prototype.Namespaces = function (base, namespaces) {
         }
         //check if we overwrite existing mappings
         else if (this.containsPrefix(k) && v !== this._namespaces[k]) {
-            throw "ERROR: Trying to register namespace prefix mapping (" + k + "," + v + ")!" +
-                  "There is already a mapping existing: '(" + k + "," + this.get(k) + ")'!";
+            throw new Error("ERROR: Trying to register namespace prefix mapping (" + k + "," + v + ")!" +
+                  "There is already a mapping existing: '(" + k + "," + this.get(k) + ")'!");
         } else {
             jQuery.each(this._namespaces, function (k1,v1) {
                 if (v1 === v && k1 !== k) {
-                    throw "ERROR: Trying to register namespace prefix mapping (" + k + "," + v + ")!" +
-                          "There is already a mapping existing: '(" + k1 + "," + v + ")'!";
+                    throw new Error("ERROR: Trying to register namespace prefix mapping (" + k + "," + v + ")!" +
+                          "There is already a mapping existing: '(" + k1 + "," + v + ")'!");
                 }
             });
         }
@@ -1429,7 +1520,13 @@ VIE.prototype.DBPediaService = function(options) {
         namespaces : {
             owl    : "http://www.w3.org/2002/07/owl#",
             yago   : "http://dbpedia.org/class/yago/",
-            dbonto : 'http://dbpedia.org/ontology/'
+            foaf: 'http://xmlns.com/foaf/0.1/',
+            georss: "http://www.georss.org/georss/",
+            geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#',
+            rdfschema: "http://www.w3.org/2000/01/rdf-schema#",
+            rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            dbpedia: "http://dbpedia.org/ontology/",
+            dbprop : "http://dbpedia.org/property/"
         }
     };
     this.options = jQuery.extend(defaults, options ? options : {});
@@ -1456,61 +1553,52 @@ VIE.prototype.DBPediaService.prototype = {
                 //ignore for now!
             }
         }
-        this.namespaces = new this.vie.Namespaces(this.options.namespaces);
+        this.namespaces = new this.vie.Namespaces(this.vie.namespaces.base(), this.options.namespaces);
 
         this.rules = [
              //rule to transform a DBPedia person into a VIE person
              {
-                'left' : [
-                    '?subject a <http://dbpedia.org/ontology/Person>'
+                 'left' : [
+                        '?subject a dbpedia:Person'
                  ],
                  'right': function(ns){
                      return function(){
-                         return jQuery.rdf.triple(this.subject.toString() +
-                         ' a <http://schema.org/Person>', {
-                             namespaces: ns
-                         });
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'Person>', {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
                      };
-                 }(this.namespaces.toObj())
+                 }(this.namespaces)
              }
         ];
     },
 
     // VIE API load implementation
     load: function(loadable){
-        var correct = loadable instanceof this.vie.Loadable;
-        if (!correct) {throw "Invalid Loadable passed";}
-
         var service = this;
+        
+        var correct = loadable instanceof this.vie.Loadable;
+        if (!correct) {throw new Error("Invalid Loadable passed");}
+
         var entity = loadable.options.entity;
         if (!entity) {
-            //console.warn("DBPediaConnector: No entity to look for!");
-            loadable.resolve([]);
+            loadable.reject([]);
         }
-        var success = function (results) {
-            var id = entity.replace(/^</, '').replace(/>$/, '');
-
-            if (results[id]) {
-                var e = service.vie.entities.get(entity);
-                if (!e) {
-                    var attrs = {
-                        '@subject': entity,
-                        '@type': results[id]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
-                    };
-                    delete results[id]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"];
-                    jQuery.extend(attrs, results[id]);
-                    service.vie.entities.add(attrs);
-                    e = service.vie.entities.get(entity);
-                }
-                loadable.resolve([e]);
-            } else {
-                loadable.reject(undefined);
-            }
-        };
-        var error = function (e) {
-            loadable.reject(e);
-        };
-        this.connector.load(entity, success, error);
+        else {
+            entity = (typeof entity === "string")? entity : entity.id;
+            
+            var success = function (results) {
+                var entities = VIE.Util.rdf2Entities(service, results);
+                loadable.resolve(entities);
+            };
+            var error = function (e) {
+                loadable.reject(e);
+            };
+            this.connector.load(entity, success, error);
+        }
     }
 };
 var DBPediaConnector = function(options){
@@ -1539,7 +1627,7 @@ DBPediaConnector.prototype = {
             error: error,
             type: "GET",
             url: url,
-            dataType: "jsonp"
+            accepts: {"application/rdf+json": "application/rdf+json"}
         });
     },
 
@@ -2073,7 +2161,7 @@ VIE.prototype.StanbolService = function(options) {
     this.vie = null; // will be set via VIE.use();
     this.name = this.options.name;
     this.connector = new StanbolConnector(this.options);
-    
+
     jQuery.ajaxSetup({
         converters: {"text application/rdf+json": function(s){return JSON.parse(s);}}
     });
@@ -2082,7 +2170,7 @@ VIE.prototype.StanbolService = function(options) {
 
 VIE.prototype.StanbolService.prototype = {
     init: function(){
-        
+
         for (var key in this.options.namespaces) {
             try {
                 var val = this.options.namespaces[key];
@@ -2093,7 +2181,7 @@ VIE.prototype.StanbolService.prototype = {
             }
         }
         this.namespaces = new this.vie.Namespaces(this.vie.namespaces.base(), this.options.namespaces);
-        
+
         this.rules = [
             //rule to add backwards-relations to the triples
             //this makes querying for entities a lot easier!
@@ -2183,7 +2271,7 @@ VIE.prototype.StanbolService.prototype = {
                   }(this.namespaces)
               },
         ];
-        
+
         this.vie.types.addOrOverwrite('enhancer:EntityAnnotation', [
             //TODO: add attributes
         ]).inherit("Thing");
@@ -2206,11 +2294,12 @@ VIE.prototype.StanbolService.prototype = {
         var text = service._extractText(element);
 
         if (text.length > 0) {
-            var service = this;
             //query enhancer with extracted text
             var success = function (results) {
-                var entities = service._enhancer2Entities(service, results);
-                analyzable.resolve(entities);
+                _.defer(function(){
+                    var entities = VIE.Util.rdf2Entities(service, results);
+                    analyzable.resolve(entities);
+                });
             };
             var error = function (e) {
                 analyzable.reject(e);
@@ -2224,7 +2313,7 @@ VIE.prototype.StanbolService.prototype = {
         }
 
     },
-    
+
     // VIE API load implementation
     // Runs a Stanbol entityhub find
     find: function(findable){
@@ -2240,128 +2329,55 @@ VIE.prototype.StanbolService.prototype = {
         var limit = (typeof findable.options.limit === "undefined") ? 20 : findable.options.limit;
         var offset = (typeof findable.options.offset === "undefined") ? 0 : findable.options.offset;
         var success = function (results) {
-            var entities = service._enhancer2Entities(service, results);
-            findable.resolve(entities);
+            _.defer(function(){
+                var entities = VIE.Util.rdf2Entities(service, results);
+                findable.resolve(entities);
+            });
         };
         var error = function (e) {
             findable.reject(e);
         };
         this.connector.find(term, limit, offset, success, error);
     },
-    
+
     // VIE API load implementation
     // Runs a Stanbol entityhub find
     load: function(loadable){
         var correct = loadable instanceof this.vie.Loadable;
         if (!correct) {throw "Invalid Loadable passed";}
         var service = this;
-        
+
         var entity = loadable.options.entity;
         if(!entity){
             console.warn("StanbolConnector: No entity to look for!");
             loadable.resolve([]);
         };
         var success = function (results) {
-            var entities = service._enhancer2Entities(service, results);
-            loadable.resolve(entities);
+            _.defer(function(){
+                var entities = VIE.Util.rdf2Entities(service, results);
+                loadable.resolve(entities);
+            });
         };
         var error = function (e) {
             loadable.reject(e);
         };
         this.connector.load(entity, success, error);
     },
-    
+
     _extractText: function (element) {
-        if (element.get(0) && 
-            element.get(0).tagName && 
+        if (element.get(0) &&
+            element.get(0).tagName &&
             (element.get(0).tagName == 'TEXTAREA' ||
             element.get(0).tagName == 'INPUT' && element.attr('type', 'text'))) {
             return element.get(0).val();
         }
         else {
-            return element
+            var res = element
                 .text()    //get the text of element
                 .replace(/\s+/g, ' ') //collapse multiple whitespaces
-                .replace(/\0\b\n\r\f\t/g, '').trim(); // remove non-letter symbols
+                .replace(/\0\b\n\r\f\t/g, ''); // remove non-letter symbols
+            return jQuery.trim(res);
         }
-    },
-
-    _enhancer2Entities: function (service, results) {
-        //transform data from Stanbol into VIE.Entities
-
-        if (typeof jQuery.rdf !== 'function') {
-            return this._enhancer2EntitiesNoRdfQuery(service, results);
-        }
-        var rdf = jQuery.rdf().load(results, {});
-
-        //execute rules here!
-        if (service.rules) {
-            var rules = jQuery.rdf.ruleset();
-            for (var prefix in service.namespaces.toObj()) {
-                if (prefix !== "") {
-                	rules.prefix(prefix, service.namespaces.get(prefix));
-                }
-            }
-            for (var i = 0; i < service.rules.length; i++) {
-                rules.add(service.rules[i]['left'], service.rules[i]['right']);
-            }
-            rdf = rdf.reason(rules, 10); // execute the rules only 10 times to avoid looping
-        }
-        var entities = {};
-        rdf.where('?subject ?property ?object').each(function() {
-            var subject = this.subject.toString();
-            if (!entities[subject]) {
-                entities[subject] = {
-                    '@subject': subject,
-                    '@context': service.namespaces.toObj(),
-                    '@type': []
-                };
-            }
-            var propertyUri = this.property.toString();
-            var propertyCurie;
-
-            propertyUri = propertyUri.substring(1, propertyUri.length - 1);
-            try {
-                property = jQuery.createCurie(propertyUri, {namespaces: service.namespaces.toObj()});
-            } catch (e) {
-                property = propertyUri;
-                console.warn(propertyUri + " doesn't have a namespace definition in '", service.namespaces.toObj());
-            }
-            entities[subject][property] = entities[subject][property] || [];
-
-            function getValue(rdfQueryLiteral){
-                if(typeof rdfQueryLiteral.value === "string"){
-                    if (rdfQueryLiteral.lang)
-                        return rdfQueryLiteral.toString();
-                    else 
-                        return rdfQueryLiteral.value;
-                    return rdfQueryLiteral.value.toString();
-                } else if (rdfQueryLiteral.type === "uri"){
-                    return rdfQueryLiteral.toString();
-                } else {
-                    return rdfQueryLiteral.value;
-                }
-            }
-            entities[subject][property].push(getValue(this.object));
-        });
-
-        _(entities).each(function(ent){
-            ent["@type"] = ent["@type"].concat(ent["rdf:type"]);
-            delete ent["rdf:type"];
-            _(ent).each(function(value, property){
-                if(value.length === 1){
-                    ent[property] = value[0];
-                }
-            });
-        });
-
-        var vieEntities = [];
-        jQuery.each(entities, function() {
-            var entityInstance = new service.vie.Entity(this);
-            entityInstance = service.vie.entities.addOrUpdate(entityInstance);
-            vieEntities.push(entityInstance);
-        });
-        return vieEntities; 
     },
 
     _enhancer2EntitiesNoRdfQuery: function (service, results) {
@@ -2403,7 +2419,7 @@ var StanbolConnector = function(options){
     //TODO: this.factstoreUrlPrefix = "/factstore";
 };
 StanbolConnector.prototype = {
-    
+
     analyze: function(text, success, error, options) {
         if (!options) { options = {}; }
         var enhancerUrl = this.baseUrl + this.enhancerUrlPrefix;
@@ -2414,7 +2430,7 @@ StanbolConnector.prototype = {
             // We're on Node.js, don't use jQuery.ajax
             return this.analyzeNode(enhancerUrl, text, success, error, options, format);
         }
-        
+
         jQuery.ajax({
             success: function(response){
                 success(response);
@@ -2423,7 +2439,7 @@ StanbolConnector.prototype = {
             type: "POST",
             url: proxyUrl || enhancerUrl,
             data: (proxyUrl) ? {
-                    proxy_url: enhancerUrl, 
+                    proxy_url: enhancerUrl,
                     content: text,
                     verb: "POST",
                     format: format
@@ -2449,14 +2465,14 @@ StanbolConnector.prototype = {
         });
         r.end();
     },
-    
+
     load: function (uri, success, error, options) {
         if (!options) { options = {}; }
         uri = uri.replace(/^</, '').replace(/>$/, '');
         var url = this.baseUrl + this.entityhubUrlPrefix + "/sites/entity?id=" + escape(uri);
         var proxyUrl = this._proxyUrl();
         var format = options.format || "application/rdf+json";
-        
+
         jQuery.ajax({
             success: function(response){
                 success(response);
@@ -2465,7 +2481,7 @@ StanbolConnector.prototype = {
             type: (proxyUrl) ? "POST" : "GET",
             url: proxyUrl || url,
             data: (proxyUrl) ? {
-                    proxy_url: url, 
+                    proxy_url: url,
                     content: "",
                     verb: "GET",
                     format: format
@@ -2475,7 +2491,7 @@ StanbolConnector.prototype = {
             accepts: {"application/rdf+json": "application/rdf+json"}
         });
     },
-    
+
     find: function (term, limit, offset, success, error, options) {
         // curl -X POST -d "name=Bishofsh&limit=10&offset=0" http://localhost:8080/entityhub/sites/find
         if (!options) { options = {}; }
@@ -2485,11 +2501,11 @@ StanbolConnector.prototype = {
         if (limit == null) {
             limit = 10;
         }
-        
+
         var url = this.baseUrl + this.entityhubUrlPrefix + "/sites/find";
         var proxyUrl = this._proxyUrl();
         var format = options.format || "application/rdf+json";
-        
+
         jQuery.ajax({
             success: function(response){
                 success(response);
@@ -2498,7 +2514,7 @@ StanbolConnector.prototype = {
             type: "POST",
             url: proxyUrl || url,
             data: (proxyUrl) ? {
-                    proxy_url: url, 
+                    proxy_url: url,
                     content: {
                         name : term,
                         limit : limit,
@@ -2512,7 +2528,7 @@ StanbolConnector.prototype = {
             accepts: {"application/rdf+json": "application/rdf+json"}
         });
     },
-    
+
     _proxyUrl: function(){
         this.proxyUrl = "";
         if(this.baseUrl.indexOf(":") !== -1 && !this.options.proxyDisabled){
@@ -2598,6 +2614,7 @@ VIE.prototype.view.Collection = Backbone.View.extend({
             return;
         }
 
+        this.trigger('remove', this.entityViews[entity.cid]);
         this.entityViews[entity.cid].el.remove();
         delete(this.entityViews[entity.cid]);
     },
@@ -2650,4 +2667,4 @@ VIE.prototype.view.Entity = Backbone.View.extend({
             execute();
         return this;
     }
-}); 
+}); })();
