@@ -25,8 +25,6 @@ window.terkait = {
                 )
                 .appendTo(jQuery('<div id="terkait-wrapper">').appendTo(jQuery('body')))
                 .append(jQuery('<div id="terkait-entities" class="entities"></div>').append(jQuery('<div class="container">')));
-				//jQuery('#terkait-container .container').append('<div id="accordion"><dl><dt>First slide</dt><dd><h2>This is the first slide</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd><dt>Second slide</dt><dd><h2>Here is the second slide</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd><dt>One more slide</dt><dd><h2>One more slide to go here</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd></dl></div>');
-				//$('#accordion').easyAccordion({ autoStart: false });
                 };
         },
                 
@@ -62,7 +60,7 @@ window.terkait = {
             var meta = $('<span>');
             elems.each(function () {
                 var text = $(this).text();
-                meta.text(meta.text() + "\n" + text);
+                meta.text(meta.text() + " " + text.replace(/"/g, '\\"'));
             });
             window.terkait.vie
             .analyze({element: meta})
@@ -106,7 +104,7 @@ window.terkait = {
                         return -1;
                 });
                 for (var i = 0; i < entitiesOfInterest.length; i++) {
-							
+
                     window.terkait.render(entitiesOfInterest[i]);
                 }
                 console.log("rendering:", entitiesOfInterest.length, entitiesOfInterest);
@@ -128,6 +126,15 @@ window.terkait = {
 				debugger;
 				jQuery('#terkait-container .container').append('<div id="accordion"><dl><dt>First entity</dt><dd><h2>This is the first entity</h2><p></p></dd><dt>Second slide</dt><dd><h2>Here is the second slide</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd><dt>One more slide</dt><dd><h2>One more slide to go here</h2><p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p></dd></dl></div>');
 				$('#accordion').easyAccordion({ autoStart: false });
+                //TODO: append accordion to jQuery('#terkait-entities > .container')
+            }
+        },
+        
+        render: function (entity, selector) {
+            if (selector) {
+                //TODO: append to current accordion
+            } else {
+                //TODO: create new accordion
                 //TODO: append accordion to jQuery('#terkait-entities > .container')
             }
         },
