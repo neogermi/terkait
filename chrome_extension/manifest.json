@@ -24,6 +24,7 @@
       "css": ["terkait.css"],
       "js": [
       	"lib/jquery.js",
+		"lib/jQuery-easyAccordion/scripts/jquery.easyAccordion.js",
       	"lib/underscore.js",
       	"lib/backbone.js",
       	"lib/rdfquery.js",

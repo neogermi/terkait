@@ -7,6 +7,7 @@ window.terkait = {
             v.loadSchemaOrg();
             v.use(new v.StanbolService({url : "http://dev.iks-project.eu:8081", proxyDisabled: true}));
             v.use(new v.RdfaRdfQueryService());
+            v.use(new v.DBPediaService());
             return v;
         }(),
         
@@ -24,7 +25,7 @@ window.terkait = {
                         function () {jQuery(this).animate({"right" : "-25em"})}
                 )
                 .appendTo(jQuery('<div id="terkait-wrapper">').appendTo(jQuery('body')))
-                .append(jQuery('<div id="terkait-persons" class="entities"></div>').append(jQuery('<div class="container">')));
+                .append(jQuery('<div id="terkait-entities" class="entities"></div>').append(jQuery('<div class="container">')));
                 };
         },
                 
@@ -60,7 +61,7 @@ window.terkait = {
             var meta = $('<span>');
             elems.each(function () {
                 var text = $(this).text();
-                meta.text(meta.text() + "\n" + text);
+                meta.text(meta.text() + " " + text.replace(/"/g, '\\"'));
             });
             window.terkait.vie
             .analyze({element: meta})
@@ -103,8 +104,23 @@ window.terkait = {
                     else
                         return -1;
                 });
-                //TODO: now what? expose them with an event?
-                console.log(entitiesOfInterest.length, entitiesOfInterest);
+                for (var i = 0; i < entitiesOfInterest.length; i++) {
+                    var entity = entitiesOfInterest[i];
+                    window.terkait.render(entity);
+
+                    //trigger a search in DBPedia to ensure to have "all" properties
+                    window.terkait.vie
+                    .load({entity: entity.id})
+                    .using('dbpedia')
+                    .execute()
+                    .done(function(entities) {
+                        for (var e = 0; e < entities.length; e++) {
+                            var updated = window.terkait.vie.entities.get(entities[e].id);
+                            updated.change();
+                        }
+                    });
+                }
+                console.log("rendering:", entitiesOfInterest.length, entitiesOfInterest);
             })
             .fail(function(f){
                 console.warn(f);
@@ -114,7 +130,182 @@ window.terkait = {
               foundElems : elems.size() > 0  
             };
         },
+		
+        render: function (entity, selector) {
+            var div = null;
+            if (entity.isof("Person")) {
+                div = window.terkait.renderPerson(entity);
+            } else if (entity.isof("Organization")) {
+                div = window.terkait.renderOrganization(entity);
+            } else if (entity.isof("Place")) {
+                div = window.terkait.renderPlace(entity);
+            }
+            
+            if (selector) {
+                //append to current accordion!
+                jQuery(selector).append(div);
+            } else {
+                //append at the end of the container!
+                jQuery('#terkait-entities > .container').append(div);
+            }
+        },
         
+        renderPerson: function (entity) {
+        	   //var div = jQuery('<div id="accordion"></div>');
+        	var div = jQuery('<div>');
+            //TODO: create new accordion in div and return that
+        	 
+			 //jQuery('#terkait-container .container').append('');
+			//TODO: foreach attribute that could be used:
+            if (entity.has("name")) {
+                var name = entity.get("name");
+                if (jQuery.isArray(name) && name.length > 0) {
+                    for (var i = 0; i < name.length; i++) {
+                        if (name[i].indexOf('@en') > -1) {
+                            name = name[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(name)) name = name[0]; //just take the first
+					//div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to test</p></dd><dt>'+name+'</dt><dd><h2>Here '+name+'</h2><p>This is the card for '+name+'</p></dd></dl>');
+                    var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+                    div.append("<p> Person  :" + res +"</p>");
+                }
+                //TODO: Guy!
+            }
+            if (entity.has("givenName")) {
+                var givenName = entity.get("name");
+                if (jQuery.isArray(givenName) && givenName.length > 0) {
+                    for (var i = 0; i < givenName.length; i++) {
+                        if (givenName[i].indexOf('@en') > -1) {
+                            givenName = givenName[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(givenName)) givenName = givenName[0]; //just take the first
+					div.append("<p> Person GIVENNAME :" + givenName +"</p>");
+                }
+                //TODO: Guy!
+            }
+            
+            if (entity.has("birthDate")) {
+                var birthDate = entity.get("birthDate");
+                if (jQuery.isArray(birthDate) && birthDate.length > 0) {
+                    for (var i = 0; i < birthDate.length; i++) {
+                        if (birthDate[i].indexOf('@en') > -1) {
+                            birthDate = birthDate[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(birthDate)) birthDate = birthDate[0]; //just take the first
+					div.append("<p> Person BIRTHDATE :" + birthDate +"</p>");
+                }
+                //TODO: Guy!
+            }
+            if (entity.has("text")) {
+                var description = entity.get("text");
+                if (jQuery.isArray(description) && description.length > 0) {
+                    for (var i = 0; i < description.length; i++) {
+                        if (description[i].indexOf('@en') > -1) {
+                            description = description[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(description)) description = description[0]; //just take the first
+					div.append("<p> Person DESCRIPTION: " + description +"</p>");
+                }
+                //TODO: Guy!
+            }
+			//initialize accordion
+			div.easyAccordion({ autoStart: false });            
+            return div;
+        },
+        
+        renderOrganization: function (entity) {
+        	 var div = jQuery('<div>');
+             //TODO: create new accordion
+             if (entity.has("name")) {
+                 var name = entity.get("name");
+                 if (jQuery.isArray(name) && name.length > 0) {
+                     for (var i = 0; i < name.length; i++) {
+                         if (name[i].indexOf('@en') > -1) {
+                             name = name[i];
+                             break;
+                         }
+                     }
+                     if (jQuery.isArray(name)) name = name[0]; //just take the first
+ 					div.append("<p> Organization NAME : " + name +"</p>");
+                 }
+             }
+             if (entity.has("url")) {
+                 var url = entity.get("url");
+                 if (jQuery.isArray(url) && url.length > 0) {
+                     for (var i = 0; i < url.length; i++) {
+                         if (url[i].indexOf('@en') > -1) {
+                             url = url[i];
+                             break;
+                         }
+                     }
+                     if (jQuery.isArray(url)) url = url[0]; //just take the first
+ 					div.append("<p> Organization URL: " + url +"</p>");
+                 }
+             }
+             if (entity.has("telephone")) {
+                 var telephone = entity.get("telephone");
+                 if (jQuery.isArray(telephone) && telephone.length > 0) {
+                     for (var i = 0; i < telephone.length; i++) {
+                         if (telephone[i].indexOf('@en') > -1) {
+                             telephone = telephone[i];
+                             break;
+                         }
+                     }
+                     if (jQuery.isArray(telephone)) telephone = telephone[0]; //just take the first
+ 					div.append("<p> Organization TELEPHONE : " + telephone +"</p>");
+                 }
+             }
+             return div;
+        },
+        
+        renderPlace: function (entity) {
+        	var div = jQuery('<div>');
+            //TODO: create new accordion
+            //var div = jQuery('<div id="accordion"></div>');
+            //TODO: create new accordion in div and return that
+        	 
+			 //jQuery('#terkait-container .container').append('');
+			//TODO: foreach attribute that could be used:
+            if (entity.has("name")) {
+                var name = entity.get("name");
+                if (jQuery.isArray(name) && name.length > 0) {
+                    for (var i = 0; i < name.length; i++) {
+                        if (name[i].indexOf('@en') > -1) {
+                            name = name[i];
+                            break;
+                        }
+                    }
+                   if (jQuery.isArray(name)) name = name[0]; //just take the first
+                   var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+					div.append('<p> Place NAME : '+ res + '</p>');
+                }
+            }
+            if (entity.has("geo")) {
+                var geoCoordinates = entity.get("geo");
+                var url = geoCoordinates.get("url");
+                div.append("<p>"+ url + "</P>");
+            }
+            if (entity.has("country")) {
+                var country = entity.get("country");
+                div.append("<p> Country :"+ country + "</P>");
+            }
+            if (entity.has("website")) {
+                var website = entity.get("website");
+                div.append("<p> Place Website :"+ website + "</P>");
+            }
+			//initialize accordion
+			div.easyAccordion({ autoStart: false });            
+            return div;
+        },
+
         annotate: function (type, sendResponse) {
             var rng = window.terkait._getRangeObject();
             if (rng && rng.startContainer === rng.endContainer && 
