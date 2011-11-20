@@ -37,7 +37,7 @@ div.anythingSlider-minimalist-round.activeSlider .anythingControls ul a:hover, d
 	background: #fff;
 }
 div.anythingSlider-minimalist-round.activeSlider .start-stop.playing {
-	background-color: #f00;
+	background-color: #691a26;
 }
 div.anythingSlider-minimalist-round .start-stop:hover, div.anythingSlider-minimalist-round .start-stop.hover {
 	color: #fff;
@@ -45,25 +45,27 @@ div.anythingSlider-minimalist-round .start-stop:hover, div.anythingSlider-minima
 
 /* Navigation Arrows */
 div.anythingSlider-minimalist-round .arrow {
-	top: 50%;
+	top: 7px;
 	position: absolute;
 	display: block;
 }
 div.anythingSlider-minimalist-round .arrow a {
 	display: block;
-	height: 40px;
-	margin-top: -20px; /* half height of image */
-	width: 30px;
+	height: 78px;
+	/*margin-top: -20px; /* half height of image */
+	width: 10px;
 	text-align: center;
 	outline: 0;
-	background: url(../images/arrows-minimalist.png) no-repeat;
+	
 }
-div.anythingSlider-minimalist-round .forward { right: 0; }
-div.anythingSlider-minimalist-round .back { left: 0; }
-div.anythingSlider-minimalist-round .forward a { background-position: right bottom; }
-div.anythingSlider-minimalist-round .back a { background-position: left bottom; }
-div.anythingSlider-minimalist-round .forward a:hover, div.anythingSlider-minimalist-round .forward a.hover { background-position: right top; }
-div.anythingSlider-minimalist-round .back a:hover, div.anythingSlider-minimalist-round .back a.hover { background-position: left top; }
+div.anythingSlider-minimalist-round .forward { right: 20px;}
+div.anythingSlider-minimalist-round .forward  a{background: url(../images/arrow-right-minimalist.png) no-repeat;}
+div.anythingSlider-minimalist-round .back { left: 20px; background: url(../images/arrow-left-minimalist.png) no-repeat;}
+div.anythingSlider-minimalist-round .back  a{background: url(../images/arrow-left-minimalist.png) no-repeat;}
+/*div.anythingSlider-minimalist-round .forward a { background-position: right bottom; }
+div.anythingSlider-minimalist-round .back a { background-position: left bottom; }*/
+div.anythingSlider-minimalist-round .forward a:hover, div.anythingSlider-minimalist-round .forward a.hover { opacity: 0.2; }
+div.anythingSlider-minimalist-round .back a:hover, div.anythingSlider-minimalist-round .back a.hover { opacity: 0.2; }
 
 /* Navigation Links */
 div.anythingSlider-minimalist-round .anythingControls {
@@ -117,8 +119,8 @@ div.anythingSlider-minimalist-round .start-stop {
 	margin: 3px;
 	padding: 0;
 	display: inline-block;
-	width: 14px;
-	height: 14px;
+	width: 10px;
+	height: 10px;
 	position: relative;
 	bottom: 2px;
 	left: 0;
@@ -126,7 +128,7 @@ div.anythingSlider-minimalist-round .start-stop {
 	text-align: center;
 	text-decoration: none;
 	float: right;
-	border-radius: 7px;
+	border-radius: 5px;
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
 }

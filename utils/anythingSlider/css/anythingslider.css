@@ -121,9 +121,9 @@ div.anythingSlider .arrow {
 }
 div.anythingSlider .arrow a {
 	display: block;
-	height: 140px;
-	margin: -70px 0 0 0; /* half height of image */
-	width: 45px;
+	/*height: 140px;
+	/*margin: -70px 0 0 0; /* half height of image */
+	/*width: 45px;*/
 	text-align: center;
 	outline: 0;
 	background: url(../images/default.png) no-repeat;
@@ -133,12 +133,12 @@ div.anythingSlider .arrow a span { display: block; text-indent: -9999px; }
 /* back arrow */
 div.anythingSlider .back { left: 0; }
 div.anythingSlider .back a { background-position: left top; }
-div.anythingSlider .back a:hover, div.anythingSlider .back a.hover { background-position: left -140px; }
+/*div.anythingSlider .back a:hover, div.anythingSlider .back a.hover { background-position: left -140px; }*/
 div.anythingSlider .back.disabled { display: none; } /* disabled arrows, hide or reduce opacity: opacity: .5; filter: alpha(opacity=50); */
 /* forward arrow */
 div.anythingSlider .forward { right: 0; }
 div.anythingSlider .forward a { background-position: right top; }
-div.anythingSlider .forward a:hover, div.anythingSlider .forward a.hover { background-position: right -140px; }
+/*div.anythingSlider .forward a:hover, div.anythingSlider .forward a.hover { background-position: right -140px; }*/
 div.anythingSlider .forward.disabled { display: none; } /* disabled arrows, hide or reduce opacity: opacity: .5; filter: alpha(opacity=50); */
 
 /* Navigation Links */
