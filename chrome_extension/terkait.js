@@ -194,19 +194,35 @@ if (!window.terkait) {
 				foundElems : elems.size() > 0
 			};
 		},
-
+		
+		createBBView: function (entity) {
+		    var View = Backbone.View.extend({
+		        
+		        render: function () {
+		            $(this.el).empty(); // clear card first
+		            if (entity.isof("Person")) {
+		                this.el = window.terkait.renderPerson(this.model);
+		            } else if (entity.isof("Organization")) {
+		                this.el = window.terkait.renderOrganization(this.model);
+		            } else if (entity.isof("Place")) {
+		                this.el = window.terkait.renderPlace(this.model);
+		            }
+		        }
+		    });
+		    return new View({model: entity});
+		},
+		
 		render : function(entity, selector) {
-			var div = null;
-			if (entity.isof("Person")) {
-				div = window.terkait.renderPerson(entity);
-			} else if (entity.isof("Organization")) {
-				div = window.terkait.renderOrganization(entity);
-			} else if (entity.isof("Place")) {
-				div = window.terkait.renderPlace(entity);
-			}
-			update.bind('change',this.render);
-			if (selector) {
-				// append to current accordion!
+		    var view = this.createBBView(entity); //create the VIEW on that entity
+		    view.render(); // render it the first time
+		    entity.bind("change", view.render); // bind the entitie's "change" event to a rerendering of the VIEW
+		    
+		    //the element of the VIEW
+		    var div = $(view.el);
+			
+		    //where to put it?
+            if (selector) {
+				// append to that accordion!
 				jQuery(selector).append(div);
 			} else {
 				// append at the end of the container!
