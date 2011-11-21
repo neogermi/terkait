@@ -225,7 +225,7 @@ if (!window.terkait) {
 		render : function(entity, selector) {
 		    var cardView = this.createBBView(entity); //create the VIEW on that entity
 		    		    
-            var dt = $('<dt></dt>').text(window.terkait.getLabel(entity));
+            var dt = $('<dt>').text(window.terkait.getLabel(entity));
             var dd = $('<dd>').append($(cardView.el));
 
 		    //where to put it?
