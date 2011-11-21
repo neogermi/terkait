@@ -222,6 +222,7 @@ if (!window.terkait) {
 		},
 		
 		render : function(entity, selector) {
+
 		    var cardView = this.createBBView(entity); //create the VIEW on that entity
 		    
 		    //the element of the VIEW
@@ -234,7 +235,7 @@ if (!window.terkait) {
             dd.append(card);
             
             dl
-            .append(dt)
+            .append(dt);
             .append(dd);
 		    
 		    //where to put it?
