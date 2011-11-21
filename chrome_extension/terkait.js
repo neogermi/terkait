@@ -454,4 +454,3 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		console.log("unknown request", request);
 	}
 });
-
