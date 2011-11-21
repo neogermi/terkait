@@ -27,16 +27,11 @@ if (!window.terkait) {
 													.getURL("terkait_transparent.png")
 											+ ")"
 								})
-						/* no hovering for development
-						  .hover(function() { 
-							jQuery(this).animate({
-								"right" : "-1em"
-							})
-						}, function() {
-							jQuery(this).animate({
-								"right" : "-25em"
-							})
-						})*/
+						/*
+						 * no hovering for development .hover(function() {
+						 * jQuery(this).animate({ "right" : "-1em" }) },
+						 * function() { jQuery(this).animate({ "right" : "-25em" }) })
+						 */
 						.appendTo(
 								jQuery('<div id="terkait-wrapper">').appendTo(
 										jQuery('body')))
@@ -195,79 +190,57 @@ if (!window.terkait) {
 				foundElems : elems.size() > 0
 			};
 		},
-		
-		createBBView: function (entity) {
-		    var CardView = Backbone.View.extend({
-		        
-		        className : "entity_card",
-		        
-		        initialize : function(){
-		            // bind the entitie's "change" event to a rerendering of the VIEW
-		            this.model.bind("change", this.render, this);
-		            this.render(); // render it the first time
-		        },
-		        
-		        render: function () {
-		            var $el = $(this.el);
-		            $el.empty(); // clear card first
-		            if (entity.isof("Person")) {
-		                window.terkait.renderPerson(this.model, $el);
-		            } else if (entity.isof("Organization")) {
-		                window.terkait.renderOrganization(this.model, $el);
-		            } else if (entity.isof("Place")) {
-		                window.terkait.renderPlace(this.model, $el);
-		            }
-		        }
-		    });
-		    return new CardView({model: entity});
-		},
-		
-		render : function(entity, selector) {
-		    var cardView = this.createBBView(entity); //create the VIEW on that entity
-		    		    
-            var dt = $('<dt>').text(window.terkait.getLabel(entity));
-            var dd = $('<dd>').append($(cardView.el));
 
-		    //where to put it?
-            if (selector) {
-                // append to that accordion!
+		createBBView : function(entity) {
+			var CardView = Backbone.View.extend({
+
+				className : "entity_card",
+
+				initialize : function() {
+					// bind the entitie's "change" event to a rerendering of the
+					// VIEW
+					this.model.bind("change", this.render, this);
+					this.render(); // render it the first time
+				},
+
+				render : function() {
+					var $el = $(this.el);
+					$el.empty(); // clear card first
+					if (entity.isof("Person")) {
+						window.terkait.renderPerson(this.model, $el);
+					} else if (entity.isof("Organization")) {
+						window.terkait.renderOrganization(this.model, $el);
+					} else if (entity.isof("Place")) {
+						window.terkait.renderPlace(this.model, $el);
+					}
+				}
+			});
+			return new CardView({
+				model : entity
+			});
+		},
+
+		render : function(entity, selector) {
+			var cardView = this.createBBView(entity); // create the VIEW on
+														// that entity
+
+			var dt = $('<dt>').text(window.terkait.getLabel(entity));
+			var dd = $('<dd>').append($(cardView.el));
+
+			// where to put it?
+			if (selector) {
+				// append to that accordion!
 				jQuery(selector).find('dl').first().append(dt).append(dd);
-			} else {       
-			    var dl = $('<dl>')
-	            .append(dt)
-	            .append(dd);
-			    
-			    var accordion = $('<div class="accordion">').append(dl);
+			} else {
+				var dl = $('<dl>').append(dt).append(dd);
+
+				var accordion = $('<div class="accordion">').append(dl);
 				// append at the end of the container!
 				jQuery('#terkait-entities > .container').append(accordion);
 			}
 		},
-		
-		getLabel : function (entity) {
-		    if (entity.has("name")) {
-                var name = entity.get("name");
-                if (jQuery.isArray(name) && name.length > 0) {
-                    for ( var i = 0; i < name.length; i++) {
-                        if (name[i].indexOf('@en') > -1) {
-                            name = name[i];
-                            break;
-                        }
-                    }
-                    if (jQuery.isArray(name))
-                        name = name[0]; // just take the first
-                    name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-                    return name;
-                }
-            }
-		    return "No name!";
-		},
 
-		renderPerson : function(entity, card) {
-			var rightSideCard = $('<div class ="entityDetails">');
-			// TODO: create new accordion in div and return that
-
-			// jQuery('#terkait-container .container').append('');
-			// TODO: foreach attribute that could be used:
+		getLabel : function(entity) {
 			if (entity.has("name")) {
 				var name = entity.get("name");
 				if (jQuery.isArray(name) && name.length > 0) {
@@ -278,18 +251,20 @@ if (!window.terkait) {
 						}
 					}
 					if (jQuery.isArray(name))
-						name = name[0]; // just take the
-					// first
-					// div.append('<dl><dt>Test Slide</dt><dd><h2>TEST
-					// SLIDE</h2><p>Text to
-					// test</p><div class="entity_card">la</div>
-					// </dd></dl>');
-					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-					card.append("<p> Person  :" + res + "</p>");
-					
-					
+						name = name[0]; // just take the first
+					name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+					return name;
 				}
 			}
+			return "No name!";
+		},
+
+		renderPerson : function(entity, card) {
+			var rightSideCard = $('<div class ="entityDetails">');
+			card.append(rightSideCard);
+			var res = this.getLabel(entity);
+			rightSideCard.append("<p> Person  :" + res + "</p>");
+
 		},
 
 		renderOrganization : function(entity, card) {
@@ -329,13 +304,11 @@ if (!window.terkait) {
 		renderPlace : function(entity, card) {
 			var leftSideCard = $('<div class ="content">');
 			var rightSideCard = $('<div class ="entityDetails">');
-			card
-			.append(leftSideCard)
-			.append(rightSideCard);
-			
+			card.append(leftSideCard).append(rightSideCard);
+
 			var latitude = "";
 			var longitude = "";
-			
+
 			if (entity.has("name")) {
 				var name = entity.get("name");
 				if (jQuery.isArray(name) && name.length > 0) {
@@ -349,12 +322,12 @@ if (!window.terkait) {
 						name = name[0]; // just take the
 					// first
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-					rightSideCard.append(
-							"NAME :" + '<a href ="#">' + res + '</a>');
+					rightSideCard.append("NAME :" + '<a href ="#">' + res
+							+ '</a>');
 				}
 			}
 			if (entity.has("geo:lat")) {
-				latitude= entity.get("geo:lat");
+				latitude = entity.get("geo:lat");
 				// console.log("unknown request", geoCoordinates);
 				// var url = geoCoordinates.get("url");
 				rightSideCard.append("<p> Lat:" + latitude + "</P>");
@@ -367,21 +340,22 @@ if (!window.terkait) {
 			}
 			var elem = $('<div id ="map_canvas">');
 			rightSideCard.append(elem);
-			//TODO: GUY: var options = this.initMap(latitude, longitude);
-			//TODO: GUY: var map = new google.maps.Map(document.getElementById("map_canvas"), options);
-			//DEBUG
+			// TODO: GUY: var options = this.initMap(latitude, longitude);
+			// TODO: GUY: var map = new
+			// google.maps.Map(document.getElementById("map_canvas"), options);
+			// DEBUG
 			var button = $('<button>BUTTON</button>');
-            
-            button.click(function (entity, accordion) {
-                return function () {
-                    window.terkait.render(entity, accordion);
-                };
-            }(entity, card.parent()));
-            
-            card.append(button);
-            //DEBUG
+
+			button.click(function(entity, accordion) {
+				return function() {
+					window.terkait.render(entity, accordion);
+				};
+			}(entity, card.parent()));
+
+			card.append(button);
+			// DEBUG
 		},
-		
+
 		initMap : function(latitude, longitude) {
 			var latlng = new google.maps.LatLng(latitude, longitude);
 			var myOptions = {
@@ -391,7 +365,7 @@ if (!window.terkait) {
 			};
 			return myOptions;
 		},
-		
+
 		annotate : function(type, sendResponse) {
 			var rng = window.terkait._getRangeObject();
 			if (rng && rng.startContainer === rng.endContainer
