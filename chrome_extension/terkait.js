@@ -268,22 +268,13 @@ if (!window.terkait) {
 		},
 
 		renderOrganization : function(entity, card) {
-			// TODO: create new accordion
-			if (entity.has("name")) {
-				var name = entity.get("name");
-				if (jQuery.isArray(name) && name.length > 0) {
-					for ( var i = 0; i < name.length; i++) {
-						if (name[i].indexOf('@en') > -1) {
-							name = name[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(name))
-						name = name[0]; // just take the
-					// first
-					card.append("<p> Organization NAME : " + name + "</p>");
-				}
-			}
+			var leftSideCard = $('<div class ="content">');
+			var rightSideCard = $('<div class ="entityDetails">');
+			card.append(leftSideCard).append(rightSideCard);
+			
+			var res = this.getLabel(entity);
+			rightSideCard.append("<p> Organization NAME : " + res + "</p>");
+			
 			if (entity.has("url")) {
 				var url = entity.get("url");
 				if (jQuery.isArray(url) && url.length > 0) {
@@ -296,7 +287,7 @@ if (!window.terkait) {
 					if (jQuery.isArray(url))
 						url = url[0]; // just take the
 					// first
-					card.append("<p> Organization URL: " + url + "</p>");
+					rightSideCard.append("<p> Organization URL: " + url + "</p>");
 				}
 			}
 		},
