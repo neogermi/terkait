@@ -196,7 +196,9 @@ if (!window.terkait) {
 		},
 		
 		createBBView: function (entity) {
-		    var View = Backbone.View.extend({
+		    var CardView = Backbone.View.extend({
+		        
+		        className : "entity_card",
 		        
 		        initialize : function(){
 		            // bind the entitie's "change" event to a rerendering of the VIEW
@@ -205,39 +207,43 @@ if (!window.terkait) {
 		        },
 		        
 		        render: function () {
-		            $(this.el).empty(); // clear card first
+		            var $el = $(this.el);
+		            $el.empty(); // clear card first
 		            if (entity.isof("Person")) {
-		                this.el = window.terkait.renderPerson(this.model);
+		                window.terkait.renderPerson(this.model, $el);
 		            } else if (entity.isof("Organization")) {
-		                this.el = window.terkait.renderOrganization(this.model);
+		                window.terkait.renderOrganization(this.model, $el);
 		            } else if (entity.isof("Place")) {
-		                this.el = window.terkait.renderPlace(this.model);
+		                window.terkait.renderPlace(this.model, $el);
 		            }
 		        }
 		    });
-		    return new View({model: entity});
+		    return new CardView({model: entity});
 		},
 		
 		render : function(entity, selector) {
-		    var view = this.createBBView(entity); //create the VIEW on that entity
+		    var cardView = this.createBBView(entity); //create the VIEW on that entity
 		    
 		    //the element of the VIEW
-		    var div = $(view.el);
+		    var card = $(cardView.el);
 			
 		    //where to put it?
             if (selector) {
 				// append to that accordion!
-				jQuery(selector).append(div);
+				jQuery(selector).append(card);
 			} else {
+			    var accordion = $('<div class="easyAccord">').append(card);
+			    
+			    accordion
+			    .easyAccordion({
+	                autoStart : false
+	            });
 				// append at the end of the container!
-				jQuery('#terkait-entities > .container').append(div);
+				jQuery('#terkait-entities > .container').append(accordion);
 			}
 		},
 
-		renderPerson : function(entity) {
-			var div = jQuery('<div id="accordion"></div>');
-			// var div = jQuery('<div>');
-			var div = $('<div class ="entity_card">');
+		renderPerson : function(entity, card) {
 			var rightSideCard = $('<div class ="entityDetails">');
 			// TODO: create new accordion in div and return that
 
@@ -260,20 +266,13 @@ if (!window.terkait) {
 					// test</p></dd><div class="entity_card">la</div>
 					// </dd></dl>');
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-					div.append("<p> Person  :" + res + "</p>");
+					card.append("<p> Person  :" + res + "</p>");
 				}
 				// TODO: Guy!
 			}
-
-			// initialize accordion
-			div.easyAccordion({
-				autoStart : false
-			});
-			return div;
 		},
 
-		renderOrganization : function(entity) {
-			var div = jQuery('<div>');
+		renderOrganization : function(entity, card) {
 			// TODO: create new accordion
 			if (entity.has("name")) {
 				var name = entity.get("name");
@@ -287,7 +286,7 @@ if (!window.terkait) {
 					if (jQuery.isArray(name))
 						name = name[0]; // just take the
 					// first
-					div.append("<p> Organization NAME : " + name + "</p>");
+					card.append("<p> Organization NAME : " + name + "</p>");
 				}
 			}
 			if (entity.has("url")) {
@@ -302,26 +301,18 @@ if (!window.terkait) {
 					if (jQuery.isArray(url))
 						url = url[0]; // just take the
 					// first
-					div.append("<p> Organization URL: " + url + "</p>");
+					card.append("<p> Organization URL: " + url + "</p>");
 				}
 			}
-			return div;
 		},
 
-		renderPlace : function(entity) {
-			var arc = jQuery('<div id="accordion"></div>');
-			// var div = jQuery('<div>');
-
-			var div = $('<div class ="entity_card">');
-			arc.append(div);
+		renderPlace : function(entity, card) {
 			var leftSideCard = $('<div class ="content">');
 			var rightSideCard = $('<div class ="entityDetails">');
-			div.append(leftSideCard);
-			// TODO: create new accordion
-			// var div = jQuery('<div id="accordion"></div>');
-			// TODO: create new accordion in div and return that
-			// jQuery('#terkait-container .container').append('');
-			// TODO: foreach attribute that could be used:
+			card
+			.append(leftSideCard)
+			.append(rightSideCard);
+			
 			if (entity.has("name")) {
 				var name = entity.get("name");
 				if (jQuery.isArray(name) && name.length > 0) {
@@ -335,7 +326,7 @@ if (!window.terkait) {
 						name = name[0]; // just take the
 					// first
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-					div.append(rightSideCard).append(
+					rightSideCard.append(
 							"NAME :" + '<a href ="#">' + res + '</a>');
 				}
 			}
@@ -343,19 +334,14 @@ if (!window.terkait) {
 				var geoCoordinates = entity.get("geo:lat");
 				// console.log("unknown request", geoCoordinates);
 				// var url = geoCoordinates.get("url");
-				div.append("<p> Lat:" + geoCoordinates + "</P>");
+				rightSideCard.append("<p> Lat:" + geoCoordinates + "</P>");
 			}
 			if (entity.has("geo:long")) {
 				var geoCoordinates = entity.get("geo:long");
 				// console.log("unknown request", geoCoordinates);
 				// var url = geoCoordinates.get("url");
-				div.append("<p> Long:" + geoCoordinates + "</P>");
+				rightSideCard.append("<p> Long:" + geoCoordinates + "</P>");
 			}
-			// initialize accordion
-			arc.easyAccordion({
-				autoStart : false
-			});
-			return arc;
 		},
 
 		annotate : function(type, sendResponse) {
