@@ -27,6 +27,8 @@
       	"lib/underscore.js",
       	"lib/backbone.js",
       	"lib/rdfquery.js",
+		"lib/vie.widget.image_search.js",
+		"lib/vie.widget.auto_tagger.js",
       	"lib/vie.js",
       	"lib/schemaOrg/schema.json",
       	"lib/schemaOrg/wrapper.js",
