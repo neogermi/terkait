@@ -226,13 +226,23 @@ if (!window.terkait) {
 		    
 		    //the element of the VIEW
 		    var card = $(cardView.el);
-			
+		    
+		    var dl = $('<dl>');
+            var dt = $('<dt></dt>').text(window.terkait.getLabel(entity));
+            var dd = $('<dd>');
+            
+            dd.append(card);
+            
+            dl
+            .append(dt)
+            .append(dd);
+		    
 		    //where to put it?
             if (selector) {
-				// append to that accordion!
-				jQuery(selector).append(card);
-			} else {
-			    var accordion = $('<div id="accordion" class="easyAccord">').append(card);
+                // append to that accordion!
+				jQuery(selector).append(dl);
+			} else {                
+			    var accordion = $('<div class="accordion">').append(dl);
 			    
 			    accordion
 			    .easyAccordion({
@@ -241,6 +251,25 @@ if (!window.terkait) {
 				// append at the end of the container!
 				jQuery('#terkait-entities > .container').append(accordion);
 			}
+		},
+		
+		getLabel : function (entity) {
+		    if (entity.has("name")) {
+                var name = entity.get("name");
+                if (jQuery.isArray(name) && name.length > 0) {
+                    for ( var i = 0; i < name.length; i++) {
+                        if (name[i].indexOf('@en') > -1) {
+                            name = name[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(name))
+                        name = name[0]; // just take the first
+                    name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+                    return name;
+                }
+            }
+		    return "No name!";
 		},
 
 		renderPerson : function(entity, card) {
@@ -263,10 +292,12 @@ if (!window.terkait) {
 					// first
 					// div.append('<dl><dt>Test Slide</dt><dd><h2>TEST
 					// SLIDE</h2><p>Text to
-					// test</p></dd><div class="entity_card">la</div>
+					// test</p><div class="entity_card">la</div>
 					// </dd></dl>');
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
 					card.append("<p> Person  :" + res + "</p>");
+					
+					
 				}
 				// TODO: Guy!
 			}
@@ -342,6 +373,17 @@ if (!window.terkait) {
 				// var url = geoCoordinates.get("url");
 				rightSideCard.append("<p> Long:" + geoCoordinates + "</P>");
 			}
+			//DEBUG
+			var button = $('<button>BUTTON</button>');
+            
+            button.click(function (entity, accordion) {
+                return function () {
+                    window.terkait.render(entity, accordion);
+                };
+            }(entity, card.parent()));
+            
+            card.append(button);
+            //DEBUG
 		},
 
 		annotate : function(type, sendResponse) {
