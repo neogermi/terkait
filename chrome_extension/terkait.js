@@ -344,6 +344,8 @@ if (!window.terkait) {
 			.append(leftSideCard)
 			.append(rightSideCard);
 			
+			getContent(entity, leftSideCard);
+			
 			var latitude = "";
 			var longitude = "";
 			
@@ -438,7 +440,99 @@ if (!window.terkait) {
 			}
 
 		},
-
+		getContent: function (entity,contentSelector){
+			var imgContainer = $('<div class = "tag_images">');
+			var query = getLabel(entity);  
+			contentSelector.append(imgContainer);
+			imgContainer
+				.vieImageSearch({
+					vie    : window.terkait.vie,
+					bin_size: 8,
+					services : {
+						gimage : {
+							use: true
+						}
+					},
+					render: render = function(data){
+										var self = this;
+						
+										var photos = self.options.photos;
+										var time = data.time;
+										
+										// clear the container element
+										$(self.element).empty();
+										//rendering
+										var ul = $('<ul>');
+										for (var p = 0; p < photos.length && p < this.options.bin_size; p++) {
+											var photo = photos[p];
+											var li = $('<li class="slider_item">');
+											var a = $('<a class="' + self.widgetBaseClass + '-image" target="_blank" href="' + photo.original + '"></a>');
+											var img = $('<img src="' + photo.thumbnail + '" />');
+											var div = $('<div>');
+											div.css({"height":"102px", "width": "90px"});
+											a.append(img);
+											div.append(a);
+											li.append(a);
+											ul.append(li);
+											
+										}
+										ul.appendTo($(self.element));
+										ul.anythingSlider({
+											theme: 'minimalist-round'
+											,buildNavigation: false
+											//,autoPlay: true
+											,expand: true
+										});
+										$('.tag_images img').each(function(){
+											var max_height = 90;
+											var max_width = 90;
+											var img_pad = Math.round((max_height-$(this).height())/2)+"px "+Math.round((max_width-$(this).width())/2)+"px";
+											$(this).css({"max-height":max_height+"px", "max-width": max_width+"px", padding: img_pad,"background-color":"black"});
+										});	
+										return this;}
+					
+			});
+			imgContainer
+				.vieImageSearch({
+					entity: query,
+			});
+			
+			var newsContainer = $('<div class = "tag_news">');
+			contentSelector.append(newsContainer);
+			newsSearch = new google.search.NewsSearch();
+			newsSearch.setSearchCompleteCallback(this, searchComplete, [newsSearch,newsContainer]);
+			newsSearch.execute(query);
+			
+			var videoContainer = $('<div class = "tag_video">');
+			contentSelector.append(videoContainer);
+			var videoSearch = new google.search.VideoSearch();
+			videoSearch.setSearchCompleteCallback(this, searchComplete, [videoSearch,videoContainer]);
+			videoSearch.execute(query);		
+		},
+		
+		searchComplete: function(googleSearch,container) {
+			if (googleSearch.results && googleSearch.results.length > 0) {
+			  var ul = $('<ul>');
+			  for (var i = 0; i < googleSearch.results.length; i++) {
+				var li = $('<li class="slider_item">');
+				var a = $('<a>');
+				a[0].href = googleSearch.results[i].url;
+				a[0].innerHTML = googleSearch.results[i].title;
+				var div = $('<div>');
+				div.css({"height":"102px", "width": "90px"});
+				div.append(a);
+				li.append(a);
+				ul.append(li);
+			  }
+			  container.append(ul);
+			  ul.anythingSlider({
+					theme: 'minimalist-round'
+					,buildNavigation: false
+					//,autoPlay: true
+					,expand: true
+				});
+			}
+		},
 		_getRangeObject : function() {
 			try {
 				var selectionObject;
@@ -463,6 +557,7 @@ if (!window.terkait) {
 			}
 		},
 	};
+		
 };
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {

@@ -52,7 +52,7 @@ $(window).load(function () {
 							return lbl.replace(/"/g, "").replace(/@[a-z]+/, '');
                         }
                     }],
-					end_query: function(entity){
+					end_query: function(){
 							$(this).find('.tag').each(function(ev){
 								var uri = $(this).attr('title');
 								var img_container = $(this).find('.tag_images');
