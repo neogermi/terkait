@@ -299,7 +299,7 @@ if (!window.terkait) {
 			.append(leftSideCard)
 			.append(rightSideCard);
 			
-			getContent(entity, leftSideCard);
+			window.terkait.getContent(entity, leftSideCard);
 			
 			card.append(leftSideCard).append(rightSideCard);
 
@@ -385,7 +385,7 @@ if (!window.terkait) {
 		},
 		getContent: function (entity,contentSelector){
 			var imgContainer = $('<div class = "tag_images">');
-			var query = getLabel(entity);  
+			var query = window.terkait.getLabel(entity);  
 			contentSelector.append(imgContainer);
 			imgContainer
 				.vieImageSearch({
@@ -443,13 +443,13 @@ if (!window.terkait) {
 			var newsContainer = $('<div class = "tag_news">');
 			contentSelector.append(newsContainer);
 			newsSearch = new google.search.NewsSearch();
-			newsSearch.setSearchCompleteCallback(this, searchComplete, [newsSearch,newsContainer]);
+			newsSearch.setSearchCompleteCallback(this, window.terkait.searchComplete, [newsSearch,newsContainer]);
 			newsSearch.execute(query);
 			
 			var videoContainer = $('<div class = "tag_video">');
 			contentSelector.append(videoContainer);
 			var videoSearch = new google.search.VideoSearch();
-			videoSearch.setSearchCompleteCallback(this, searchComplete, [videoSearch,videoContainer]);
+			videoSearch.setSearchCompleteCallback(this, window.terkait.searchComplete, [videoSearch,videoContainer]);
 			videoSearch.execute(query);		
 		},
 		
