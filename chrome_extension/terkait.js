@@ -27,7 +27,8 @@ if (!window.terkait) {
 													.getURL("terkait_transparent.png")
 											+ ")"
 								})
-						.hover(function() {
+						/* no hovering for development
+						  .hover(function() { 
 							jQuery(this).animate({
 								"right" : "-1em"
 							})
@@ -35,7 +36,7 @@ if (!window.terkait) {
 							jQuery(this).animate({
 								"right" : "-25em"
 							})
-						})
+						})*/
 						.appendTo(
 								jQuery('<div id="terkait-wrapper">').appendTo(
 										jQuery('body')))
@@ -223,31 +224,20 @@ if (!window.terkait) {
 		
 		render : function(entity, selector) {
 		    var cardView = this.createBBView(entity); //create the VIEW on that entity
-		    
-		    //the element of the VIEW
-		    var card = $(cardView.el);
-		    
-		    var dl = $('<dl>');
+		    		    
             var dt = $('<dt></dt>').text(window.terkait.getLabel(entity));
-            var dd = $('<dd>');
-            
-            dd.append(card);
-            
-            dl
-            .append(dt)
-            .append(dd);
-		    
+            var dd = $('<dd>').append($(cardView.el));
+
 		    //where to put it?
             if (selector) {
                 // append to that accordion!
-				jQuery(selector).append(dl);
-			} else {                
-			    var accordion = $('<div class="accordion">').append(dl);
+				jQuery(selector).find('dl').first().append(dt).append(dd);
+			} else {       
+			    var dl = $('<dl>')
+	            .append(dt)
+	            .append(dd);
 			    
-			    accordion
-			    .easyAccordion({
-	                autoStart : false
-	            });
+			    var accordion = $('<div class="accordion">').append(dl);
 				// append at the end of the container!
 				jQuery('#terkait-entities > .container').append(accordion);
 			}
@@ -378,8 +368,8 @@ if (!window.terkait) {
 			}
 			var elem = $('<div id ="map_canvas">');
 			rightSideCard.append(elem);
-			var options = this.initMap(latitude, longitude);
-			var map =new google.maps.Map(document.getElementById("map_canvas"), options);
+			//TODO: GUY: var options = this.initMap(latitude, longitude);
+			//TODO: GUY: var map = new google.maps.Map(document.getElementById("map_canvas"), options);
 			//DEBUG
 			var button = $('<button>BUTTON</button>');
             
@@ -392,6 +382,7 @@ if (!window.terkait) {
             card.append(button);
             //DEBUG
 		},
+		
 		initMap : function(latitude, longitude) {
 			var latlng = new google.maps.LatLng(latitude, longitude);
 			var myOptions = {
@@ -401,6 +392,7 @@ if (!window.terkait) {
 			};
 			return myOptions;
 		},
+		
 		annotate : function(type, sendResponse) {
 			var rng = window.terkait._getRangeObject();
 			if (rng && rng.startContainer === rng.endContainer
