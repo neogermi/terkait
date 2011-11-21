@@ -1,4 +1,4 @@
-﻿if (!window.terkait) {
+if (!window.terkait) {
 
 	window.terkait = {
 
@@ -194,34 +194,43 @@
 				foundElems : elems.size() > 0
 			};
 		},
-		
-		createBBView: function (entity) {
-		    var View = Backbone.View.extend({
-		        
-		        render: function () {
-		            $(this.el).empty(); // clear card first
-		            if (entity.isof("Person")) {
-		                this.el = window.terkait.renderPerson(this.model);
-		            } else if (entity.isof("Organization")) {
-		                this.el = window.terkait.renderOrganization(this.model);
-		            } else if (entity.isof("Place")) {
-		                this.el = window.terkait.renderPlace(this.model);
-		            }
-		        }
-		    });
-		    return new View({model: entity});
+
+		createBBView : function(entity) {
+			var View = Backbone.View
+					.extend({
+
+						render : function() {
+							$(this.el).empty(); // clear card first
+							if (entity.isof("Person")) {
+								this.el = window.terkait
+										.renderPerson(this.model);
+							} else if (entity.isof("Organization")) {
+								this.el = window.terkait
+										.renderOrganization(this.model);
+							} else if (entity.isof("Place")) {
+								this.el = window.terkait
+										.renderPlace(this.model);
+							}
+						}
+					});
+			return new View({
+				model : entity
+			});
 		},
-		
+
 		render : function(entity, selector) {
-		    var view = this.createBBView(entity); //create the VIEW on that entity
-		    view.render(); // render it the first time
-		    entity.bind("change", view.render); // bind the entitie's "change" event to a rerendering of the VIEW
-		    
-		    //the element of the VIEW
-		    var div = $(view.el);
-			
-		    //where to put it?
-            if (selector) {
+			var view = this.createBBView(entity); // create the VIEW on that
+													// entity
+			view.render(); // render it the first time
+			entity.bind("change", view.render); // bind the entitie's "change"
+												// event to a rerendering of the
+												// VIEW
+
+			// the element of the VIEW
+			var div = $(view.el);
+
+			// where to put it?
+			if (selector) {
 				// append to that accordion!
 				jQuery(selector).append(div);
 			} else {
@@ -251,69 +260,16 @@
 					if (jQuery.isArray(name))
 						name = name[0]; // just take the
 					// first
-//					 div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to
-//					 test</p></dd><div class="entity_card">la</div> </dd></dl>');
+					// div.append('<dl><dt>Test Slide</dt><dd><h2>TEST
+					// SLIDE</h2><p>Text to
+					// test</p></dd><div class="entity_card">la</div>
+					// </dd></dl>');
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
 					div.append("<p> Person  :" + res + "</p>");
 				}
 				// TODO: Guy!
 			}
-			if (entity.has("givenName")) {
-				var givenName = entity.get("name");
-				if (jQuery.isArray(givenName) && givenName.length > 0) {
-					for ( var i = 0; i < givenName.length; i++) {
-						if (givenName[i].indexOf('@en') > -1) {
-							givenName = givenName[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(givenName))
-						givenName = givenName[0]; // just
-					// take
-					// the
-					// first
-					div.append("<p> Person GIVENNAME :" + givenName + "</p>");
-				}
-				// TODO: Guy!
-			}
 
-			if (entity.has("birthDate")) {
-				var birthDate = entity.get("birthDate");
-				if (jQuery.isArray(birthDate) && birthDate.length > 0) {
-					for ( var i = 0; i < birthDate.length; i++) {
-						if (birthDate[i].indexOf('@en') > -1) {
-							birthDate = birthDate[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(birthDate))
-						birthDate = birthDate[0]; // just
-					// take
-					// the
-					// first
-					div.append("<p> Person BIRTHDATE :" + birthDate + "</p>");
-				}
-				// TODO: Guy!
-			}
-			if (entity.has("text")) {
-				var description = entity.get("text");
-				if (jQuery.isArray(description) && description.length > 0) {
-					for ( var i = 0; i < description.length; i++) {
-						if (description[i].indexOf('@en') > -1) {
-							description = description[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(description))
-						description = description[0]; // just
-					// take
-					// the
-					// first
-					div.append("<p> Person DESCRIPTION: " + description
-							+ "</p>");
-				}
-				// TODO: Guy!
-			}
 			// initialize accordion
 			div.easyAccordion({
 				autoStart : false
@@ -354,24 +310,6 @@
 					div.append("<p> Organization URL: " + url + "</p>");
 				}
 			}
-			if (entity.has("telephone")) {
-				var telephone = entity.get("telephone");
-				if (jQuery.isArray(telephone) && telephone.length > 0) {
-					for ( var i = 0; i < telephone.length; i++) {
-						if (telephone[i].indexOf('@en') > -1) {
-							telephone = telephone[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(telephone))
-						telephone = telephone[0]; // just
-					// take
-					// the
-					// first
-					div.append("<p> Organization TELEPHONE : " + telephone
-							+ "</p>");
-				}
-			}
 			return div;
 		},
 
@@ -389,18 +327,6 @@
 			// TODO: create new accordion in div and return that
 			// jQuery('#terkait-container .container').append('');
 			// TODO: foreach attribute that could be used:
-			if (entity.has("geo")) {
-				var geoCoordinates = entity.get("geo");
-				console.log("unknown request", geoCoordinates);
-				var url = geoCoordinates.get("url");
-				div.append("<p>" + url + "</P>");
-			}
-			if (entity.has("latMIn")) {
-				var lat = entity.get("lat");
-				console.log("unknown request", lat);
-				// var url = lat.get("url");
-				div.append("<p>" + lat + "</P>");
-			}
 			if (entity.has("name")) {
 				var name = entity.get("name");
 				if (jQuery.isArray(name) && name.length > 0) {
@@ -420,17 +346,15 @@
 			}
 			if (entity.has("geo:lat")) {
 				var geoCoordinates = entity.get("geo:lat");
-				//console.log("unknown request", geoCoordinates);
-				//var url = geoCoordinates.get("url");
+				// console.log("unknown request", geoCoordinates);
+				// var url = geoCoordinates.get("url");
 				div.append("<p> Lat:" + geoCoordinates + "</P>");
 			}
-			if (entity.has("dbpedia:country")) {
-				var country = entity.get("dbpedia:country");
-				div.append("<p> Country :" + country + "</P>");
-			}
-			if (entity.has("website")) {
-				var website = entity.get("website");
-				div.append("<p> Place Website :" + website + "</P>");
+			if (entity.has("geo:long")) {
+				var geoCoordinates = entity.get("geo:long");
+				// console.log("unknown request", geoCoordinates);
+				// var url = geoCoordinates.get("url");
+				div.append("<p> Long:" + geoCoordinates + "</P>");
 			}
 			// initialize accordion
 			arc.easyAccordion({
@@ -530,3 +454,4 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		console.log("unknown request", request);
 	}
 });
+
