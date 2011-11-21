@@ -204,7 +204,7 @@ if (!window.terkait) {
 			} else if (entity.isof("Place")) {
 				div = window.terkait.renderPlace(entity);
 			}
-
+			update.bind('change',this.render);
 			if (selector) {
 				// append to current accordion!
 				jQuery(selector).append(div);
@@ -215,7 +215,7 @@ if (!window.terkait) {
 		},
 
 		renderPerson : function(entity) {
-			// var div = jQuery('<div id="accordion"></div>');
+			var div = jQuery('<div id="accordion"></div>');
 			// var div = jQuery('<div>');
 			var div = $('<div class ="entity_card">');
 			var rightSideCard = $('<div class ="entityDetails">');
@@ -235,11 +235,8 @@ if (!window.terkait) {
 					if (jQuery.isArray(name))
 						name = name[0]; // just take the
 					// first
-					// div.append('<dl><dt>Test Slide</dt><dd><h2>TEST
-					// SLIDE</h2><p>Text to
-					// test</p></dd><dt>'+name+'</dt><dd><h2>Here
-					// '+name+'</h2><p>This is the card for
-					// '+name+'</p></dd></dl>');
+//					 div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to
+//					 test</p></dd><div class="entity_card">äla</div> </dd></dl>');
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
 					div.append("<p> Person  :" + res + "</p>");
 				}
@@ -363,15 +360,31 @@ if (!window.terkait) {
 		},
 
 		renderPlace : function(entity) {
-			var div = jQuery('<div>');
+			var arc = jQuery('<div id="accordion"></div>');
+			// var div = jQuery('<div>');
+
 			var div = $('<div class ="entity_card">');
+			arc.append(div);
+			var leftSideCard = $('<div class ="content">');
 			var rightSideCard = $('<div class ="entityDetails">');
+			div.append(leftSideCard);
 			// TODO: create new accordion
 			// var div = jQuery('<div id="accordion"></div>');
 			// TODO: create new accordion in div and return that
-
 			// jQuery('#terkait-container .container').append('');
 			// TODO: foreach attribute that could be used:
+			if (entity.has("geo")) {
+				var geoCoordinates = entity.get("geo");
+				console.log("unknown request", geoCoordinates);
+				var url = geoCoordinates.get("url");
+				div.append("<p>" + url + "</P>");
+			}
+			if (entity.has("latMIn")) {
+				var lat = entity.get("lat");
+				console.log("unknown request", lat);
+				// var url = lat.get("url");
+				div.append("<p>" + lat + "</P>");
+			}
 			if (entity.has("name")) {
 				var name = entity.get("name");
 				if (jQuery.isArray(name) && name.length > 0) {
@@ -386,16 +399,17 @@ if (!window.terkait) {
 					// first
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
 					div.append(rightSideCard).append(
-							'<p> Place NAME : ' + res + '</p>');
+							"Place NAME :" + '<a href ="#">' + res + '</a>');
 				}
 			}
-			if (entity.has("geo")) {
-				var geoCoordinates = entity.get("geo");
-				var url = geoCoordinates.get("url");
-				div.append("<p>" + url + "</P>");
+			if (entity.has("geo:lat")) {
+				var geoCoordinates = entity.get("geo:lat");
+				//console.log("unknown request", geoCoordinates);
+				//var url = geoCoordinates.get("url");
+				div.append("<p> Lat:" + geoCoordinates + "</P>");
 			}
-			if (entity.has("country")) {
-				var country = entity.get("country");
+			if (entity.has("dbpedia:country")) {
+				var country = entity.get("dbpedia:country");
 				div.append("<p> Country :" + country + "</P>");
 			}
 			if (entity.has("website")) {
@@ -403,10 +417,10 @@ if (!window.terkait) {
 				div.append("<p> Place Website :" + website + "</P>");
 			}
 			// initialize accordion
-			div.easyAccordion({
+			arc.easyAccordion({
 				autoStart : false
 			});
-			return div;
+			return arc;
 		},
 
 		annotate : function(type, sendResponse) {
