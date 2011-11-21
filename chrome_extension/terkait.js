@@ -198,6 +198,12 @@ if (!window.terkait) {
 		createBBView: function (entity) {
 		    var View = Backbone.View.extend({
 		        
+		        initialize : function(){
+		            // bind the entitie's "change" event to a rerendering of the VIEW
+		            this.model.bind("change", this.render, this);
+		            this.render(); // render it the first time
+		        },
+		        
 		        render: function () {
 		            $(this.el).empty(); // clear card first
 		            if (entity.isof("Person")) {
@@ -214,8 +220,6 @@ if (!window.terkait) {
 		
 		render : function(entity, selector) {
 		    var view = this.createBBView(entity); //create the VIEW on that entity
-		    view.render(); // render it the first time
-		    entity.bind("change", view.render); // bind the entitie's "change" event to a rerendering of the VIEW
 		    
 		    //the element of the VIEW
 		    var div = $(view.el);
@@ -252,7 +256,7 @@ if (!window.terkait) {
 						name = name[0]; // just take the
 					// first
 //					 div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to
-//					 test</p></dd><div class="entity_card">äla</div> </dd></dl>');
+//					 test</p></dd><div class="entity_card">la</div> </dd></dl>');
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
 					div.append("<p> Person  :" + res + "</p>");
 				}
