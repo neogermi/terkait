@@ -222,7 +222,7 @@ if (!window.terkait) {
 
 		render : function(entity, selector) {
 			var cardView = this.createBBView(entity); // create the VIEW on
-														// that entity
+			// that entity
 
 			var dt = $('<dt>').text(window.terkait.getLabel(entity));
 			var dd = $('<dd>').append($(cardView.el));
@@ -306,30 +306,12 @@ if (!window.terkait) {
 			var rightSideCard = $('<div class ="entityDetails">');
 			card.append(leftSideCard).append(rightSideCard);
 
+			var res = this.getLabel(entity);
+			rightSideCard.append("NAME :" + '<a href ="#">' + res + '</a>');
 			var latitude = "";
 			var longitude = "";
-
-			if (entity.has("name")) {
-				var name = entity.get("name");
-				if (jQuery.isArray(name) && name.length > 0) {
-					for ( var i = 0; i < name.length; i++) {
-						if (name[i].indexOf('@en') > -1) {
-							name = name[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(name))
-						name = name[0]; // just take the
-					// first
-					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-					rightSideCard.append("NAME :" + '<a href ="#">' + res
-							+ '</a>');
-				}
-			}
 			if (entity.has("geo:lat")) {
 				latitude = entity.get("geo:lat");
-				// console.log("unknown request", geoCoordinates);
-				// var url = geoCoordinates.get("url");
 				rightSideCard.append("<p> Lat:" + latitude + "</P>");
 			}
 			if (entity.has("geo:long")) {
