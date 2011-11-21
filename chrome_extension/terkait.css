@@ -53,8 +53,8 @@
 }
 
 .entity_card {
-	width: 77%;
-	//height: 75px;
+	width: 77%; //
+	height: 75px;
 	background-color: #cccccc;
 	border: 2px solid #999999;
 	-moz-border-radius: 5px;
@@ -65,18 +65,26 @@
 	margin-left: 2px;
 }
 
+#map_canvas {
+	width: 40%;
+	height: 40%;
+}
+
 .entityDetails {
 	width: 73%;
 	height: 100%;
 	background-color: red;
 	margin-left: 33%;
 }
-.entityDetails .a{
+
+.entityDetails .a {
+	
 }
+
 .content {
 	width: 33%;
-	height: 50px;
-	//background-color: blue;
+	height: 50px; //
+	background-color: blue;
 	border-right-width: 15px;
 }
 /* Accordion */
@@ -108,8 +116,9 @@
 	-moz-transform: rotate(-90deg);
 	-moz-transform-origin: 20px 0px;
 	/* Internet Explorer */
-	filter: progid :   DXImageTransform.Microsoft.BasicImage (   rotation =
-		  3 );
+	filter: progid :     DXImageTransform.Microsoft.BasicImage (    
+		rotation = 
+		   3 );
 	cursor: pointer;
 }
 
@@ -144,8 +153,9 @@
 	font-size: 1.1em; /* Safari */
 	-webkit-transform: rotate(90deg); /* Firefox */
 	-moz-transform: rotate(90deg); /* Internet Explorer */
-	filter: progid :   DXImageTransform.Microsoft.BasicImage (   rotation =
-		  1 );
+	filter: progid :     DXImageTransform.Microsoft.BasicImage (    
+		rotation = 
+		   1 );
 }
 
 /* FEEL FREE TO CUSTOMIZE THE FOLLOWING RULES */
