@@ -232,7 +232,7 @@ if (!window.terkait) {
 				// append to that accordion!
 				jQuery(selector).append(card);
 			} else {
-			    var accordion = $('<div class="easyAccord">').append(card);
+			    var accordion = $('<div id="accordion" class="easyAccord">').append(card);
 			    
 			    accordion
 			    .easyAccordion({
