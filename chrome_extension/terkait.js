@@ -341,7 +341,7 @@ if (!window.terkait) {
 					// first
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
 					div.append(rightSideCard).append(
-							"Place NAME :" + '<a href ="#">' + res + '</a>');
+							"NAME :" + '<a href ="#">' + res + '</a>');
 				}
 			}
 			if (entity.has("geo:lat")) {
