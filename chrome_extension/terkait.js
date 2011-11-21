@@ -194,43 +194,38 @@ if (!window.terkait) {
 				foundElems : elems.size() > 0
 			};
 		},
-
-		createBBView : function(entity) {
-			var View = Backbone.View
-					.extend({
-
-						render : function() {
-							$(this.el).empty(); // clear card first
-							if (entity.isof("Person")) {
-								this.el = window.terkait
-										.renderPerson(this.model);
-							} else if (entity.isof("Organization")) {
-								this.el = window.terkait
-										.renderOrganization(this.model);
-							} else if (entity.isof("Place")) {
-								this.el = window.terkait
-										.renderPlace(this.model);
-							}
-						}
-					});
-			return new View({
-				model : entity
-			});
+		
+		createBBView: function (entity) {
+		    var View = Backbone.View.extend({
+		        
+		        initialize : function(){
+		            // bind the entitie's "change" event to a rerendering of the VIEW
+		            this.model.bind("change", this.render, this);
+		            this.render(); // render it the first time
+		        },
+		        
+		        render: function () {
+		            $(this.el).empty(); // clear card first
+		            if (entity.isof("Person")) {
+		                this.el = window.terkait.renderPerson(this.model);
+		            } else if (entity.isof("Organization")) {
+		                this.el = window.terkait.renderOrganization(this.model);
+		            } else if (entity.isof("Place")) {
+		                this.el = window.terkait.renderPlace(this.model);
+		            }
+		        }
+		    });
+		    return new View({model: entity});
 		},
-
+		
 		render : function(entity, selector) {
-			var view = this.createBBView(entity); // create the VIEW on that
-													// entity
-			view.render(); // render it the first time
-			entity.bind("change", view.render); // bind the entitie's "change"
-												// event to a rerendering of the
-												// VIEW
-
-			// the element of the VIEW
-			var div = $(view.el);
-
-			// where to put it?
-			if (selector) {
+		    var view = this.createBBView(entity); //create the VIEW on that entity
+		    
+		    //the element of the VIEW
+		    var div = $(view.el);
+			
+		    //where to put it?
+            if (selector) {
 				// append to that accordion!
 				jQuery(selector).append(div);
 			} else {
