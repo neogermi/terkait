@@ -116,7 +116,8 @@ window.terkait = {
                     .done(function(entities) {
                         for (var e = 0; e < entities.length; e++) {
                             var updated = window.terkait.vie.entities.get(entities[e].id);
-                            updated.change();
+                            // change event from backbone
+							updated.change();
                         }
                     });
                 }
