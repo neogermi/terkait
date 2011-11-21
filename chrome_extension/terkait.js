@@ -299,7 +299,6 @@ if (!window.terkait) {
 					
 					
 				}
-				// TODO: Guy!
 			}
 		},
 
