@@ -47,7 +47,6 @@ if (!window.terkait) {
 			}
 			;
 		},
-<<<<<<< HEAD
 
 		selector : function() {
 			var res = $(
@@ -196,83 +195,17 @@ if (!window.terkait) {
 			};
 		},
 
-		createBBView : function(entity) {
-			var View = Backbone.View
-					.extend({
-
-						render : function() {
-							$(this.el).empty(); // clear card first
-							if (entity.isof("Person")) {
-								this.el = window.terkait
-										.renderPerson(this.model);
-							} else if (entity.isof("Organization")) {
-								this.el = window.terkait
-										.renderOrganization(this.model);
-							} else if (entity.isof("Place")) {
-								this.el = window.terkait
-										.renderPlace(this.model);
-							}
-						}
-					});
-			return new View({
-				model : entity
-			});
-		},
-
-		render : function(entity, selector) {
-			var view = this.createBBView(entity); // create the VIEW on that
-													// entity
-			view.render(); // render it the first time
-			entity.bind("change", view.render); // bind the entitie's "change"
-												// event to a rerendering of the
-												// VIEW
-
-			// the element of the VIEW
-			var div = $(view.el);
-
-			// where to put it?
-			if (selector) {
-				// append to that accordion!
-				jQuery(selector).append(div);
-			} else {
-				// append at the end of the container!
-				jQuery('#terkait-entities > .container').append(div);
-			}
-		},
-
-		renderPerson : function(entity) {
-			var div = jQuery('<div id="accordion"></div>');
-			// var div = jQuery('<div>');
-			var div = $('<div class ="entity_card">');
-			var rightSideCard = $('<div class ="entityDetails">');
-			// TODO: create new accordion in div and return that
-
-			// jQuery('#terkait-container .container').append('');
-			// TODO: foreach attribute that could be used:
-			if (entity.has("name")) {
-				var name = entity.get("name");
-				if (jQuery.isArray(name) && name.length > 0) {
-					for ( var i = 0; i < name.length; i++) {
-						if (name[i].indexOf('@en') > -1) {
-							name = name[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(name))
-						name = name[0]; // just take the
-=======
-		
 		createBBView: function (entity) {
 		    var CardView = Backbone.View.extend({
-		        
+
 		        className : "entity_card",
-		        
+
 		        initialize : function(){
 		            // bind the entitie's "change" event to a rerendering of the VIEW
 		            this.model.bind("change", this.render, this);
 		            this.render(); // render it the first time
 		        },
-		        
+
 		        render: function () {
 		            var $el = $(this.el);
 		            $el.empty(); // clear card first
@@ -287,20 +220,20 @@ if (!window.terkait) {
 		    });
 		    return new CardView({model: entity});
 		},
-		
+
 		render : function(entity, selector) {
 		    var cardView = this.createBBView(entity); //create the VIEW on that entity
-		    
+
 		    //the element of the VIEW
 		    var card = $(cardView.el);
-			
+
 		    //where to put it?
             if (selector) {
 				// append to that accordion!
 				jQuery(selector).append(card);
 			} else {
 			    var accordion = $('<div id="accordion" class="easyAccord">').append(card);
-			    
+
 			    accordion
 			    .easyAccordion({
 	                autoStart : false
@@ -327,204 +260,11 @@ if (!window.terkait) {
 					}
 					if (jQuery.isArray(name))
 						name = name[0]; // just take the
->>>>>>> 0f66138c39e939d2735d4ff64ff6d560aeda0999
 					// first
 					// div.append('<dl><dt>Test Slide</dt><dd><h2>TEST
 					// SLIDE</h2><p>Text to
 					// test</p></dd><div class="entity_card">la</div>
 					// </dd></dl>');
-<<<<<<< HEAD
-					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-					div.append("<p> Person  :" + res + "</p>");
-				}
-				// TODO: Guy!
-			}
-
-			// initialize accordion
-			div.easyAccordion({
-				autoStart : false
-			});
-			return div;
-		},
-
-		renderOrganization : function(entity) {
-			var div = jQuery('<div>');
-			// TODO: create new accordion
-			if (entity.has("name")) {
-				var name = entity.get("name");
-				if (jQuery.isArray(name) && name.length > 0) {
-					for ( var i = 0; i < name.length; i++) {
-						if (name[i].indexOf('@en') > -1) {
-							name = name[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(name))
-						name = name[0]; // just take the
-					// first
-					div.append("<p> Organization NAME : " + name + "</p>");
-				}
-			}
-			if (entity.has("url")) {
-				var url = entity.get("url");
-				if (jQuery.isArray(url) && url.length > 0) {
-					for ( var i = 0; i < url.length; i++) {
-						if (url[i].indexOf('@en') > -1) {
-							url = url[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(url))
-						url = url[0]; // just take the
-					// first
-					div.append("<p> Organization URL: " + url + "</p>");
-				}
-			}
-			return div;
-		},
-
-		renderPlace : function(entity) {
-			var arc = jQuery('<div id="accordion"></div>');
-			// var div = jQuery('<div>');
-
-			var div = $('<div class ="entity_card">');
-			arc.append(div);
-			var leftSideCard = $('<div class ="content">');
-			var rightSideCard = $('<div class ="entityDetails">');
-			div.append(leftSideCard);
-			// TODO: create new accordion
-			// var div = jQuery('<div id="accordion"></div>');
-			// TODO: create new accordion in div and return that
-			// jQuery('#terkait-container .container').append('');
-			// TODO: foreach attribute that could be used:
-			if (entity.has("name")) {
-				var name = entity.get("name");
-				if (jQuery.isArray(name) && name.length > 0) {
-					for ( var i = 0; i < name.length; i++) {
-						if (name[i].indexOf('@en') > -1) {
-							name = name[i];
-							break;
-						}
-					}
-					if (jQuery.isArray(name))
-						name = name[0]; // just take the
-					// first
-					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-					div.append(rightSideCard).append(
-							"Place NAME :" + '<a href ="#">' + res + '</a>');
-				}
-			}
-			if (entity.has("geo:lat")) {
-				var geoCoordinates = entity.get("geo:lat");
-				// console.log("unknown request", geoCoordinates);
-				// var url = geoCoordinates.get("url");
-				div.append("<p> Lat:" + geoCoordinates + "</P>");
-			}
-			if (entity.has("geo:long")) {
-				var geoCoordinates = entity.get("geo:long");
-				// console.log("unknown request", geoCoordinates);
-				// var url = geoCoordinates.get("url");
-				div.append("<p> Long:" + geoCoordinates + "</P>");
-			}
-			// initialize accordion
-			arc.easyAccordion({
-				autoStart : false
-			});
-			return arc;
-		},
-
-		annotate : function(type, sendResponse) {
-			var rng = window.terkait._getRangeObject();
-			if (rng && rng.startContainer === rng.endContainer
-					&& rng.startOffset !== rng.endOffset) {
-				rng.expand("word"); // expands to word boundaries
-				var selectedText = $(rng.cloneContents()).text();
-				rng.deleteContents();
-				var $elem = $("<span>" + selectedText + "</span>").addClass(
-						"terkait-annotation");
-				rng.insertNode($elem.get(0));
-
-				var text = rng.toString();
-
-				var entity = new window.terkait.vie.Entity({
-					'@type' : window.terkait.vie.types.get(type),
-					'name' : text
-				});
-				window.terkait.vie.entities.add(entity);
-
-				window.terkait.vie.save({
-					entity : entity,
-					element : $elem
-				}).using('rdfardfquery').execute().done(function() {
-					sendResponse({
-						success : true
-					});
-				}).fail(function() {
-					sendResponse({
-						success : false
-					});
-				});
-				return true;
-			} else {
-				return false;
-			}
-
-		},
-
-		_getRangeObject : function() {
-			try {
-				var selectionObject;
-				if (window.getSelection) {
-					selectionObject = window.getSelection();
-				} else if (document.selection) {
-					selectionObject = document.selection.createRange();
-				}
-				if (selectionObject.getRangeAt)
-					return selectionObject.getRangeAt(0);
-				else { // Safari!
-					var range = document.createRange();
-					range.setStart(selectionObject.anchorNode,
-							selectionObject.anchorOffset);
-					range.setEnd(selectionObject.focusNode,
-							selectionObject.focusOffset);
-					return range;
-				}
-			} catch (e) {
-				// nothing to be ranged
-				return undefined;
-			}
-		},
-	};
-};
-
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-	if (request.action === "create") {
-		window.terkait.create();
-		sendResponse({
-			success : true
-		});
-	} else if (request.action === "recommend") {
-		try {
-			var res = window.terkait.recommend();
-			sendResponse({
-				result : res,
-				success : true
-			});
-		} catch (e) {
-			sendResponse({
-				error : e
-			});
-		}
-	} else if (request.action === "annotateSelectionAs") {
-		var res = window.terkait.annotate(request["args"]["id"], sendResponse);
-	} else {
-		sendResponse({
-			error : "unknown request!" + request
-		});
-		console.log("unknown request", request);
-	}
-});
-=======
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
 					card.append("<p> Person  :" + res + "</p>");
 				}
@@ -572,7 +312,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 			card
 			.append(leftSideCard)
 			.append(rightSideCard);
-			
+
 			if (entity.has("name")) {
 				var name = entity.get("name");
 				if (jQuery.isArray(name) && name.length > 0) {
@@ -695,4 +435,3 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		console.log("unknown request", request);
 	}
 });
->>>>>>> 0f66138c39e939d2735d4ff64ff6d560aeda0999
