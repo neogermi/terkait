@@ -344,6 +344,9 @@ if (!window.terkait) {
 			.append(leftSideCard)
 			.append(rightSideCard);
 			
+			var latitude = "";
+			var longitude = "";
+			
 			if (entity.has("name")) {
 				var name = entity.get("name");
 				if (jQuery.isArray(name) && name.length > 0) {
@@ -362,17 +365,21 @@ if (!window.terkait) {
 				}
 			}
 			if (entity.has("geo:lat")) {
-				var geoCoordinates = entity.get("geo:lat");
+				latitude= entity.get("geo:lat");
 				// console.log("unknown request", geoCoordinates);
 				// var url = geoCoordinates.get("url");
-				rightSideCard.append("<p> Lat:" + geoCoordinates + "</P>");
+				rightSideCard.append("<p> Lat:" + latitude + "</P>");
 			}
 			if (entity.has("geo:long")) {
-				var geoCoordinates = entity.get("geo:long");
+				longitude = entity.get("geo:long");
 				// console.log("unknown request", geoCoordinates);
 				// var url = geoCoordinates.get("url");
-				rightSideCard.append("<p> Long:" + geoCoordinates + "</P>");
+				rightSideCard.append("<p> Long:" + longitude + "</P>");
 			}
+			var elem = $('<div id ="map_canvas">');
+			rightSideCard.append(elem);
+			var options = this.initMap(latitude, longitude);
+			var map =new google.maps.Map(document.getElementById("map_canvas"), options);
 			//DEBUG
 			var button = $('<button>BUTTON</button>');
             
@@ -385,7 +392,15 @@ if (!window.terkait) {
             card.append(button);
             //DEBUG
 		},
-
+		initMap : function(latitude, longitude) {
+			var latlng = new google.maps.LatLng(latitude, longitude);
+			var myOptions = {
+				zoom : 8,
+				center : latlng,
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			};
+			return myOptions;
+		},
 		annotate : function(type, sendResponse) {
 			var rng = window.terkait._getRangeObject();
 			if (rng && rng.startContainer === rng.endContainer
