@@ -1,158 +1,244 @@
 #terkait-wrapper {
-  font-size: 10px;
-  text-align: center;
-  position:fixed;
-  top:0px;
-  right:0px;
-  height: 100%;
-  z-index:9999;
+	font-size: 10px;
+	text-align: center;
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	height: 100%;
+	z-index: 9999;
 }
- 
+
 #terkait-wrapper:before {
-  content: '';
-  display: inline-block;
-  height: 100%; 
-  vertical-align: middle;
- }
- 
+	content: '';
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
 #terkait-container {
-  display: inline-block;
-  vertical-align: middle;
-  padding: 2.5em 1.5em;
-  border: #a0a0a0 solid 1px;
-  background: #f5f5f5;
-  box-shadow: 0px 0px 3em grey;
-  border-radius: 0.5em;
-  height:75%;
-  width:30em;
-  right:-25em;
-  position:relative;
-  background-repeat:no-repeat;
-  background-size:10em;
- }
- 
- #terkait-container .entities {
-  background-color: transparent;
-  border: #a0a0a0 solid 1px;
-  overflow-y:auto;
-  position:absolute;
-  top: 3em;
-  bottom:1em;
-  right:1.5em;
-  left:1em;
- }
- 
- #terkait-container .entities .container > * {
- 
- }
- 
- /* Text of interest */
- .terkait-toi:hover, .terkait-toi .active {
-   -webkit-transition:background 1s;
-   background-color: rgba(255, 255, 153, 0.7);
- }
- 
- /* Accordion */
- /* UNLESS YOU KNOW WHAT YOU'RE DOING, DO NOT CHANGE THE FOLLOWING RULES */
-		
-		.easy-accordion{display:block;position:relative;overflow:hidden;padding:0;margin:0}
-		.easy-accordion dt,.easy-accordion dd{margin:0;padding:0}
-		.easy-accordion dt,.easy-accordion dd{position:absolute}
-		.easy-accordion dt{
-		margin-bottom:0;
-		margin-left:0;
-		z-index:5;
-		/* Safari */ -webkit-transform: rotate(-90deg);
-		/* Firefox */ -moz-transform: rotate(-90deg);-moz-transform-origin: 20px 0px;
-		/* Internet Explorer */ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
-		cursor:pointer;
-		}
-		
-		.easy-accordion dd{
-		z-index:1;
-		opacity:0;
-		overflow:hidden
-		}
-		
-		.easy-accordion dd.active{opacity:1;}
-		
-		.easy-accordion dd.no-more-active{z-index:2;opacity:1}
-		
-		.easy-accordion dd.active{z-index:3}
-		
-		.easy-accordion dd.plus{z-index:4}
-		
-		.easy-accordion .slide-number{position:absolute;bottom:0;left:10px;font-weight:normal;font-size:1.1em;/* Safari */ -webkit-transform: rotate(90deg); /* Firefox */ -moz-transform: rotate(90deg);  /* Internet Explorer */ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);}
-		 
-		 
-		/* FEEL FREE TO CUSTOMIZE THE FOLLOWING RULES */
-		
-		dd p{line-height:120%}
-		
-			
-		#accordion{
-		width:300px;
-		height:195px;
-		padding:30px;
-		background:#fff;
-		border:1px solid #b5c9e8
-		}
-		
-		#accordion h2{
-		font-size:2.5em;
-		margin-top:10px
-		}
-		
-		#accordion dl{
-		width:300px;
-		height:195px
-		}	
-		
-		#accordion dt{
-		height:56px;
-		line-height:44px;
-		text-align:right;
-		padding:10px 15px 0 0;
-		font-size:1.1em;
-		font-weight:bold;
-		font-family: Tahoma, Geneva, sans-serif;
-		text-transform:uppercase;
-		letter-spacing:1px;
-		background:#fff url(lib/jQuery-easyAccordion/images/slide-title-inactive-2.jpg) 0 0 no-repeat;
-		color:#26526c
-		}
-		
-		#accordion dt.active{
-		cursor:pointer;
-		color:#fff;
-		background:#fff url(lib/jQuery-easyAccordion/images/slide-title-active-2.jpg) 0 0 no-repeat
-		}
-		
-		#accordion dt.hover{color:#68889b;}
-		
-		#accordion dt.active.hover{color:#fff}
-		
-		#accordion dd{
-		padding:25px;
-		background:url(lib/jQuery-easyAccordion/images/slide.jpg) bottom left repeat-x;
-		border:1px solid #dbe9ea;
-		border-left:0;
-		margin-right:3px
-		}
-		
-		#accordion .slide-number{
-		color:#68889b;
-		left:10px;
-		font-weight:bold
-		}
-		
-		#accordion .active .slide-number{color:#fff}
-		
-		#accordion a{color:#68889b}
-		
-		#accordion dd img{
-		float:right;
-		margin:0 0 0 30px;
-		position:relative;
-		top:-20px
-		}
+	display: inline-block;
+	vertical-align: middle;
+	padding: 2.5em 1.5em;
+	border: #a0a0a0 solid 1px;
+	background: #f5f5f5;
+	box-shadow: 0px 0px 3em grey;
+	border-radius: 0.5em;
+	height: 75%;
+	width: 30em;
+	right: -25em;
+	position: relative;
+	background-repeat: no-repeat;
+	background-size: 10em;
+}
+
+#terkait-container .entities {
+	background-color: transparent;
+	border: #a0a0a0 solid 1px;
+	overflow-y: auto;
+	position: absolute;
+	top: 3em;
+	bottom: 1em;
+	right: 1.5em;
+	left: 1em;
+}
+
+#terkait-container .entities .container>* {
+	
+}
+
+/* Text of interest */
+.terkait-toi:hover,.terkait-toi .active {
+	-webkit-transition: background 1s;
+	background-color: rgba(255, 255, 153, 0.7);
+}
+
+.entity_card {
+	width: 77%; //
+	height: 75px;
+	background-color: #cccccc;
+	border: 2px solid #999999;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 10px;
+	padding: 15px 15px 15px 15px;
+	margin-top: 2px;
+	margin-left: 2px;
+}
+
+#map_canvas {
+	width: 40%;
+	height: 40%;
+}
+
+.entityDetails {
+	width: 73%;
+	height: 100%;
+	background-color: red;
+	margin-left: 33%;
+}
+
+.entityDetails .a {
+	
+}
+
+.content {
+	width: 33%;
+	height: 50px; //
+	background-color: blue;
+	border-right-width: 15px;
+}
+/* Accordion */
+/* UNLESS YOU KNOW WHAT YOU'RE DOING, DO NOT CHANGE THE FOLLOWING RULES */
+.easy-accordion {
+	display: block;
+	position: relative;
+	overflow: hidden;
+	padding: 0;
+	margin: 0
+}
+
+.easy-accordion dt,.easy-accordion dd {
+	margin: 0;
+	padding: 0
+}
+
+.easy-accordion dt,.easy-accordion dd {
+	position: absolute
+}
+
+.easy-accordion dt {
+	margin-bottom: 0;
+	margin-left: 0;
+	z-index: 5;
+	/* Safari */
+	-webkit-transform: rotate(-90deg);
+	/* Firefox */
+	-moz-transform: rotate(-90deg);
+	-moz-transform-origin: 20px 0px;
+	/* Internet Explorer */
+	filter: progid :     DXImageTransform.Microsoft.BasicImage (    
+		rotation = 
+		   3 );
+	cursor: pointer;
+}
+
+.easy-accordion dd {
+	z-index: 1;
+	opacity: 0;
+	overflow: hidden
+}
+
+.easy-accordion dd.active {
+	opacity: 1;
+}
+
+.easy-accordion dd.no-more-active {
+	z-index: 2;
+	opacity: 1
+}
+
+.easy-accordion dd.active {
+	z-index: 3
+}
+
+.easy-accordion dd.plus {
+	z-index: 4
+}
+
+.easy-accordion .slide-number {
+	position: absolute;
+	bottom: 0;
+	left: 10px;
+	font-weight: normal;
+	font-size: 1.1em; /* Safari */
+	-webkit-transform: rotate(90deg); /* Firefox */
+	-moz-transform: rotate(90deg); /* Internet Explorer */
+	filter: progid :     DXImageTransform.Microsoft.BasicImage (    
+		rotation = 
+		   1 );
+}
+
+/* FEEL FREE TO CUSTOMIZE THE FOLLOWING RULES */
+dd p {
+	line-height: 120%
+}
+
+.accordion {
+	width: 300px;
+	height: 195px;
+	padding: 30px;
+	background: #fff;
+	border: 1px solid #b5c9e8
+}
+
+.accordion h2 {
+	font-size: 2.5em;
+	margin-top: 10px
+}
+
+.accordion dl {
+	width: 300px;
+	height: 195px
+}
+
+.accordion dt {
+	height: 56px;
+	line-height: 44px;
+	text-align: right;
+	padding: 10px 15px 0 0;
+	font-size: 1.1em;
+	font-weight: bold;
+	font-family: Tahoma, Geneva, sans-serif;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	background: #fff
+		url(lib/jQuery-easyAccordion/images/slide-title-inactive-2.jpg) 0 0
+		no-repeat;
+	color: #26526c
+}
+
+.accordion dt.active {
+	cursor: pointer;
+	color: #fff;
+	background: #fff
+		url(lib/jQuery-easyAccordion/images/slide-title-active-2.jpg) 0 0
+		no-repeat
+}
+
+.accordion dt.hover {
+	color: #68889b;
+}
+
+.accordion dt.active.hover {
+	color: #fff
+}
+
+.accordion dd {
+	padding: 25px;
+	background: url(lib/jQuery-easyAccordion/images/slide.jpg) bottom left
+		repeat-x;
+	border: 1px solid #dbe9ea;
+	border-left: 0;
+	margin-right: 3px
+}
+
+.accordion .slide-number {
+	color: #68889b;
+	left: 10px;
+	font-weight: bold
+}
+
+.accordion .active .slide-number {
+	color: #fff
+}
+
+.accordion a {
+	color: #68889b
+}
+
+.accordion dd img {
+	float: right;
+	margin: 0 0 0 30px;
+	position: relative;
+	top: -20px
+}
