@@ -1,4 +1,4 @@
-if (!window.terkait) {
+ï»¿if (!window.terkait) {
 
 	window.terkait = {
 
@@ -252,7 +252,7 @@ if (!window.terkait) {
 						name = name[0]; // just take the
 					// first
 //					 div.append('<dl><dt>Test Slide</dt><dd><h2>TEST SLIDE</h2><p>Text to
-//					 test</p></dd><div class="entity_card">äla</div> </dd></dl>');
+//					 test</p></dd><div class="entity_card">la</div> </dd></dl>');
 					var res = name.replace(/"/g, "").replace(/@[a-z]+/, '');
 					div.append("<p> Person  :" + res + "</p>");
 				}
