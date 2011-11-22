@@ -326,15 +326,19 @@ if (!window.terkait) {
 			// google.maps.Map(document.getElementById("map_canvas"), options);
 //max			google.maps.Map(document.getElementById("map_canvas"), options);
 			// DEBUG
-			var button = $('<button>BUTTON</button>');
+			if (entity.has("dbpedia:country")) {
+				var countryAttr = this.getLabel(entity.get("dbpedia:country"));
+				var country = $('<p>country: </p>');
+				var button = $('<button>'+countryAttr+'</button>');
 
-			button.click(function(entity, accordion) {
-				return function() {
-					window.terkait.render(entity, accordion);
-				};
-			}(entity, card.parent()));
+				button.click(function(entity, accordion) {
+					return function() {
+						window.terkait.render(entity, accordion);
+					};
+				}(entity, card.parent()));
 
-			rightSideCard.append(button);
+				rightSideCard.append(country.append(button));
+			}
 			// DEBUG
 		},
 
