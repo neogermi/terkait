@@ -28,6 +28,7 @@
       	"lib/backbone.js",
       	"lib/rdfquery.js",
       	"lib/jquery.ui.map.min.js",
+      	"lib/jquery.ui.map.js",
 		"lib/jquery.gmaps.js",
 		"lib/vie.widget.image_search.js",
 		"lib/vie.widget.auto_tagger.js",

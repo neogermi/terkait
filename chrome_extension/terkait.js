@@ -13,6 +13,10 @@ if (!window.terkait) {
 			v.use(new v.DBPediaService());
 			return v;
 		}(),
+//		gmap: function() {
+//			var m = ('#map_canvas').gmap();
+//			return m;
+//		},
 		create : function() {
 			if (jQuery('#terkait-container').size() > 0) {
 				// clear former results!
@@ -318,10 +322,10 @@ if (!window.terkait) {
 			}
 			var elem = $('<div id ="map_canvas">');
 			rightSideCard.append(elem);
-			// var coordinates = new google.maps.LatLng(latitude, longitude);
-			// $('#map_canvas').gmap({
-			// 'center' : coordinates
-			// });
+//			 var coordinates = new google.maps.LatLng(latitude, longitude);
+//			 $('#map_canvas').gmap({
+////			 'center' : coordinates
+//			 });
 			$('#map_canvas').gmap(
 					{
 						'center' : new google.maps.LatLng(latitude, longitude),
