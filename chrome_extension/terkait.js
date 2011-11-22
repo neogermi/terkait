@@ -299,7 +299,7 @@ if (!window.terkait) {
 			.append(leftSideCard)
 			.append(rightSideCard);
 			
-			window.terkait.getContent(entity, leftSideCard);
+			//window.terkait.getContent(entity, leftSideCard);
 			
 			card.append(leftSideCard).append(rightSideCard);
 
@@ -321,10 +321,10 @@ if (!window.terkait) {
 			var elem = $('<div id ="map_canvas">');
 			rightSideCard.append(elem);
 			// TODO: GUY: var options = window.terkait.initMap(latitude, longitude);
-			var options = window.terkait.initMap(latitude, longitude);
+//max			var options = window.terkait.initMap(latitude, longitude);
 			// TODO: GUY: var map = new
 			// google.maps.Map(document.getElementById("map_canvas"), options);
-			google.maps.Map(document.getElementById("map_canvas"), options);
+//max			google.maps.Map(document.getElementById("map_canvas"), options);
 			// DEBUG
 			var button = $('<button>BUTTON</button>');
 
