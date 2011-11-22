@@ -299,7 +299,7 @@ if (!window.terkait) {
 			.append(leftSideCard)
 			.append(rightSideCard);
 			
-			//window.terkait.getContent(entity, leftSideCard);
+			//max window.terkait.getContent(entity, leftSideCard);
 			
 			card.append(leftSideCard).append(rightSideCard);
 
