@@ -54,7 +54,7 @@
 }
 
 .entity_card {
-	width: 77%;
+	width: 87%;
 	height: 155px;
 	background-color: #cccccc;
 	border: 2px solid #999999;
@@ -73,10 +73,10 @@
 
 .entityDetails {
 	display: inline-block;
-	width: 50%;
+	width: 60%;
 	height: 100%;
 	background-color: red;
-	margin-left: 30px;; 
+	margin-left: 20px;; 
 }
 
 .entityDetails .a {

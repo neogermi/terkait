@@ -326,10 +326,13 @@ if (!window.terkait) {
 			// google.maps.Map(document.getElementById("map_canvas"), options);
 //max			google.maps.Map(document.getElementById("map_canvas"), options);
 			// DEBUG
+			
+			
+			//button for country
 			if (entity.has("dbpedia:country")) {
-				var countryAttr = this.getLabel(entity.get("dbpedia:country"));
-				var country = $('<p>country: </p>');
-				var button = $('<button>'+countryAttr+'</button>');
+				var range = this.getLabel(entity.get("dbpedia:country"));
+				var property = $('<p>country: </p>');
+				var button = $('<button>'+range+'</button>');
 
 				button.click(function(entity, accordion) {
 					return function() {
@@ -337,8 +340,39 @@ if (!window.terkait) {
 					};
 				}(entity, card.parent()));
 
-				rightSideCard.append(country.append(button));
+				rightSideCard.append(property.append(button));
 			}
+			//button for district
+		 	if (entity.has("dbpedia:district")) {
+				var range = this.getLabel(entity.get("dbpedia:district"));
+				var property = $('<p>district of: </p>');
+				var button = $('<button>'+range+'</button>');
+				
+
+				button.click(function(entity, accordion) {
+					return function() {
+						window.terkait.render(entity, accordion);
+					};
+				}(entity, card.parent()));
+
+				rightSideCard.append(property.append(button));
+			} 
+/*			//button for location of
+			if (entity.has("dbpedia:location")) {
+ 				var range = this.getLabel(entity.get("dbpedia:location"));
+				var property = $('<p>location of: </p>');
+				var button = $('<button>'+range+'</button>');
+
+				button.click(function(entity, accordion) {
+					return function() {
+						window.terkait.render(entity, accordion);
+					};
+				}(entity, card.parent()));
+
+				rightSideCard.append(property.append(button));
+ 
+			}
+*/
 			// DEBUG
 		},
 
