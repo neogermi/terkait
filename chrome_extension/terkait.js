@@ -13,7 +13,6 @@ if (!window.terkait) {
 			v.use(new v.DBPediaService());
 			return v;
 		}(),
-
 		create : function() {
 			if (jQuery('#terkait-container').size() > 0) {
 				// clear former results!
@@ -317,15 +316,19 @@ if (!window.terkait) {
 				// var url = geoCoordinates.get("url");
 				rightSideCard.append("<p> Long:" + longitude + "</P>");
 			}
-			var elem = $('<div id ="map_canvas" class ="map">');
+			var elem = $('<div id ="map_canvas">');
 			rightSideCard.append(elem);
+			var coordinates = new google.maps.LatLng(latitude, longitude);
+			$('#map_canvas').gmap({
+				'center' : coordinates
+			});
 			// TODO: GUY: var options = window.terkait.initMap(latitude,
 			// longitude);
-//			$("#map_canvas").window.terkait.gmaps({
-//				latitude : latitude,
-//				longitude : longitude,
-//				zoom : 6
-//			});
+			// $("#map_canvas").gmap({
+			// latitude : latitude,
+			// longitude : longitude,
+			// zoom : 6
+			// });
 			// TODO: GUY: var map = new
 			// google.maps.Map(document.getElementById("map_canvas"), options);
 			// max google.maps.Map(document.getElementById("map_canvas"),
