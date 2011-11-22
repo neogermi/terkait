@@ -20,16 +20,13 @@
   "background_page": "background.html",
   "content_scripts": [
     {
-      "matches": ["http://*/*", "http://maps.google.com/maps/api/js?sensor=false","https://*/*"],
+      "matches": ["http://*/*", "https://*/*"],
       "css": ["terkait.css"],
       "js": [
       	"lib/jquery.js",
       	"lib/underscore.js",
       	"lib/backbone.js",
       	"lib/rdfquery.js",
-      	"lib/jquery.ui.map.min.js",
-      	"lib/jquery.ui.map.js",
-		"lib/jquery.gmaps.js",
 		"lib/vie.widget.image_search.js",
 		"lib/vie.widget.auto_tagger.js",
       	"lib/vie.js",
