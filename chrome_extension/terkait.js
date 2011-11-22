@@ -334,7 +334,7 @@ if (!window.terkait) {
 				};
 			}(entity, card.parent()));
 
-			card.append(button);
+			rightSideCard.append(button);
 			// DEBUG
 		},
 
