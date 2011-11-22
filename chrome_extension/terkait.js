@@ -318,21 +318,25 @@ if (!window.terkait) {
 			}
 			var elem = $('<div id ="map_canvas">');
 			rightSideCard.append(elem);
-			var coordinates = new google.maps.LatLng(latitude, longitude);
-			$('#map_canvas').gmap({
-				'center' : coordinates
-			});
-			// TODO: GUY: var options = window.terkait.initMap(latitude,
-			// longitude);
-			// $("#map_canvas").gmap({
-			// latitude : latitude,
-			// longitude : longitude,
-			// zoom : 6
+			// var coordinates = new google.maps.LatLng(latitude, longitude);
+			// $('#map_canvas').gmap({
+			// 'center' : coordinates
 			// });
-			// TODO: GUY: var map = new
-			// google.maps.Map(document.getElementById("map_canvas"), options);
-			// max google.maps.Map(document.getElementById("map_canvas"),
-			// options);
+			$('#map_canvas').gmap(
+					{
+						'center' : new google.maps.LatLng(latitude, longitude),
+						'zoom' : 9,
+						'callback' : function() {
+							$('#map_canvas').gmap(
+									'addMarker',
+									{
+										'position' : new google.maps.LatLng(
+												49.45000076293945,
+												6.616666793823242)
+									});
+						}
+					});
+			// TODO: GUY: var options = window.terkait.initMap(latitude,
 			// DEBUG
 			if (entity.has("dbpedia:country")) {
 				var countryAttr = this.getLabel(entity.get("dbpedia:country"));
