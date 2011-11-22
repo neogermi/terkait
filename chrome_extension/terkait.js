@@ -235,9 +235,11 @@ if (!window.terkait) {
             dd.append(card);
             
             dl
-            .append(dt);
+            .append(dt)
             .append(dd);
 		    
+			dl.append('<dt>bla</dt><dd><H2>bla</H2><p>adfadsf</p></dd><dt>bla1</dt><dd><H2>bla1</H2><p>adfadsf</p></dd><dt>bla2</dt><dd><H2>bla2</H2><p>adfadsf</p></dd>')
+			
 		    //where to put it?
             if (selector) {
                 // append to that accordion!

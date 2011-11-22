@@ -168,7 +168,8 @@ dd p {
 
 .accordion dl {
 	width: 300px;
-	height: 195px
+	height: 195px;
+	border: 3px
 }
 
 .accordion dt {
