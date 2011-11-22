@@ -1,3 +1,4 @@
+
 if (!window.terkait) {
 
 	window.terkait = {
@@ -13,7 +14,10 @@ if (!window.terkait) {
 			v.use(new v.DBPediaService());
 			return v;
 		}(),
-
+//		gmap: function() {
+//			var m = ('#map_canvas').gmap();
+//			return m;
+//		},
 		create : function() {
 			if (jQuery('#terkait-container').size() > 0) {
 				// clear former results!
@@ -271,10 +275,10 @@ if (!window.terkait) {
 			var leftSideCard = $('<div class ="content">');
 			var rightSideCard = $('<div class ="entityDetails">');
 			card.append(leftSideCard).append(rightSideCard);
-			
+
 			var res = this.getLabel(entity);
 			rightSideCard.append("<p> Organization NAME : " + res + "</p>");
-			
+
 			if (entity.has("url")) {
 				var url = entity.get("url");
 				if (jQuery.isArray(url) && url.length > 0) {
@@ -287,7 +291,8 @@ if (!window.terkait) {
 					if (jQuery.isArray(url))
 						url = url[0]; // just take the
 					// first
-					rightSideCard.append("<p> Organization URL: " + url + "</p>");
+					rightSideCard.append("<p> Organization URL: " + url
+							+ "</p>");
 				}
 			}
 		},
@@ -295,12 +300,10 @@ if (!window.terkait) {
 		renderPlace : function(entity, card) {
 			var leftSideCard = $('<div class ="content">');
 			var rightSideCard = $('<div class ="entityDetails">');
-			card
-			.append(leftSideCard)
-			.append(rightSideCard);
-			
-			//max window.terkait.getContent(entity, leftSideCard);
-			
+			card.append(leftSideCard).append(rightSideCard);
+
+			// max window.terkait.getContent(entity, leftSideCard);
+
 			card.append(leftSideCard).append(rightSideCard);
 
 			var res = this.getLabel(entity);
@@ -320,19 +323,30 @@ if (!window.terkait) {
 			}
 			var elem = $('<div id ="map_canvas">');
 			rightSideCard.append(elem);
-			// TODO: GUY: var options = window.terkait.initMap(latitude, longitude);
-//max			var options = window.terkait.initMap(latitude, longitude);
-			// TODO: GUY: var map = new
-			// google.maps.Map(document.getElementById("map_canvas"), options);
-//max			google.maps.Map(document.getElementById("map_canvas"), options);
+//			 var coordinates = new google.maps.LatLng(latitude, longitude);
+//			 $('#map_canvas').gmap({
+////			 'center' : coordinates
+//			 });
+			$('#map_canvas').gmap(
+					{
+						'center' : new google.maps.LatLng(latitude, longitude),
+						'zoom' : 9,
+						'callback' : function() {
+							$('#map_canvas').gmap(
+									'addMarker',
+									{
+										'position' : new google.maps.LatLng(
+												49.45000076293945,
+												6.616666793823242)
+									});
+						}
+					});
+			// TODO: GUY: var options = window.terkait.initMap(latitude,
 			// DEBUG
-			
-			
-			//button for country
 			if (entity.has("dbpedia:country")) {
-				var range = this.getLabel(entity.get("dbpedia:country"));
-				var property = $('<p>country: </p>');
-				var button = $('<button>'+range+'</button>');
+				var countryAttr = this.getLabel(entity.get("dbpedia:country"));
+				var country = $('<p>country: </p>');
+				var button = $('<button>' + countryAttr + '</button>');
 
 				button.click(function(entity, accordion) {
 					return function() {
@@ -340,8 +354,9 @@ if (!window.terkait) {
 					};
 				}(entity, card.parent()));
 
-				rightSideCard.append(property.append(button));
+				rightSideCard.append(country.append(button));
 			}
+			// DEBUG
 			//button for district
 		 	if (entity.has("dbpedia:district")) {
 				var range = this.getLabel(entity.get("dbpedia:district"));
@@ -373,7 +388,6 @@ if (!window.terkait) {
  
 			}
 */
-			// DEBUG
 		},
 
 		initMap : function(latitude, longitude) {
@@ -423,96 +437,120 @@ if (!window.terkait) {
 			}
 
 		},
-		getContent: function (entity,contentSelector){
+		getContent : function(entity, contentSelector) {
 			var imgContainer = $('<div class = "tag_images">');
-			var query = window.terkait.getLabel(entity);  
+			var query = window.terkait.getLabel(entity);
 			contentSelector.append(imgContainer);
-			imgContainer
-				.vieImageSearch({
-					vie    : window.terkait.vie,
-					bin_size: 8,
-					services : {
-						gimage : {
-							use: true
-						}
-					},
-					render: render = function(data){
-										var self = this;
-						
-										var photos = self.options.photos;
-										var time = data.time;
-										
-										// clear the container element
-										$(self.element).empty();
-										//rendering
-										var ul = $('<ul>');
-										for (var p = 0; p < photos.length && p < this.options.bin_size; p++) {
-											var photo = photos[p];
-											var li = $('<li class="slider_item">');
-											var a = $('<a class="' + self.widgetBaseClass + '-image" target="_blank" href="' + photo.original + '"></a>');
-											var img = $('<img src="' + photo.thumbnail + '" />');
-											var div = $('<div>');
-											div.css({"height":"102px", "width": "90px"});
-											a.append(img);
-											div.append(a);
-											li.append(a);
-											ul.append(li);
-											
-										}
-										ul.appendTo($(self.element));
-										ul.anythingSlider({
-											theme: 'minimalist-round'
-											,buildNavigation: false
-											//,autoPlay: true
-											,expand: true
-										});
-										$('.tag_images img').each(function(){
-											var max_height = 90;
-											var max_width = 90;
-											var img_pad = Math.round((max_height-$(this).height())/2)+"px "+Math.round((max_width-$(this).width())/2)+"px";
-											$(this).css({"max-height":max_height+"px", "max-width": max_width+"px", padding: img_pad,"background-color":"black"});
-										});	
-										return this;}
-					
+			imgContainer.vieImageSearch({
+				vie : window.terkait.vie,
+				bin_size : 8,
+				services : {
+					gimage : {
+						use : true
+					}
+				},
+				render : render = function(data) {
+					var self = this;
+
+					var photos = self.options.photos;
+					var time = data.time;
+
+					// clear the container element
+					$(self.element).empty();
+					// rendering
+					var ul = $('<ul>');
+					for ( var p = 0; p < photos.length
+							&& p < this.options.bin_size; p++) {
+						var photo = photos[p];
+						var li = $('<li class="slider_item">');
+						var a = $('<a class="' + self.widgetBaseClass
+								+ '-image" target="_blank" href="'
+								+ photo.original + '"></a>');
+						var img = $('<img src="' + photo.thumbnail + '" />');
+						var div = $('<div>');
+						div.css({
+							"height" : "102px",
+							"width" : "90px"
+						});
+						a.append(img);
+						div.append(a);
+						li.append(a);
+						ul.append(li);
+
+					}
+					ul.appendTo($(self.element));
+					ul.anythingSlider({
+						theme : 'minimalist-round',
+						buildNavigation : false
+						// ,autoPlay: true
+						,
+						expand : true
+					});
+					$('.tag_images img').each(
+							function() {
+								var max_height = 90;
+								var max_width = 90;
+								var img_pad = Math.round((max_height - $(this)
+										.height()) / 2)
+										+ "px "
+										+ Math.round((max_width - $(this)
+												.width()) / 2) + "px";
+								$(this).css({
+									"max-height" : max_height + "px",
+									"max-width" : max_width + "px",
+									padding : img_pad,
+									"background-color" : "black"
+								});
+							});
+					return this;
+				}
+
 			});
-			imgContainer
-				.vieImageSearch({
-					entity: query,
+			imgContainer.vieImageSearch({
+				entity : query,
 			});
-			
+
 			var newsContainer = $('<div class = "tag_news">');
 			contentSelector.append(newsContainer);
 			newsSearch = new google.search.NewsSearch();
-			newsSearch.setSearchCompleteCallback(this, window.terkait.searchComplete, [newsSearch,newsContainer]);
+			newsSearch.setSearchCompleteCallback(this,
+					window.terkait.searchComplete,
+					[ newsSearch, newsContainer ]);
 			newsSearch.execute(query);
-			
+
 			var videoContainer = $('<div class = "tag_video">');
 			contentSelector.append(videoContainer);
 			var videoSearch = new google.search.VideoSearch();
-			videoSearch.setSearchCompleteCallback(this, window.terkait.searchComplete, [videoSearch,videoContainer]);
-			videoSearch.execute(query);		
+			videoSearch.setSearchCompleteCallback(this,
+					window.terkait.searchComplete, [ videoSearch,
+							videoContainer ]);
+			videoSearch.execute(query);
 		},
-		
-		searchComplete: function(googleSearch,container) {
+
+		searchComplete : function(googleSearch, container) {
 			if (googleSearch.results && googleSearch.results.length > 0) {
-			  var ul = $('<ul>');
-			  for (var i = 0; i < googleSearch.results.length; i++) {
-				var li = $('<li class="slider_item">');
-				var a = $('<a>');
-				a[0].href = googleSearch.results[i].url;
-				a[0].innerHTML = googleSearch.results[i].title;
-				var div = $('<div>');
-				div.css({"height":"102px", "width": "90px"});
-				div.append(a);
-				li.append(a);
-				ul.append(li);
-			  }
-			  container.append(ul);
-			  ul.anythingSlider({
-					theme: 'minimalist-round'
-					,buildNavigation: false
-					//,autoPlay: true
-					,expand: true
+				var ul = $('<ul>');
+				for ( var i = 0; i < googleSearch.results.length; i++) {
+					var li = $('<li class="slider_item">');
+					var a = $('<a>');
+					a[0].href = googleSearch.results[i].url;
+					a[0].innerHTML = googleSearch.results[i].title;
+					var div = $('<div>');
+					div.css({
+						"height" : "102px",
+						"width" : "90px"
+					});
+					div.append(a);
+					li.append(a);
+					ul.append(li);
+				}
+				container.append(ul);
+				ul.anythingSlider({
+					theme : 'minimalist-round',
+					buildNavigation : false
+					// ,autoPlay: true
+					,
+					expand : true
 				});
 			}
 		},
@@ -540,7 +578,7 @@ if (!window.terkait) {
 			}
 		},
 	};
-		
+
 };
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
@@ -570,3 +608,4 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		console.log("unknown request", request);
 	}
 });
+
