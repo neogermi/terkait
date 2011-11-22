@@ -1,3 +1,10 @@
+/* Text of interest */
+.terkait-toi:hover, .terkait-toi .active {
+	-webkit-transition: background 1s;
+	background-color: rgba(255, 255, 153, 0.7);
+}
+
+/* terkait GUI */
 #terkait-wrapper {
 	font-size: 10px;
 	text-align: center;
@@ -18,72 +25,64 @@
 #terkait-container {
 	display: inline-block;
 	vertical-align: middle;
-	padding: 2.5em 1.5em;
+	padding: 30px 5px 20px 10px;
 	border: #a0a0a0 solid 1px;
 	background: #f5f5f5;
-	box-shadow: 0px 0px 3em grey;
-	border-radius: 0.5em;
+	box-shadow: 0px 0px 30px grey;
+	border-radius: 5px;
 	height: 75%;
-	width: 30em;
-	/*TODO: right: -25em; no hovering for development */
+	width: 300px;
+	/*TODO: right: -250px; no hovering for development */
 	left: 0px; /*no hovering for development*/
 	position: relative;
 	background-repeat: no-repeat;
-	background-size: 10em;
+	background-size: 100px;
 }
 
 #terkait-container .entities {
 	background-color: transparent;
 	border: #a0a0a0 solid 1px;
-	overflow-y: auto;
-	position: absolute;
-	top: 3em;
-	bottom: 1em;
-	right: 1.5em;
-	left: 1em;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	height:100%;
 }
 
-#terkait-container .entities .container>* {
-	
+#terkait-container .accordion {
+    width:270px;
+    border: 2px solid #999;
+	border-radius: 10px;
+	margin: 5px;
 }
 
-/* Text of interest */
-.terkait-toi:hover,.terkait-toi .active {
-	-webkit-transition: background 1s;
-	background-color: rgba(255, 255, 153, 0.7);
+#terkait-container .entity-card {
 }
 
-.entity_card {
+#terkait-container .card-label {
+    position:relative;
+    -webkit-transform: rotate(-90deg);
+    font-size: 20px;
+}
+
+#terkait-container .card-content {
 	width: 77%;
 	height: 155px;
-	background-color: #cccccc;
-	border: 2px solid #999999;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 10px;
-	padding: 15px 15px 15px 15px;
 	margin-top: 2px;
 	margin-left: 2px;
 }
 
-#map_canvas {
-	width: 40%;
-	height: 40%;
-}
-
-.entityDetails {
+#terkait-container .entityDetails {
 	display: inline-block;
 	width: 50%;
 	height: 100%;
 	background-color: red;
-	margin-left: 30px;; 
+	margin-left: 30px; 
 }
 
-.entityDetails .a {
+#terkait-container .entityDetails .a {
 	
 }
 
-.content {
+#terkait-container .content {
 	display: inline-block;
 	width: 30%;
 	height: 50px;
