@@ -12,12 +12,9 @@
     <script type="text/javascript"          src="./utils/tiptip/jquery.tipTip.js"></script>
     <link rel="stylesheet" type="text/css" href="./utils/tiptip/jquery.tipTip.css" media="screen" />
 	
-    <!-- jQuery Coda-slider plugin -->
-    <script type="text/javascript"          src="./utils/coda-slider/jquery.coda-slider-2.0.js"></script>
-    <link rel="stylesheet" type="text/css" href="./utils/coda-slider/coda-slider-2.0.css" media="screen" />
-
     <!-- jQuery anything-slider plugin -->
-    <script type="text/javascript"          src="./utils/anythingSlider/js/jquery.anythingslider.js"></script>
+    <script type="text/javascript" src="./utils/anythingSlider/js/jquery.anythingslider.js"></script>
+	<script type="text/javascript" src="./utils/anythingSlider/js/jquery.anythingslider.video.js"></script>
     <link rel="stylesheet" type="text/css" href="./utils/anythingSlider/css/anythingslider.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="./utils/anythingSlider/css/theme-minimalist-round.css" media="screen" />
     
@@ -31,29 +28,16 @@
 	<script type="text/javascript" src="./utils/schemaOrg/schema.json"></script>
 	<script type="text/javascript" src="./utils/schemaOrg/wrapper.js"></script>
 	
+	<!-- Google API -->
+	<script type="text/javascript" src="https://www.google.com/jsapi?"></script>
+	<script type="text/javascript">google.load('search','1')</script>
+	
     <!-- DEMO-specific code -->
 	<script type="text/javascript" src="vie.widget.terkait.js"></script>
 	<script type="text/javascript" src="./lib/jquery.tabSlideOut.v1.3.js"></script>
     <script type="text/javascript" src="./lib/vie.widget.auto_tagger.js"></script>
 	<script type="text/javascript" src="./lib/vie.widget.image_search.js"></script>
-	<script>
-		// Set up Sliders
-		// **************
-		$(function(){
-			$('#slider1').anythingSlider();
-		});
-	</script>
 	<style>
-        #image_container {
-            max-height:300px;
-        }
-        
-        #image_container a img {
-            box-shadow: 0px 0px 10px #555;
-            margin: 1em 1em;
-            width: 6em;
-            height: 6em;
-        }
 		.slide-out-div {
           padding: 20px;
           width: 27%;
@@ -67,7 +51,7 @@
         }
         
         #tag_container > div {
-          width: 210px;
+          width: 100%;
           display:inline-block;
           vertical-align: top;
         }

@@ -1,4 +1,5 @@
 $(window).load(function () {
+	var newsSearch;
 	var sideDiv = '<div class="slide-out-div">'+
 					'<div class="handle"></div>'+
 					'<div id="tag_container">'+
@@ -51,23 +52,16 @@ $(window).load(function () {
 							return lbl.replace(/"/g, "").replace(/@[a-z]+/, '');
                         }
                     }],
-                   // render: render_entity,
 					end_query: function(){
 							$(this).find('.tag').each(function(ev){
-							
 								var uri = $(this).attr('title');
 								var img_container = $(this).find('.tag_images');
-	
 								// set-up of the Image-widget
 								img_container
 									.vieImageSearch({
 										vie    : myVIE,
 										bin_size: 8,
 										services : {
-											flickr : {
-												api_key : "ffd6f2fc41249feeddd8e62a531dc83e",
-												use: true
-											},
 											gimage : {
 												use: true
 											}
@@ -80,7 +74,18 @@ $(window).load(function () {
 									.vieImageSearch({
 										entity: uri,
 									});
-																				
+								//start news search
+				
+								var newsContainer = $(this).find('.tag_news');
+								newsSearch = new google.search.NewsSearch();
+								newsSearch.setSearchCompleteCallback(this, searchComplete, [newsSearch,newsContainer]);
+								newsSearch.execute('Obama');
+								
+								var videoContainer = $(this).find('.tag_video');		
+								var videoSearch = new google.search.VideoSearch();
+								videoSearch.setSearchCompleteCallback(this, searchComplete, [videoSearch,videoContainer]);
+								videoSearch.execute('Barack Obama');		
+								
 		
 					});}
                 });
@@ -115,14 +120,14 @@ $(window).load(function () {
 											gimage : {
 												use: true
 											}
-										}
+										},
+										render: render
 								});
-								//start search
+								//start image search
 								img_container
 									.vieImageSearch({
 										entity: uri,
 									});
-																				
 		
 					});}
                 });
@@ -162,6 +167,31 @@ $(window).load(function () {
 	entityCard.append(entityData);
 	return entityCard;
 	};          
+
+	function searchComplete(googleSearch,container) {
+		if (googleSearch.results && googleSearch.results.length > 0) {
+		  var ul = $('<ul>');
+		  for (var i = 0; i < googleSearch.results.length; i++) {
+			var li = $('<li class="slider_item">');
+			var a = $('<a>');
+			a[0].href = googleSearch.results[i].url;
+			a[0].innerHTML = googleSearch.results[i].title;
+			var div = $('<div>');
+			div.css({"height":"102px", "width": "90px"});
+			div.append(a);
+			li.append(a);
+			ul.append(li);
+		  }
+		  container.append(ul);
+		  ul.anythingSlider({
+				theme: 'minimalist-round'
+				,buildNavigation: false
+				//,autoPlay: true
+				,expand: true
+			});
+		}
+	 }
+
 	
     render = function(data){
 			var self = this;
@@ -179,7 +209,7 @@ $(window).load(function () {
 				var a = $('<a class="' + self.widgetBaseClass + '-image" target="_blank" href="' + photo.original + '"></a>');
 				var img = $('<img src="' + photo.thumbnail + '" />');
 				var div = $('<div>');
-				div.css({"height":"200px", "width": "200px"});
+				div.css({"height":"102px", "width": "90px"});
 				a.append(img);
 				div.append(a);
 				li.append(a);
@@ -187,12 +217,20 @@ $(window).load(function () {
 				
 			}
 			ul.appendTo($(self.element));
-            ul.anythingSlider({theme: 'minimalist-round'});
+            ul.anythingSlider({
+				theme: 'minimalist-round'
+				,buildNavigation: false
+				//,autoPlay: true
+				,expand: true
+			});
 			$('.tag_images img').each(function(){
-				debugger;
-				var img_pad = (150-$(this).height())/2+"px "+(200-$(this).width())/2+"px";
-				$(this).css({"max-height":"150px", "max-width": "200px", padding: img_pad,"background-color":"black"});
+				var max_height = 90;
+				var max_width = 90;
+				var img_pad = Math.round((max_height-$(this).height())/2)+"px "+Math.round((max_width-$(this).width())/2)+"px";
+				$(this).css({"max-height":max_height+"px", "max-width": max_width+"px", padding: img_pad,"background-color":"black"});
 			});	
 
 			return this;}
+			
+	
 });
