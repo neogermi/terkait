@@ -86,15 +86,14 @@
 
 #terkait-container .recommended-content {
 	height: 100%;
-	width: 50%;
+	width: 49%;
 	float: left;
 	overflow-y:scroll;
 }
 
 #terkait-container .entity-details {
-	background-color: red;
 	height: 100%;
-	width: 50%;
+	width: 49%;
 	display: block;
 	float: right;
 	overflow-y:scroll;

@@ -125,7 +125,7 @@ if (!window.terkait) {
                                     window.terkait.render(entity);
 
                                     // trigger a search in DBPedia to ensure to have "all" properties
-                                    /*window.terkait.vie
+                                    window.terkait.vie
                                             .load({
                                                 entity : entity.id
                                             })
@@ -138,7 +138,7 @@ if (!window.terkait) {
                                                                     .get(entities[e].id);
                                                             updated.change();
                                                         }
-                                                    });*/
+                                                    });
                                 }
                                 console.log("rendering " + entitiesOfInterest.length + " entities");
                             })
@@ -391,7 +391,7 @@ if (!window.terkait) {
         renderRecommendedContent: function (entity, panel){
             var title = $('<h3>').text("Recommended Content");
             
-            var images = $('<div>');
+            var images = terkait._renderImages(entity);
             var videos = $('<div>');
             var websearch = $('<div>');
             var newssearch = $('<div>');
@@ -407,9 +407,9 @@ if (!window.terkait) {
                 
         },
         
-        _renderImages : function (entity, imgContainer) {
+        _renderImages : function (entity) {
+            var imgContainer = $('<div>');
             
-            contentSelector.append(imgContainer);
             imgContainer
                 .vieImageSearch({
                     vie    : window.terkait.vie,
@@ -419,7 +419,7 @@ if (!window.terkait) {
                             use: true
                         }
                     },
-                    render: render = function(data){
+                    render: function(data) {
                                         var self = this;
                         
                                         var photos = self.options.photos;
@@ -443,13 +443,13 @@ if (!window.terkait) {
                                             
                                         }
                                         ul.appendTo(jQuery(self.element));
-                                        ul.anythingSlider({
+                                        /*ul.anythingSlider({
                                             theme: 'minimalist-round'
                                             ,buildNavigation: false
                                             //,autoPlay: true
                                             ,expand: true
-                                        });
-                                        jQuery('.tag_images img').each(function(){
+                                        });*/
+                                        jQuery('img', ul).each(function(){
                                             var max_height = 90;
                                             var max_width = 90;
                                             var img_pad = Math.round((max_height-jQuery(this).height())/2)+"px "+Math.round((max_width-jQuery(this).width())/2)+"px";
@@ -462,7 +462,6 @@ if (!window.terkait) {
                 .vieImageSearch({
                     entity: entity
             });
-            
         },
         /*
             var newsContainer = jQuery('<div class = "tag_news">');

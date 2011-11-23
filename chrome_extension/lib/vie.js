@@ -329,7 +329,7 @@ VIE.Util = {
         //transform data from Stanbol into VIE.Entities
 
         if (typeof jQuery.rdf !== 'function') {
-            return this._enhancer2EntitiesNoRdfQuery(service, results);
+            return VIE.Util.rdf2EntitiesNoRdfQuery(service, results);
         }
         var rdf = jQuery.rdf().load(results, {});
 
@@ -402,6 +402,34 @@ VIE.Util = {
         });
         return vieEntities;
     },
+    
+    rdf2EntitiesNoRdfQuery: function (service, results) {
+        jsonLD = [];
+        _.forEach(results, function(value, key) {
+            var entity = {};
+            entity['@subject'] = '<' + key + '>';
+            _.forEach(value, function(triples, predicate) {
+                predicate = '<' + predicate + '>';
+                _.forEach(triples, function(triple) {
+                    if (triple.type === 'uri') {
+                        triple.value = '<' + triple.value + '>';
+                    }
+
+                    if (entity[predicate] && !_.isArray(entity[predicate])) {
+                        entity[predicate] = [entity[predicate]];
+                    }
+
+                    if (_.isArray(entity[predicate])) {
+                        entity[predicate].push(triple.value);
+                        return;
+                    }
+                    entity[predicate] = triple.value;
+                });
+            });
+            jsonLD.push(entity);
+        });
+        return jsonLD;
+    }
     
 };
 VIE.prototype.Entity = function(attrs, opts) {
@@ -771,10 +799,22 @@ VIE.prototype.Collection = Backbone.Collection.extend({
                     newAttribs[attribute] = value;
                     return true;
                 }
-                if (existing.get(attribute) === value) {
+                else if (existing.attributes[attribute] === value) {
                     return true;
+                } else {
+                    //merge existing attribute values with new ones!
+                    //not just overwrite 'em!!
+                    var oldVals = existing.attributes[attribute];
+                    var newVals = value;
+                    
+                    if (attribute === '@context') {
+                        newAttribs[attribute] = jQuery.extend(true, {}, oldVals, newVals);
+                    } else {
+                        oldVals = (jQuery.isArray(oldVals))? oldVals : [ oldVals ];
+                        newVals = (jQuery.isArray(newVals))? newVals : [ newVals ];
+                        newAttribs[attribute] = oldVals.concat(newVals).unduplicate();
+                    }
                 }
-                newAttribs[attribute] = value;
             });
 
             if (!_.isEmpty(newAttribs)) {
@@ -1526,10 +1566,12 @@ VIE.prototype.DBPediaService = function(options) {
             rdfschema: "http://www.w3.org/2000/01/rdf-schema#",
             rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             dbpedia: "http://dbpedia.org/ontology/",
-            dbprop : "http://dbpedia.org/property/"
+            dbprop : "http://dbpedia.org/property/",
+            purlt : "http://purl.org/dc/terms/subject",
+            purle : "http://purl.org/dc/elements/1.1/description"
         }
     };
-    this.options = jQuery.extend(defaults, options ? options : {});
+    this.options = jQuery.extend(true, defaults, options ? options : {});
 
     this.vie = null; // will be set via VIE.use();
     this.name = this.options.name;
@@ -1553,7 +1595,7 @@ VIE.prototype.DBPediaService.prototype = {
                 //ignore for now!
             }
         }
-        this.namespaces = new this.vie.Namespaces(this.vie.namespaces.base(), this.options.namespaces);
+        this.namespaces = this.vie.namespaces;
 
         this.rules = [
              //rule to transform a DBPedia person into a VIE person
@@ -2180,7 +2222,7 @@ VIE.prototype.StanbolService.prototype = {
                 //ignore for now!
             }
         }
-        this.namespaces = new this.vie.Namespaces(this.vie.namespaces.base(), this.options.namespaces);
+        this.namespaces = this.vie.namespaces;
 
         this.rules = [
             //rule to add backwards-relations to the triples
@@ -2378,34 +2420,6 @@ VIE.prototype.StanbolService.prototype = {
                 .replace(/\0\b\n\r\f\t/g, ''); // remove non-letter symbols
             return jQuery.trim(res);
         }
-    },
-
-    _enhancer2EntitiesNoRdfQuery: function (service, results) {
-        jsonLD = [];
-        _.forEach(results, function(value, key) {
-            var entity = {};
-            entity['@subject'] = '<' + key + '>';
-            _.forEach(value, function(triples, predicate) {
-                predicate = '<' + predicate + '>';
-                _.forEach(triples, function(triple) {
-                    if (triple.type === 'uri') {
-                        triple.value = '<' + triple.value + '>';
-                    }
-
-                    if (entity[predicate] && !_.isArray(entity[predicate])) {
-                        entity[predicate] = [entity[predicate]];
-                    }
-
-                    if (_.isArray(entity[predicate])) {
-                        entity[predicate].push(triple.value);
-                        return;
-                    }
-                    entity[predicate] = triple.value;
-                });
-            });
-            jsonLD.push(entity);
-        });
-        return jsonLD;
     }
 };
 

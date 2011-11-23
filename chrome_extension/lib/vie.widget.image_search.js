@@ -207,7 +207,12 @@
                             url += mainUrl;
                             url += this.tail_url(widget, this);
                             // trigger the search & receive the data via callback
-                            $.getJSON(url, this.callback(widget, entity.id, serviceId, queryId));
+                            jQuery.ajax({
+                                success: this.callback(widget, entity.id, serviceId, queryId),
+                                error: this.callback(widget, entity.id, serviceId, queryId),
+                                type: "GET",
+                                url: url
+                            });
                         } else {
                             widget._trigger("error", undefined, {
                                 msg: "No type-specific URL can be acquired for entity. Please add/overwrite widget.options[<widget_type>][" + serviceId + "]!", 
@@ -264,7 +269,12 @@
                             url += mainUrl;
                             url += this.tail_url(widget, this);
                             // trigger the search & receive the data via callback
-                            $.getJSON(url, this.callback(widget, entity.id, serviceId, queryId));
+                            jQuery.ajax({
+                                success: this.callback(widget, entity.id, serviceId, queryId),
+                                error: this.callback(widget, entity.id, serviceId, queryId),
+                                type: "GET",
+                                url: url
+                            });
                         } else {
                             widget._trigger("error", undefined, {
                                 msg: "No type-specific URL can be acquired for entity. Please add/overwrite widget.options[<widget_type>][" + serviceId + "]!", 
