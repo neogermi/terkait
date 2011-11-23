@@ -23,6 +23,8 @@
 }
 
 #terkait-container {
+	font-family: Verdana, Arial;
+	color: black;
 	display: inline-block;
 	vertical-align: middle;
 	padding: 30px 5px 20px 10px;
