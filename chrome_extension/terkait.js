@@ -163,29 +163,9 @@ if (!window.terkait) {
                     this.render(); // render it the first time
                 },
                 
-                _getLabel : function() {
-                    var entity = this.model;
-                    if (entity.has("name")) {
-                        var name = entity.get("name");
-                        if (jQuery.isArray(name) && name.length > 0) {
-                            for ( var i = 0; i < name.length; i++) {
-                                if (name[i].indexOf('@en') > -1) {
-                                    name = name[i];
-                                    break;
-                                }
-                            }
-                            if (jQuery.isArray(name))
-                                name = name[0]; // just take the first
-                            name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-                            return name;
-                        }
-                    }
-                    return "NO NAME";
-                },
-
                 render : function() {
                     var $el = jQuery(this.el);
-                    $el.text(this._getLabel());
+                    $el.text(window.terkait.getLabel(this.model));
                 }
             });
             return new LabelView({
@@ -224,6 +204,15 @@ if (!window.terkait) {
             });
         },
 
+        createCloseButton : function () {
+          return jQuery('<div>')
+            .addClass('close-button')
+            .css({
+                
+                "background-image" : "url(" + chrome.extension.getURL("close_button.png") + ")"
+            });  
+        },
+
         render : function(entity, selector) {
             var labelView = this.createLabelView(entity);
             var cardView = this.createCardView(entity); // create the VIEW on that entity
@@ -231,7 +220,7 @@ if (!window.terkait) {
             var card = jQuery('<div>')
                 .addClass("entity-card")
                 .append(jQuery(labelView.el))
-                .append(jQuery(cardView.el));            
+                .append(jQuery(cardView.el));
             
             // where to put it?
             if (selector) {
@@ -241,6 +230,7 @@ if (!window.terkait) {
                 // append at the end of the container!
                 var accordionContainer = jQuery('<div>')
                     .addClass("accordion")
+                    .append(this.createCloseButton())
                     .append(card);
                 jQuery('#terkait-container .entities')
                     .append(accordionContainer);
@@ -259,7 +249,7 @@ if (!window.terkait) {
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
-            var res = "TODO";//this.getLabel(entity);
+            var res = this.getLabel(entity);
             rightSideCard.append("<p> Organization NAME : " + res + "</p>");
             
             if (entity.has("url")) {
@@ -283,7 +273,7 @@ if (!window.terkait) {
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
-            var res = "TODO";//this.getLabel(entity);
+            var res = this.getLabel(entity);
             rightSideCard.append("NAME :" + '<a href ="#">' + res + '</a>');
 
             var latitude = "";
@@ -309,7 +299,7 @@ if (!window.terkait) {
 
                 //button for country
                 if (entity.has("dbpedia:country")) {
-                    var range = "TOOD";//this.getLabel(entity.get("dbpedia:country"));
+                    var range = this.getLabel(entity.get("dbpedia:country"));
                     var prop = $('<p>country: </p>');
                     var button = $('<button></button>');
 
@@ -323,7 +313,7 @@ if (!window.terkait) {
                 }
                 //button for country
                 if (entity.has("dbpedia:district")) {
-                    var range = "TOOD:";//this.getLabel(entity.get("dbpedia:district"));
+                    var range = this.getLabel(entity.get("dbpedia:district"));
                     var prop = $('<p>district: </p>');
                     var button = $('<button></button>');
 
@@ -336,6 +326,25 @@ if (!window.terkait) {
                     rightSideCard.append(prop.append(button.append(range)));
                 }
             // DEBUG
+        },
+        
+        getLabel : function(entity) {
+            if (entity.has("name")) {
+                var name = entity.get("name");
+                if (jQuery.isArray(name) && name.length > 0) {
+                    for ( var i = 0; i < name.length; i++) {
+                        if (name[i].indexOf('@en') > -1) {
+                            name = name[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(name))
+                        name = name[0]; // just take the first
+                    name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+                    return name;
+                }
+            }
+            return "NO NAME";
         },
         
         annotate : function(type, sendResponse) {
