@@ -239,6 +239,7 @@ if (!window.terkait) {
 
         renderPerson : function(entity, card) {
             var leftSideCard = jQuery('<div>').addClass("recommended-content");
+            renderRecommendedContent(entity, leftSideCard);
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             var res = "TODO";//this.getLabel(entity);
@@ -251,6 +252,7 @@ if (!window.terkait) {
 
         renderOrganization : function(entity, card) {
             var leftSideCard = jQuery('<div>').addClass("recommended-content");
+            renderRecommendedContent(entity, leftSideCard);
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
@@ -275,6 +277,7 @@ if (!window.terkait) {
 		
         renderPlace : function(entity, card) {
             var leftSideCard = jQuery('<div>').addClass("recommended-content");
+            renderRecommendedContent(entity, leftSideCard);
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
@@ -419,9 +422,27 @@ if (!window.terkait) {
 
         },
         
-        getContent: function (entity,contentSelector){
-            var imgContainer = jQuery('<div class = "tag_images">');
-            var query = window.terkait.getLabel(entity);  
+        renderRecommendedContent: function (entity, panel){
+            var title = $('<h3>').text("Recommended Content");
+            
+            var images = $('<div>');
+            var videos = $('<div>');
+            var websearch = $('<div>');
+            var newssearch = $('<div>');
+            var historysearch = $('<div>');
+            
+            panel
+                .append(title)
+                .append(images)
+                .append(videos)
+                .append(websearch)
+                .append(newssearch)
+                .append(historysearch);
+                
+        },
+        
+        _renderImages : function (entity, imgContainer) {
+            
             contentSelector.append(imgContainer);
             imgContainer
                 .vieImageSearch({
@@ -473,9 +494,11 @@ if (!window.terkait) {
             });
             imgContainer
                 .vieImageSearch({
-                    entity: query,
+                    entity: entity
             });
             
+        },
+        /*
             var newsContainer = jQuery('<div class = "tag_news">');
             contentSelector.append(newsContainer);
             //newsSearch = new google.search.NewsSearch();
@@ -487,7 +510,7 @@ if (!window.terkait) {
             var videoSearch = new google.search.VideoSearch();
             videoSearch.setSearchCompleteCallback(this, window.terkait.searchComplete, [videoSearch,videoContainer]);
             videoSearch.execute(query);        
-        },
+        }, */
         
         searchComplete: function(googleSearch,container) {
             if (googleSearch.results && googleSearch.results.length > 0) {
