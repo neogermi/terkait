@@ -208,7 +208,6 @@ if (!window.terkait) {
           return jQuery('<div>')
             .addClass('close-button')
             .css({
-                
                 "background-image" : "url(" + chrome.extension.getURL("close_button.png") + ")"
             });  
         },
@@ -227,10 +226,17 @@ if (!window.terkait) {
                 // append to that accordion!
                 jQuery(selector).parent('.accordion').first().append(card);
             } else {
+                var closeButton = window.terkait.createCloseButton();
+                closeButton.click(function () {
+                    var $this = $(this);
+                    $this.parent('.accordion').first().hide(500, function () {
+                        $(this).remove();
+                    });
+                });
                 // append at the end of the container!
                 var accordionContainer = jQuery('<div>')
                     .addClass("accordion")
-                    .append(this.createCloseButton())
+                    .append(closeButton)
                     .append(card);
                 jQuery('#terkait-container .entities')
                     .append(accordionContainer);
@@ -389,21 +395,21 @@ if (!window.terkait) {
         },
         
         renderRecommendedContent: function (entity, panel){
-            var title = $('<h3>').text("Recommended Content");
             
             var images = terkait._renderImages(entity);
-            var videos = $('<div>');
-            var websearch = $('<div>');
-            var newssearch = $('<div>');
-            var historysearch = $('<div>');
+            var videos = terkait._renderVideos(entity).css("margin-top", "120px");
+            var websearch = terkait._renderImages(entity).css("margin-top", "120px");
+            var newssearch = terkait._renderImages(entity).css("margin-top", "120px");
+            var historysearch = terkait._renderImages(entity).css("margin-top", "120px");
             
             panel
-                .append(title)
                 .append(images)
                 .append(videos)
-                .append(websearch)
+                /*.append(websearch)
                 .append(newssearch)
-                .append(historysearch);
+                .append(historysearch)
+                */
+                ;
                 
         },
         
@@ -413,7 +419,7 @@ if (!window.terkait) {
             imgContainer
                 .vieImageSearch({
                     vie    : window.terkait.vie,
-                    bin_size: 8,
+                    bin_size: 3,
                     services : {
                         gimage : {
                             use: true
@@ -425,41 +431,88 @@ if (!window.terkait) {
                                         var photos = self.options.photos;
                                         var time = data.time;
                                         
-                                        // clear the container element
-                                        jQuery(self.element).empty();
                                         //rendering
-                                        var ul = jQuery('<ul>');
+                                        var container = jQuery('<div>').css('position', 'relative');
                                         for (var p = 0; p < photos.length && p < this.options.bin_size; p++) {
                                             var photo = photos[p];
-                                            var li = jQuery('<li class="slider_item">');
-                                            var a = jQuery('<a class="' + self.widgetBaseClass + '-image" target="_blank" href="' + photo.original + '"></a>');
-                                            var img = jQuery('<img src="' + photo.thumbnail + '" />');
-                                            var div = jQuery('<div>');
-                                            div.css({"height":"102px", "width": "90px"});
-                                            div.append(img.append(a));
-                                            ul.append(li.append(div));
-                                            
+                                            var border = jQuery('<div>')
+                                            .css({
+                                                'background-color': 'white',
+                                                'padding': '10px',
+                                            });
+                                            var img = jQuery('<img src="' + photo.original + '" width="110px" height="110px" />');
+                                            container.append(border.append(img));
                                         }
-                                        ul.appendTo(jQuery(self.element));
-                                        /*ul.anythingSlider({
-                                            theme: 'minimalist-round'
-                                            ,buildNavigation: false
-                                            //,autoPlay: true
-                                            ,expand: true
-                                        });*/
-                                        jQuery('img', ul).each(function(){
-                                            var max_height = 90;
-                                            var max_width = 90;
-                                            var img_pad = Math.round((max_height-jQuery(this).height())/2)+"px "+Math.round((max_width-jQuery(this).width())/2)+"px";
-                                            jQuery(this).css({"max-height":max_height+"px", "max-width": max_width+"px", padding: img_pad,"background-color":"black"});
-                                        });    
-                                        return this;}
+                                        
+                                        container.cycle({
+                                            fx: 'fade'
+                                        });
+                                        
+                                        // clear the container element
+                                        self.element.empty();
+                                        container.appendTo(jQuery(self.element));
+                                        return this;
+                                    }
                     
+            }).vieImageSearch({
+                entity: entity
             });
-            imgContainer
-                .vieImageSearch({
-                    entity: entity
+            
+            return imgContainer;
+        },
+        
+        _renderVideos : function (entity) {
+            var vidContainer = $('<div>');
+            
+            vidContainer
+                .vieVideoSearch({
+                    vie    : window.terkait.vie,
+                    bin_size: 3,
+                    services : {
+                        gvideo : {
+                            use: true
+                        }
+                    },
+                    render: function(data) {
+                            var self = this;
+            
+                            var videos = self.options.videos;
+                            var time = data.time;
+                            
+                            //rendering
+                            var container = jQuery('<div>').css('position', 'relative');
+                            for (var p = 0; p < videos.length && p < this.options.bin_size; p++) {
+                                var video = videos[p];
+                                var border = jQuery('<div>')
+                                .css({
+                                    'background-color': 'white',
+                                    'padding': '10px',
+                                });
+                                var vid = jQuery('<iframe>')
+                                .attr({
+                                    "src": video["original"],
+                                    "width": "110px",
+                                    "height": "82px",
+                                    "controls" : 0
+                                });
+                                container.append(border.append(vid));
+                            }
+                            
+                            container.cycle({
+                                fx: 'fade'
+                            });
+                            
+                            // clear the container element
+                            self.element.empty();
+                            container.appendTo(jQuery(self.element));
+                            return this;
+                        }
+        
+            }).vieVideoSearch({
+                entity: entity
             });
+            
+            return vidContainer;
         },
         /*
             var newsContainer = jQuery('<div class = "tag_news">');
