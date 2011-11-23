@@ -266,6 +266,10 @@ if (!window.terkait) {
             card.append(rightSideCard);
             var res = "TODO";//this.getLabel(entity);
             rightSideCard.append("<p> Person  :" + res + "</p>");
+			if(entity.has('dbpedia:birthDate')) {
+				birthDate = entity.get('dbpedia:birthDate');
+				rightSideCard.append("<p> born:" + birthDate + "</p>");
+			}
 
         },
 
@@ -293,7 +297,7 @@ if (!window.terkait) {
                 }
             }
         },
-
+		
         renderPlace : function(entity, card) {
             var leftSideCard = $('<div class ="content">');
             var rightSideCard = $('<div class ="entityDetails">');
@@ -328,11 +332,20 @@ if (!window.terkait) {
             // google.maps.Map(document.getElementById("map_canvas"), options);
 //max           google.maps.Map(document.getElementById("map_canvas"), options);
             // DEBUG
-
-                //button for country
                 if (entity.has("dbpedia:country")) {
-                    var range = this.getLabel(entity.get("dbpedia:country"));
-                    var prop = $('<p>country: </p>');
+					rightSideCard.append(this.renderButtonCountry(entity,card));
+				}
+                if (entity.has("dbpedia:district")) {				
+					rightSideCard.append(this.renderButtonDistrict(entity,card));
+                }
+                if (entity.has("dbpedia:federalState")) {				
+					rightSideCard.append(this.renderButtonFederalState(entity,card));
+                }
+				
+            /*     //button for federalState
+                if (entity.has("dbpedia:federalState")) {
+//                    var range = this.getLabel(entity.get("dbpedia:federalState"));
+                    var prop = $('<p>state: </p>');
                     var button = $('<button></button>');
 
                     button.click(function(entity, accordion) {
@@ -341,10 +354,31 @@ if (!window.terkait) {
                         };
                     }(entity, card.parent()));
 
-                    rightSideCard.append(prop.append(button.append(range)));
-                }
-                //button for country
-                if (entity.has("dbpedia:district")) {
+//                    rightSideCard.append(prop.append(button.append(range)));
+                    rightSideCard.append(prop.append(button));
+                } */
+            // DEBUG
+        },
+
+		getLabel : function(entity) {
+			return $('Label');
+		},
+		//used in renderPlace		
+		renderButtonCountry : function(entity, card) {
+					var range = this.getLabel(entity.get("dbpedia:country"));
+					var prop = $('<p>country: </p>');
+					var button = $('<button></button>');
+
+					button.click(function(entity, accordion) {
+						return function() {
+							window.terkait.render(entity, accordion);
+						};
+					}(entity, card.parent()));
+
+					return prop.append(button.append(range));
+		},
+		//used in renderPlace		
+		renderButtonDistrict : function(entity, card) {
                     var range = this.getLabel(entity.get("dbpedia:district"));
                     var prop = $('<p>district: </p>');
                     var button = $('<button></button>');
@@ -355,10 +389,24 @@ if (!window.terkait) {
                         };
                     }(entity, card.parent()));
 
-                    rightSideCard.append(prop.append(button.append(range)));
-                }
-            // DEBUG
-        },
+					return prop.append(button.append(range));
+		},		
+		//used in renderPlace
+		renderButtonFederalState : function(entity, card) {
+                    var range = this.getLabel(entity.get("dbpedia:federalState"));
+                    var prop = $('<p>state: </p>');
+                    var button = $('<button></button>');
+
+                    button.click(function(entity, accordion) {
+                        return function() {
+                            window.terkait.render(entity, accordion);
+                        };
+                    }(entity, card.parent()));
+
+					return prop.append(button.append(range));
+		},		
+
+
         
         annotate : function(type, sendResponse) {
             var rng = window.terkait._getRangeObject();
