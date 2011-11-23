@@ -1,0 +1,112 @@
+<html>
+<script type="text/javascript" src="./lib/jquery.js"></script>
+<script type="text/javascript" src="./lib/underscore.js"></script>
+<script type="text/javascript" src="./lib/backbone.js"></script>
+<script type="text/javascript" src="./lib/rdfquery.js"></script>
+
+<script type="text/javascript" src="./lib/vie.widget.image_search.js"></script>
+<script type="text/javascript" src="./lib/vie.widget.auto_tagger.js"></script>
+<!-- vie.js itself -->
+<script type="text/javascript" src="./lib/vie.js"></script>
+<script type="text/javascript" src="./lib/schemaOrg/schema.json"></script>
+<script type="text/javascript" src="./lib/schemaOrg/wrapper.js"></script>
+<!-- google api's -->
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+<script>
+      window.terkait = {
+
+          vie : function() {
+              var v = new VIE();
+              v.loadSchemaOrg();
+              return v;
+          }(),
+              
+          appendType : function(parentId, id, subtypes) {
+            var sid = VIE.Util.toCurie(id, false, window.terkait.vie.namespaces);
+            var options = {
+                title : sid,
+                parentId : parentId,
+                contexts : [ "selection" ],
+                onclick : function(id) {
+                    return function(data, window) {
+                        chrome.tabs.getSelected(null, function(tab) {
+                            chrome.tabs.sendRequest(tab.id, {
+                                action : "annotateSelectionAs",
+                                args : { id : id }
+                            });
+                        });
+                    };
+                }(id)
+            };
+            if (parentId === null)
+                delete options["parentId"];
+
+            var menuId = chrome.contextMenus.create(options);
+
+            for ( var i = 0; i < subtypes.length; i++) {
+                window.terkait.appendType(menuId, subtypes[i].id, subtypes[i].subtypes);
+            }
+        },
+
+        config : {
+            commonTypes : [ "Person", "Organization", "Product", "Place" ]
+        }
+    };
+
+    //React when a browser action's icon is clicked.
+    chrome.browserAction.onClicked.addListener(function(tab) {
+        chrome.tabs.getSelected(null, function(tab) {
+            chrome.tabs.sendRequest(tab.id, {
+                action : "create"
+            }, function(response) {
+                if (response.success) {
+                    chrome.tabs.sendRequest(tab.id, {
+                        action : "recommend"
+                    }, function(response) {
+                        if (response.success) {
+                            //TODO
+                        } else {
+                            //TODO
+                        }
+                    });
+                } else {
+                    //TODO
+                }
+            });
+        });
+    });
+
+    // assemble context menue
+
+    chrome.contextMenus.create({
+        type : "normal",
+        title : "Annotate as...",
+        contexts : [ "selection" ]
+    });
+
+    chrome.contextMenus.create({
+        type : "separator",
+        contexts : [ "selection" ]
+    });
+
+    var thing = window.terkait.vie.types.get("Thing").hierarchy();
+    window.terkait.appendType(null, thing.id, thing.subtypes);
+
+    chrome.contextMenus.create({
+        type : "separator",
+        contexts : [ "selection" ]
+    });
+
+    for ( var i = 0; i < window.terkait.config.commonTypes.length; i++) {
+        var type = window.terkait.vie.types.get(
+                window.terkait.config.commonTypes[i]).hierarchy();
+        window.terkait.appendType(null, type.id, type.subtypes);
+    }
+</script>
+<script>
+	$(function() {
+		$( "#accordion" ).accordion();
+	});
+	</script>
+</html>
