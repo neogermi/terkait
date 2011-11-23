@@ -193,7 +193,6 @@
                         url += "&rsz=" + widget.options.bin_size;
                         url += "&start=" + (widget.options.page_num * widget.options.bin_size);
                         url += "&safe_search=1"; // safe search
-                        url += "&callback=?";
                         
                         return url;
                     },
@@ -207,12 +206,7 @@
                             url += mainUrl;
                             url += this.tail_url(widget, this);
                             // trigger the search & receive the data via callback
-                            jQuery.ajax({
-                                success: this.callback(widget, entity.id, serviceId, queryId),
-                                error: this.callback(widget, entity.id, serviceId, queryId),
-                                type: "GET",
-                                url: url
-                            });
+                            jQuery.getJSON(url,null,this.callback(widget, entity.id, serviceId, queryId));
                         } else {
                             widget._trigger("error", undefined, {
                                 msg: "No type-specific URL can be acquired for entity. Please add/overwrite widget.options[<widget_type>][" + serviceId + "]!", 
@@ -269,12 +263,7 @@
                             url += mainUrl;
                             url += this.tail_url(widget, this);
                             // trigger the search & receive the data via callback
-                            jQuery.ajax({
-                                success: this.callback(widget, entity.id, serviceId, queryId),
-                                error: this.callback(widget, entity.id, serviceId, queryId),
-                                type: "GET",
-                                url: url
-                            });
+                            jQuery.getJSON(url,null,this.callback(widget, entity.id, serviceId, queryId));
                         } else {
                             widget._trigger("error", undefined, {
                                 msg: "No type-specific URL can be acquired for entity. Please add/overwrite widget.options[<widget_type>][" + serviceId + "]!", 

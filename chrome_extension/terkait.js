@@ -436,10 +436,8 @@ if (!window.terkait) {
                                             var img = jQuery('<img src="' + photo.thumbnail + '" />');
                                             var div = jQuery('<div>');
                                             div.css({"height":"102px", "width": "90px"});
-                                            a.append(img);
-                                            div.append(a);
-                                            li.append(a);
-                                            ul.append(li);
+                                            div.append(img.append(a));
+                                            ul.append(li.append(div));
                                             
                                         }
                                         ul.appendTo(jQuery(self.element));
