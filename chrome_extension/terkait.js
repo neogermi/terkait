@@ -5,6 +5,7 @@ if (!window.terkait) {
         vie : function() {
             var v = new VIE();
             v.loadSchemaOrg();
+            v.namespaces.add("purl", "http://purl.org/dc/terms/subject");
             v.use(new v.StanbolService({
                 url : "http://dev.iks-project.eu:8081",
                 proxyDisabled : true
@@ -84,17 +85,10 @@ if (!window.terkait) {
                                 var entitiesOfInterest = [];
                                 for ( var e = 0; e < entities.length; e++) {
                                     var entity = entities[e];
-                                    var isEntityOfInterest = (!entity
-                                            .isof("enhancer:Enhancement"))
-                                            && (entity.isof("Person")
-                                                    || entity.isof("Place")
-                                                    || entity
-                                                            .isof("Organization") || entity
-                                                    .isof("skos:Concept"));
-                                    var hasAnnotations = entity
-                                            .has("enhancer:hasEntityAnnotation")
-                                            || entity
-                                                    .has("enhancer:hasTextAnnotation");
+                                    var isEntityOfInterest = (!entity.isof("enhancer:Enhancement"))
+                                            && (entity.isof("Person") || entity.isof("Place") || entity.isof("Organization"));
+                                    var hasAnnotations = entity.has("enhancer:hasEntityAnnotation")
+                                            || entity.has("enhancer:hasTextAnnotation");
 
                                     if (isEntityOfInterest && hasAnnotations) {
                                         entitiesOfInterest.push(entity);
@@ -104,30 +98,20 @@ if (!window.terkait) {
                                 // in the text)
                                 entitiesOfInterest
                                         .sort(function(a, b) {
-                                            var numOfEntityAnnotsA = (jQuery
-                                                    .isArray(a
-                                                            .get("enhancer:hasEntityAnnotation"))) ? a
+                                            var numOfEntityAnnotsA = (jQuery.isArray(a.get("enhancer:hasEntityAnnotation"))) ? a
                                                     .get("enhancer:hasEntityAnnotation").length
                                                     : 1;
-                                            var numOfTextAnnotsA = (jQuery
-                                                    .isArray(a
-                                                            .get("enhancer:hasTextAnnotation"))) ? a
+                                            var numOfTextAnnotsA = (jQuery.isArray(a.get("enhancer:hasTextAnnotation"))) ? a
                                                     .get("enhancer:hasTextAnnotation").length
                                                     : 1;
-                                            var sumA = numOfEntityAnnotsA
-                                                    + numOfTextAnnotsA;
-                                            var numOfEntityAnnotsB = (jQuery
-                                                    .isArray(b
-                                                            .get("enhancer:hasEntityAnnotation"))) ? b
+                                            var sumA = numOfEntityAnnotsA + numOfTextAnnotsA;
+                                            var numOfEntityAnnotsB = (jQuery.isArray(b.get("enhancer:hasEntityAnnotation"))) ? b
                                                     .get("enhancer:hasEntityAnnotation").length
                                                     : 1;
-                                            var numOfTextAnnotsB = (jQuery
-                                                    .isArray(b
-                                                            .get("enhancer:hasTextAnnotation"))) ? b
+                                            var numOfTextAnnotsB = (jQuery.isArray(b.get("enhancer:hasTextAnnotation"))) ? b
                                                     .get("enhancer:hasTextAnnotation").length
                                                     : 1;
-                                            var sumB = numOfEntityAnnotsB
-                                                    + numOfTextAnnotsB;
+                                            var sumB = numOfEntityAnnotsB + numOfTextAnnotsB;
 
                                             if (sumA == sumB)
                                                 return 0;
@@ -141,7 +125,7 @@ if (!window.terkait) {
                                     window.terkait.render(entity);
 
                                     // trigger a search in DBPedia to ensure to have "all" properties
-                                    window.terkait.vie
+                                    /*window.terkait.vie
                                             .load({
                                                 entity : entity.id
                                             })
@@ -154,7 +138,7 @@ if (!window.terkait) {
                                                                     .get(entities[e].id);
                                                             updated.change();
                                                         }
-                                                    });
+                                                    });*/
                                 }
                                 console.log("rendering " + entitiesOfInterest.length + " entities");
                             })
@@ -230,6 +214,8 @@ if (!window.terkait) {
                         window.terkait.renderOrganization(this.model, $el);
                     } else if (entity.isof("Place")) {
                         window.terkait.renderPlace(this.model, $el);
+                    } else {
+                        console.log("no renderer for type", entity.get('@type'));
                     }
                 }
             });
@@ -262,23 +248,23 @@ if (!window.terkait) {
         },
 
         renderPerson : function(entity, card) {
-            var rightSideCard = jQuery('<div class ="entityDetails">');
-            card.append(rightSideCard);
+            var leftSideCard = jQuery('<div>').addClass("recommended-content");
+            var rightSideCard = jQuery('<div>').addClass("entity-details");
+            card.append(leftSideCard).append(rightSideCard);
             var res = "TODO";//this.getLabel(entity);
             rightSideCard.append("<p> Person  :" + res + "</p>");
 			if(entity.has('dbpedia:birthDate')) {
 				birthDate = entity.get('dbpedia:birthDate');
 				rightSideCard.append("<p> born:" + birthDate + "</p>");
 			}
-
         },
 
         renderOrganization : function(entity, card) {
-            var leftSideCard = jQuery('<div class ="content">');
-            var rightSideCard = jQuery('<div class ="entityDetails">');
+            var leftSideCard = jQuery('<div>').addClass("recommended-content");
+            var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
-            var res = this.getLabel(entity);
+            var res = "TODO";//this.getLabel(entity);
             rightSideCard.append("<p> Organization NAME : " + res + "</p>");
             
             if (entity.has("url")) {
@@ -291,24 +277,17 @@ if (!window.terkait) {
                         }
                     }
                     if (jQuery.isArray(url))
-                        url = url[0]; // just take the
-                    // first
+                        url = url[0]; // just take the first
                     rightSideCard.append("<p> Organization URL: " + url + "</p>");
                 }
             }
         },
 		
         renderPlace : function(entity, card) {
-            var leftSideCard = $('<div class ="content">');
-            var rightSideCard = $('<div class ="entityDetails">');
-            card
-            .append(leftSideCard)
-            .append(rightSideCard);
-
-            //max window.terkait.getContent(entity, leftSideCard);
-
+            var leftSideCard = jQuery('<div>').addClass("recommended-content");
+            var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
-
+            
             var res = "TODO";//this.getLabel(entity);
             rightSideCard.append("NAME :" + '<a href ="#">' + res + '</a>');
 
@@ -332,8 +311,13 @@ if (!window.terkait) {
             // google.maps.Map(document.getElementById("map_canvas"), options);
 //max           google.maps.Map(document.getElementById("map_canvas"), options);
             // DEBUG
+			console.log("hasCountry: ",entity.has("dbpedia:country"));
+					
                 if (entity.has("dbpedia:country")) {
+					console.log("in if country");
+					
 					rightSideCard.append(this.renderButtonCountry(entity,card));
+					
 				}
                 if (entity.has("dbpedia:district")) {				
 					rightSideCard.append(this.renderButtonDistrict(entity,card));
@@ -341,27 +325,10 @@ if (!window.terkait) {
                 if (entity.has("dbpedia:federalState")) {				
 					rightSideCard.append(this.renderButtonFederalState(entity,card));
                 }
-				
-            /*     //button for federalState
-                if (entity.has("dbpedia:federalState")) {
-//                    var range = this.getLabel(entity.get("dbpedia:federalState"));
-                    var prop = $('<p>state: </p>');
-                    var button = $('<button></button>');
-
-                    button.click(function(entity, accordion) {
-                        return function() {
-                            window.terkait.render(entity, accordion);
-                        };
-                    }(entity, card.parent()));
-
-//                    rightSideCard.append(prop.append(button.append(range)));
-                    rightSideCard.append(prop.append(button));
-                } */
-            // DEBUG
         },
 
 		getLabel : function(entity) {
-			return $('Label');
+			return 'Label';
 		},
 		//used in renderPlace		
 		renderButtonCountry : function(entity, card) {
@@ -379,7 +346,9 @@ if (!window.terkait) {
 		},
 		//used in renderPlace		
 		renderButtonDistrict : function(entity, card) {
-                    var range = this.getLabel(entity.get("dbpedia:district"));
+                //button for country
+                if (entity.has("dbpedia:district")) {
+                    var range = "TOOD:";//this.getLabel(entity.get("dbpedia:district"));
                     var prop = $('<p>district: </p>');
                     var button = $('<button></button>');
 
@@ -390,6 +359,7 @@ if (!window.terkait) {
                     }(entity, card.parent()));
 
 					return prop.append(button.append(range));
+				}
 		},		
 		//used in renderPlace
 		renderButtonFederalState : function(entity, card) {
