@@ -239,7 +239,7 @@ if (!window.terkait) {
 
         renderPerson : function(entity, card) {
             var leftSideCard = jQuery('<div>').addClass("recommended-content");
-            renderRecommendedContent(entity, leftSideCard);
+            window.terkait.renderRecommendedContent(entity, leftSideCard);
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
@@ -247,7 +247,7 @@ if (!window.terkait) {
 
         renderOrganization : function(entity, card) {
             var leftSideCard = jQuery('<div>').addClass("recommended-content");
-            renderRecommendedContent(entity, leftSideCard);
+            window.terkait.renderRecommendedContent(entity, leftSideCard);
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
@@ -272,7 +272,7 @@ if (!window.terkait) {
 
         renderPlace : function(entity, card) {
             var leftSideCard = jQuery('<div>').addClass("recommended-content");
-            renderRecommendedContent(entity, leftSideCard);
+            window.terkait.renderRecommendedContent(entity, leftSideCard);
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
