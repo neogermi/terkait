@@ -125,7 +125,7 @@ if (!window.terkait) {
                                     window.terkait.render(entity);
 
                                     // trigger a search in DBPedia to ensure to have "all" properties
-                                    /*window.terkait.vie
+                                    window.terkait.vie
                                             .load({
                                                 entity : entity.id
                                             })
@@ -138,9 +138,9 @@ if (!window.terkait) {
                                                                     .get(entities[e].id);
                                                             updated.change();
                                                         }
-                                                    });*/
+                                                    });
                                 }
-                                console.log("rendering " + entitiesOfInterest.length + " entities");
+                                console.log("rendering " + entitiesOfInterest.length + " entities", entitiesOfInterest);
                             })
                     .fail(function(f) {
                         console.warn(f);
@@ -248,6 +248,9 @@ if (!window.terkait) {
 				birthDate = entity.get('dbpedia:birthDate');
 				rightSideCard.append("<p> born:" + birthDate + "</p>");
 			}
+			if (entity.has("foaf:page")) {				
+				rightSideCard.append(this.renderLinkWikiPage(entity));
+            }
         },
 
         renderOrganization : function(entity, card) {
@@ -272,6 +275,9 @@ if (!window.terkait) {
                         url = url[0]; // just take the first
                     rightSideCard.append("<p> Organization URL: " + url + "</p>");
                 }
+            }
+			if (entity.has("foaf:page")) {				
+				rightSideCard.append(this.renderLinkWikiPage(entity));
             }
         },
 		
@@ -305,19 +311,33 @@ if (!window.terkait) {
 //max           google.maps.Map(document.getElementById("map_canvas"), options);
             // DEBUG
 			console.log("hasCountry: ",entity.has("dbpedia:country"));
-					
+				if (entity.has("geo:lat")) {
+					if (entity.has("geo:long")) {
+			            rightSideCard.append(this.renderMap(entity));
+					}
+				}	
                 if (entity.has("dbpedia:country")) {
-					console.log("in if country");
 					rightSideCard.append(this.renderButtonCountry(entity,card));
 				}
-                if (entity.has("dbpedia:district")) {				
+                if (entity.has("dbpedia:district")) {
 					rightSideCard.append(this.renderButtonDistrict(entity,card));
                 }
                 if (entity.has("dbpedia:federalState")) {				
 					rightSideCard.append(this.renderButtonFederalState(entity,card));
+                }				
+                if (entity.has("foaf:page")) {				
+					rightSideCard.append(this.renderLinkWikiPage(entity));
                 }
         },
 
+		//used in renderPlace		
+		renderMap : function(entity) {
+					var latitude = entity.get("geo:lat");
+					var longitude = entity.get("geo:long");
+					var res = $('<div id ="map_canvas"></div>');
+					res.append(this.retrieveMap(latitude,longitude));
+					return res;
+		},		
 		//used in renderPlace		
 		renderButtonCountry : function(entity, card) {
 					var range = this.getLabel(entity.get("dbpedia:country"));
@@ -326,7 +346,8 @@ if (!window.terkait) {
 
 					button.click(function(entity, accordion) {
 						return function() {
-							window.terkait.render(entity, accordion);
+						
+							window.terkait.render(entity.get(entity.id), accordion);
 						};
 					}(entity, card.parent()));
 
@@ -350,7 +371,7 @@ if (!window.terkait) {
 		},		
 		//used in renderPlace
 		renderButtonFederalState : function(entity, card) {
-                    var range = this.getLabel(entity.get("dbpedia:federalState"));
+                    var range = "toDo";//this.getLabel(entity.get("dbpedia:federalState"));
                     var prop = $('<p>state: </p>');
                     var button = $('<button></button>');
 
@@ -362,8 +383,22 @@ if (!window.terkait) {
 
 					return prop.append(button.append(range));
 		},		
+		//used in renderPlace		
+		renderLinkWikiPage : function(entity) {
+					var range = entity.get("foaf:page");
+					if($.isArray(range)){
+					range = range[0];
+					}
+					var rangeSt = new String(range.id);
+					rangeSt = rangeSt.replace(/</i,'').replace(/>/i,'');	
+					var prop = $('<p>find out <a href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
 
-
+					return prop;
+		},
+		//used in renderMap
+		retrieveMap : function(latitude,longitude){
+			return 'hier comes the map';
+		},
         
         getLabel : function(entity) {
             if (entity.has("name")) {
