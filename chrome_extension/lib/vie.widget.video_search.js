@@ -11,7 +11,7 @@
             var v = this.options.vie;
 			if (v.types.get("VideoObject").attributes.get("depicts") !== undefined) {
 				v.types.get("VideoObject").attributes.add("depicts", ["Thing"]);
-				v.types.get("Thing").attributes.get("image").range.push("VideoObject");
+				v.types.get("Thing").attributes.get("video").range.push("VideoObject");
 				v.types.add("VIEVideoResult", [
 				   {
 				   "id"    : "query",
@@ -41,18 +41,23 @@
         render: function (data) {
             data.time = (data.time)? data.time : new Date();
             if (data.queryId === this.options.query_id) {
-                for (var p = 0; p < data.videos.length; p++) {
-                    this._triplifyVideo(data.videos[p], data.time, data.serviceId, data.entityId, data.queryId);
-                    this.options.videos.push(data.videos[p]);
+                for (var p = 0; p < data.objects.length; p++) {
+                    /* TODO : this._triplifyVideo(data.objects[p], data.time, data.serviceId, data.entityId, data.queryId); */
+                    this.options.objects.push(data.objects[p]);
                 }
-                delete data["videos"];
+                delete data["objects"];
                 var render = (this.options.render)? this.options.render : this._render;
-                render.call(this, data);
+                if (render) {
+                    render.call(this, data);
+                } else {
+                    console.log("vie.widget.video_search", "No render method specified!");
+                }
             } else {
                 //discard results as they depend on an old query
             }
         },
         
+        /* TODO
         _render: function (data) {
             var self = this;
             
@@ -70,7 +75,7 @@
                 $(self.element).append(image);
             }
             return this;
-        },
+        },*/
         
         triggerSearch: function (entityId, pageNum) {
             var self = this;
@@ -80,7 +85,7 @@
             }
             this.options.query_id++;
             var qId = this.options.query_id;
-            this.options.videos = [];
+            this.options.objects = [];
             this.options.page_num = (pageNum)? pageNum : 0;
             
             var entity = undefined;
@@ -114,6 +119,7 @@
             return this;
         },
         
+        /* TODO
         _triplifyVideo: function (photo, time, serviceId, entityId, queryId) {
             var entity = this.options.vie.entities.get(entityId);
             
@@ -128,7 +134,7 @@
                 "image"    : photo.original
             });
             entity.setOrAdd('video', imageId);
-        },
+        },*/
         
         _getUrlMainPartFromEntity : function (entity, serviceId) {
             var service = this.options.services[serviceId];
@@ -171,14 +177,10 @@
                 'gvideo' : {
                     use       : false,
                     api_key   : undefined,
-                    safe      : "active", //active,moderate,off
                     base_url  : "https://ajax.googleapis.com/ajax/services/search/video?v=1.0",
                     tail_url  : function (widget, service) {
-                        var url = "&safe=" + service.safe;
-                        
-                        url += "&rsz=" + widget.options.bin_size;
+                        var url = "&rsz=" + widget.options.bin_size;
                         url += "&start=" + (widget.options.page_num * widget.options.bin_size);
-                        url += "&safe_search=1"; // safe search
                         
                         return url;
                     },
@@ -203,7 +205,7 @@
                     },
                     callback  : function (widget, entityId, serviceId, queryId) {
                         return function (data) {
-                            var videos = [];
+                            var objects = [];
                             if (data && data.responseStatus === 200) {
                                 var rData = data.responseData.results;
                                 for (var r = 0; r < rData.length; r++) {
@@ -211,16 +213,16 @@
                                     var embedUrl = (rData[r].videoType === "YouTube")? 
                                                         rData[r].playUrl.replace(/\/v\//, "/embed/").replace(/&.*/, "") : 
                                                         rData[r].playUrl;
-                                    var photoObj = {
+                                    var obj = {
                                         "thumbnail" : thumbnail,
                                         "original"  : embedUrl,
                                         "width"     : rData[r].tbWidth,
                                         "height"    : rData[r].tbHeight
                                     };
-                                    videos.push(photoObj);
+                                    objects.push(obj);
                                 }
                             }
-                            var data = {entityId : entityId, serviceId: serviceId, queryId : queryId, time: new Date(), videos: videos};
+                            var data = {entityId : entityId, serviceId: serviceId, queryId : queryId, time: new Date(), objects: objects};
                             widget._trigger('end_query', undefined, data);
                             widget.render(data);
                           };
@@ -232,49 +234,20 @@
                     'gvideo' : function (entity, serviceId) {
                         var url = "";
                         if (entity.has("name")) {
-                            var name = entity.get("name");
-                            if ($.isArray(name) && name.length > 0) {
-                                name = name[0]; //just take the first
-                            }
                             url += "&q="; // *no* type-specific keywords
-                            url += name.replace(/ /g, '+');
-                        }
-                        return url;
-                    }
-                },
-                "Person" : {
-                    'gvideo' : function (entity, serviceId) {
-                        var url = "";
-                        if (entity.has("name")) {
                             var name = entity.get("name");
-                            if ($.isArray(name) && name.length > 0) {
-                                name = name[0]; //just take the first
+                            if (jQuery.isArray(name) && name.length > 0) {
+                                for ( var i = 0; i < name.length; i++) {
+                                    if (name[i].indexOf('@en') > -1) {
+                                        name = name[i];
+                                        break;
+                                    }
+                                }
+                                if (jQuery.isArray(name))
+                                    name = name[0]; // just take the first
+                                name = name.replace(/"/g, "").replace(/@[a-z]+/, '').replace(/ /g, "+");
+                                url += name;
                             }
-                            url += "&imgtype=face"; // type-specific search for faces
-                            url += "&q=";
-                            url += name.replace(/ /g, '+');
-                        }
-                        return url;
-                    }
-                },
-                "GeoCoordinates" : {
-                    'gvideo' : function (entity, serviceId) {
-                        return undefined;
-                    }
-                },
-                "Place" : {
-                    'gvideo' : function (entity, serviceId) {
-                        var url = "";
-                        
-                        if (entity.has('name')) {
-                            var name = entity.get("name");
-                            if ($.isArray(name) && name.length > 0) {
-                                name = name[0]; //just take the first
-                            }
-                            url += "&imgtype=photo"; // type-specific commands
-                            url += "&q=" + name.replace(/ /g, '+');
-                        } else {
-                            return undefined
                         }
                         return url;
                     }
@@ -284,7 +257,7 @@
             // helper
             render      : undefined,
             entity      : undefined,
-            videos      : [],
+            objects      : [],
             timer       : undefined,
             page_num    : 1,
             query_id    : 0,

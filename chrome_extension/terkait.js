@@ -338,7 +338,10 @@ if (!window.terkait) {
         },
         
         getLabel : function(entity) {
-            if (entity.has("name")) {
+            if (typeof entity === "string") {
+                return "NO NAME";
+            }
+            else if (entity.has("name")) {
                 var name = entity.get("name");
                 if (jQuery.isArray(name) && name.length > 0) {
                     for ( var i = 0; i < name.length; i++) {
@@ -398,15 +401,15 @@ if (!window.terkait) {
             
             var images = terkait._renderImages(entity);
             var videos = terkait._renderVideos(entity).css("margin-top", "120px");
+            var newssearch = terkait._renderNews(entity).css("margin-top", "120px");
             var websearch = terkait._renderImages(entity).css("margin-top", "120px");
-            var newssearch = terkait._renderImages(entity).css("margin-top", "120px");
             var historysearch = terkait._renderImages(entity).css("margin-top", "120px");
             
             panel
                 .append(images)
                 .append(videos)
-                /*.append(websearch)
                 .append(newssearch)
+                /*.append(newssearch)
                 .append(historysearch)
                 */
                 ;
@@ -426,33 +429,33 @@ if (!window.terkait) {
                         }
                     },
                     render: function(data) {
-                                        var self = this;
+                        var self = this;
+        
+                        var objects = self.options.objects;
+                        var time = data.time;
                         
-                                        var photos = self.options.photos;
-                                        var time = data.time;
-                                        
-                                        //rendering
-                                        var container = jQuery('<div>').css('position', 'relative');
-                                        for (var p = 0; p < photos.length && p < this.options.bin_size; p++) {
-                                            var photo = photos[p];
-                                            var border = jQuery('<div>')
-                                            .css({
-                                                'background-color': 'white',
-                                                'padding': '10px',
-                                            });
-                                            var img = jQuery('<img src="' + photo.original + '" width="110px" height="110px" />');
-                                            container.append(border.append(img));
-                                        }
-                                        
-                                        container.cycle({
-                                            fx: 'fade'
-                                        });
-                                        
-                                        // clear the container element
-                                        self.element.empty();
-                                        container.appendTo(jQuery(self.element));
-                                        return this;
-                                    }
+                        //rendering
+                        var container = jQuery('<div>').css('position', 'relative');
+                        for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
+                            var obj = objects[o];
+                            var border = jQuery('<div>')
+                            .css({
+                                'background-color': 'white',
+                                'padding': '10px',
+                            });
+                            var img = jQuery('<img src="' + obj.original + '" width="110px" height="110px" />');
+                            container.append(border.append(img));
+                        }
+                        
+                        container.cycle({
+                            fx: 'fade'
+                        });
+                        
+                        // clear the container element
+                        self.element.empty();
+                        container.appendTo(jQuery(self.element));
+                        return this;
+                    }
                     
             }).vieImageSearch({
                 entity: entity
@@ -476,13 +479,13 @@ if (!window.terkait) {
                     render: function(data) {
                             var self = this;
             
-                            var videos = self.options.videos;
+                            var objects = self.options.objects;
                             var time = data.time;
                             
-                            //rendering
+                          //rendering
                             var container = jQuery('<div>').css('position', 'relative');
-                            for (var p = 0; p < videos.length && p < this.options.bin_size; p++) {
-                                var video = videos[p];
+                            for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
+                                var obj = objects[o];
                                 var border = jQuery('<div>')
                                 .css({
                                     'background-color': 'white',
@@ -490,7 +493,7 @@ if (!window.terkait) {
                                 });
                                 var vid = jQuery('<iframe>')
                                 .attr({
-                                    "src": video["original"],
+                                    "src": obj.original,
                                     "width": "110px",
                                     "height": "82px",
                                     "controls" : 0
@@ -514,19 +517,56 @@ if (!window.terkait) {
             
             return vidContainer;
         },
-        /*
-            var newsContainer = jQuery('<div class = "tag_news">');
-            contentSelector.append(newsContainer);
-            //newsSearch = new google.search.NewsSearch();
-            newsSearch.setSearchCompleteCallback(this, window.terkait.searchComplete, [newsSearch,newsContainer]);
-            newsSearch.execute(query);
+        
+        _renderNews : function (entity) {
+            var newContainer = $('<div>');
             
-            var videoContainer = jQuery('<div class = "tag_video">');
-            contentSelector.append(videoContainer);
-            var videoSearch = new google.search.VideoSearch();
-            videoSearch.setSearchCompleteCallback(this, window.terkait.searchComplete, [videoSearch,videoContainer]);
-            videoSearch.execute(query);        
-        }, */
+            newContainer
+                .vieNewsSearch({
+                    vie    : window.terkait.vie,
+                    bin_size: 3,
+                    services : {
+                        gnews : {
+                            use: true,
+                            ned: "de_at",
+                            hl: "en"
+                        }
+                    },
+                    render: function(data) {
+                        var self = this;
+                        var objects = self.options.objects;
+                        var time = data.time;
+                        
+                        //rendering
+                        var container = jQuery('<div>').css('position', 'relative');
+                        for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
+                            var obj = objects[o];
+                            var border = jQuery('<div>')
+                            .css({
+                                'background-color': 'white',
+                                'padding': '10px',
+                            });
+                            var newsItem = jQuery('<div>');
+                            container.append(border.append(newsItem));
+                        }
+                        
+                        container.cycle({
+                            fx: 'fade'
+                        })
+                        .cycle('stop');
+                        
+                        // clear the container element
+                        self.element.empty();
+                        container.appendTo(jQuery(self.element));
+                        return this;
+                    }
+        
+                }).vieNewsSearch({
+                    entity: entity
+                });
+            
+            return newContainer;
+        },
         
         searchComplete: function(googleSearch,container) {
             if (googleSearch.results && googleSearch.results.length > 0) {
