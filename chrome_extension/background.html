@@ -76,6 +76,14 @@
             });
         });
     });
+    
+    function onRequest(request, sender, callback) {
+      if (request.action == 'getImages') {
+        
+      }
+    }
+
+    chrome.extension.onRequest.addListener(onRequest);
 
     // assemble context menue
 
@@ -104,9 +112,4 @@
         window.terkait.appendType(null, type.id, type.subtypes);
     }
 </script>
-<script>
-	$(function() {
-		$( "#accordion" ).accordion();
-	});
-	</script>
 </html>

@@ -24,12 +24,16 @@
       "css": ["terkait.css"],
       "js": [
       	"lib/jquery.js",
+      	"lib/jquery-ui.js",
       	"lib/underscore.js",
       	"lib/backbone.js",
       	"lib/rdfquery.js",
       	"lib/vie.js",
+      	"lib/vie.widget.image_search.js",
+      	"lib/vie.widget.video_search.js",
       	"lib/schemaOrg/schema.json",
       	"lib/schemaOrg/wrapper.js",
+      	"lib/jquery.cycle.js",
       	"terkait.js"]
     }
   ],
