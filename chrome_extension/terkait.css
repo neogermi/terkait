@@ -98,3 +98,12 @@
 	float: right;
 	overflow-y:scroll;
 }
+
+.link-to-slide {
+font:15px;
+text-decoration:underline;
+}
+
+.entity-details a {
+	font:15px underline;
+}

@@ -195,7 +195,7 @@ if (!window.terkait) {
                     } else if (entity.isof("Place")) {
                         window.terkait.renderPlace(this.model, $el);
                     } else {
-                        console.log("no renderer for type", entity.get('@type'));
+                        console.log("no renderer for type", this.model.get('@type'));
                     }
                 }
             });
@@ -252,7 +252,7 @@ if (!window.terkait) {
             rightSideCard.append("<p> Person  :" + res + "</p>");
 			if(entity.has('dbpedia:birthDate')) {
 				birthDate = entity.get('dbpedia:birthDate');
-				rightSideCard.append("<p> born:" + birthDate + "</p>");
+				rightSideCard.append("<p>born: " + birthDate + "</p>");
 			}
 			if (entity.has("foaf:page")) {				
 				rightSideCard.append(this.renderLinkWikiPage(entity));
@@ -288,13 +288,11 @@ if (!window.terkait) {
         },
 		
         renderPlace : function(entity, card) {
-            var leftSideCard = jQuery('<div>').addClass("recommended-content");
-            window.terkait.renderRecommendedContent(entity, leftSideCard);
             var rightSideCard = jQuery('<div>').addClass("entity-details");
             card.append(leftSideCard).append(rightSideCard);
             
             var res = this.getLabel(entity);
-            rightSideCard.append("NAME :" + '<a href ="#">' + res + '</a>');
+            rightSideCard.append("name: " + '<a href ="#">' + res + '</a>');
 
             var latitude = "";
             var longitude = "";
@@ -316,7 +314,6 @@ if (!window.terkait) {
             // google.maps.Map(document.getElementById("map_canvas"), options);
 //max           google.maps.Map(document.getElementById("map_canvas"), options);
             // DEBUG
-			console.log("hasCountry: ",entity.has("dbpedia:country"));
 				if (entity.has("geo:lat")) {
 					if (entity.has("geo:long")) {
 			            rightSideCard.append(this.renderMap(entity));
@@ -344,16 +341,16 @@ if (!window.terkait) {
 					res.append(this.retrieveMap(latitude,longitude));
 					return res;
 		},		
-		//used in renderPlace		
+ 		//used in renderPlace		
 		renderButtonCountry : function(entity, card) {
 					var range = this.getLabel(entity.get("dbpedia:country"));
 					var prop = $('<p>country: </p>');
-					var button = $('<button></button>');
-
+					var button = $('<a href=""></a>');
+					var country = entity.get("dbpedia:country");
 					button.click(function(entity, accordion) {
-						return function() {
-						
-							window.terkait.render(entity.get(entity.id), accordion);
+						return function(event) {
+							event.preventDefault();						
+							window.terkait.render(country, accordion);
 						};
 					}(entity, card.parent()));
 
@@ -364,11 +361,13 @@ if (!window.terkait) {
                 if (entity.has("dbpedia:district")) {
                     var range = "TOOD:";//this.getLabel(entity.get("dbpedia:district"));
                     var prop = $('<p>district: </p>');
-                    var button = $('<button></button>');
+					var button = $('<a href=""></a>');
+					var district = entity.get("dbpedia:district");
 
                     button.click(function(entity, accordion) {
-                        return function() {
-                            window.terkait.render(entity, accordion);
+						return function(event) {
+							event.preventDefault();						
+                            window.terkait.render(district, accordion);
                         };
                     }(entity, card.parent()));
 
@@ -379,10 +378,11 @@ if (!window.terkait) {
 		renderButtonFederalState : function(entity, card) {
                     var range = "toDo";//this.getLabel(entity.get("dbpedia:federalState"));
                     var prop = $('<p>state: </p>');
-                    var button = $('<button></button>');
+					var button = $('<a href=""></a>');
 
                     button.click(function(entity, accordion) {
-                        return function() {
+						return function(event) {
+							event.preventDefault();						
                             window.terkait.render(entity, accordion);
                         };
                     }(entity, card.parent()));
@@ -408,9 +408,11 @@ if (!window.terkait) {
         
         getLabel : function(entity) {
             if (typeof entity === "string") {
+
                 return "NO NAME";
             }
             else if (entity.has("name")) {
+
                 var name = entity.get("name");
                 if (jQuery.isArray(name) && name.length > 0) {
                     for ( var i = 0; i < name.length; i++) {
