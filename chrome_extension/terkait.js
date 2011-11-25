@@ -267,9 +267,9 @@ if (!window.terkait) {
                 var closeButton = window.terkait.createCloseButton();
                 closeButton.click(function () {
                     var $this = $(this);
-                    $this
-                    .parent('.accordion')
-                    .first()
+                    var $accord = $this.parent('.accordion').first();
+                    $this.remove();
+                    $accord
                     .slideUp(500, function () {
                         $(this).remove();
                     });
@@ -283,17 +283,12 @@ if (!window.terkait) {
                 .hover (function () {
                     var $this = $(this);
                     var $button = $('.close-button', this);
-                    var topAcc = $this.position().top - 4;
-                    var leftAcc = $this.position().left - 16;
                     $button
-                    .css({top : topAcc, left: leftAcc})
                     .fadeIn(500);
-                    console.log("argh!", $this.offset());
                     return true;
                 }, function () {
                     var $button = $('.close-button', this);
                     $button.fadeOut(500);
-                    console.log("argh!", "out", $(this).offset());
                     return true;
                 });
                 jQuery('#terkait-container .entities')
@@ -378,7 +373,9 @@ if (!window.terkait) {
             }
         },
 
-        renderPlace : function(entity, rightSideCard) {            
+		
+        renderPlace : function(entity, rightSideCard) {        
+            var card = rightSideCard.parent().first();    
             var res = this.getLabel(entity);
             rightSideCard.append("name: " + '<a href ="#">' + res + '</a>');
 
@@ -522,20 +519,73 @@ if (!window.terkait) {
             
             var images = jQuery('<div class="recommended-icon">')
             .css({
+                  "background-image" : "url(" + chrome.extension.getURL("icons/icon_images_sw.png") + ")"
+            })
+            .hover(function () {
+                var $this = $(this);
+                $this
+                .css({
                   "background-image" : "url(" + chrome.extension.getURL("icons/icon_images.png") + ")"
+                });
+            }, function () {
+                var $this = $(this);
+                $this
+                .css({
+                  "background-image" : "url(" + chrome.extension.getURL("icons/icon_images_sw.png") + ")"
+                });
+            })
+            .click(function () {
+                var $this = $(this);
+                var $parent = $this.parents('.entity-card').first();
+                
+                terkait.registerRecommendedContentDialog($this, $parent, terkait._renderImages, entity);
             });
             var videos = jQuery('<div class="recommended-icon">')
             .css({
+                  "background-image" : "url(" + chrome.extension.getURL("icons/icon_videos_sw.png") + ")"
+            })
+            .hover(function () {
+                var $this = $(this);
+                $this
+                .css({
                   "background-image" : "url(" + chrome.extension.getURL("icons/icon_videos.png") + ")"
+                });
+            }, function () {
+                var $this = $(this);
+                $this
+                .css({
+                  "background-image" : "url(" + chrome.extension.getURL("icons/icon_videos_sw.png") + ")"
+                });
+            })
+            .click(function () {
+                var $this = $(this);
+                var $parent = $this.parents('.entity-card').first();
+                
+                terkait.registerRecommendedContentDialog($this, $parent, terkait._renderVideos, entity);
             });
             var news = jQuery('<div class="recommended-icon">')
             .css({
+                  "background-image" : "url(" + chrome.extension.getURL("icons/icon_news_sw.png") + ")"
+            })
+            .hover(function () {
+                var $this = $(this);
+                $this
+                .css({
                   "background-image" : "url(" + chrome.extension.getURL("icons/icon_news.png") + ")"
+                });
+            }, function () {
+                var $this = $(this);
+                $this
+                .css({
+                  "background-image" : "url(" + chrome.extension.getURL("icons/icon_news_sw.png") + ")"
+                });
+            })
+            .click(function () {
+                var $this = $(this);
+                var $parent = $this.parents('.entity-card').first();
+                
+                terkait.registerRecommendedContentDialog($this, $parent, terkait._renderNews, entity);
             });
-
-            //terkait._renderImages(entity, images);
-            //terkait._renderVideos(entity, videos);
-            //terkait._renderNews(entity, news)
             
             panel
                 .append(images)
@@ -567,15 +617,15 @@ if (!window.terkait) {
                             var obj = objects[o];
                             var border = jQuery('<div>')
                             .css({
-                                'background-color': 'white',
-                                'padding': '10px',
+                                'background-color': 'white'
                             });
-                            var img = jQuery('<img src="' + obj.original + '" width="110px" height="110px" />');
+                            var img = jQuery('<img src="' + obj.original + '" width="300px" height="220px" />');
                             container.append(border.append(img));
                         }
                         
                         container.cycle({
-                            fx: 'fade'
+                            fx: 'fade',
+                            pause: true
                         });
                         
                         // clear the container element
@@ -622,15 +672,16 @@ if (!window.terkait) {
                         var vid = jQuery('<iframe>')
                         .attr({
                             "src": obj.original,
-                            "width": "110px",
-                            "height": "82px",
+                            "width": "300px",
+                            "height": "210px",
                             "controls" : 0
                         });
                         container.append(border.append(vid));
                     }
                     
                     container.cycle({
-                        fx: 'fade'
+                        fx: 'fade',
+                        pause: true
                     });
                     
                     // clear the container element
@@ -680,9 +731,9 @@ if (!window.terkait) {
                     }
                     
                     container.cycle({
-                        fx: 'fade'
-                    })
-                    .cycle('stop');
+                        fx: 'fade',
+                        pause: true
+                    });
                     
                     // clear the container element
                     self.element.empty();
@@ -698,6 +749,35 @@ if (!window.terkait) {
                 });
             }, 1);
         },
+        
+        registerRecommendedContentDialog: function (button, parent, renderer, entity) {
+            var activated = (button.data('activated'))? button.data('activated') : false;
+            if (activated) {
+                $('.terkait-recommended-content-dialog')
+                .animate({
+                    left: parent.offset().left,
+                    opacity: 'hide'
+                }, 'slow', function () {
+                    $(this).remove();
+                });
+            } else {
+                $('.terkait-recommended-content-dialog').remove(); //remove old dialog
+                var $div = $('<div>');
+                var $container = $('<div>').addClass("terkait-recommended-content-dialog")
+                .append($div).appendTo($('body')).hide();
+                
+                renderer(entity, $div);
+                $container.css({
+                    top: parent.offset().top,
+                    left: parent.offset().left
+                }).animate({
+                    left: (parent.offset().left - 330),
+                    opacity: 'show'
+                }, 'slow');
+            }
+            button.data('activated', !activated);
+        },
+        ////////////////////////////////////////////////////////
         
         _getRangeObject : function() {
             try {
