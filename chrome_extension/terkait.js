@@ -340,11 +340,30 @@ if (!window.terkait) {
 
         renderPerson : function(entity, rightSideCard) {
             var res = "TODO";//this.getLabel(entity);
+			var orderInOffice = "";
             rightSideCard.append("<p> Person  :" + res + "</p>");
 			if(entity.has('dbpedia:birthDate')) {
 				birthDate = entity.get('dbpedia:birthDate');
 				rightSideCard.append("<p>born: " + birthDate + "</p>");
 			}
+			if(entity.has('dbpedia:orderInOffice')) {
+				orderInOffice = entity.get('dbpedia:orderInOffice');
+				if (jQuery.isArray(orderInOffice) && orderInOffice.length > 0) {
+                    for ( var i = 0; i < orderInOffice.length; i++) {
+                        if (orderInOffice[i].indexOf('@en') > -1) {
+                            orderInOffice = orderInOffice[i];
+                            break;
+                        }
+                    }
+                    if (jQuery.isArray(orderInOffice))
+                        orderInOffice = orderInOffice[0]; // just take the first
+                    orderInOffice = orderInOffice.replace(/"/i, "").replace(/@[a-z]+/, '');
+                }
+				
+				rightSideCard.append("<p>office: " + orderInOffice + "</p>");
+								
+			}
+
 			if (entity.has("foaf:page")) {				
 				rightSideCard.append(this.renderLinkWikiPage(entity));
             }
