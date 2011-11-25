@@ -35,6 +35,8 @@
       	"lib/schemaOrg/schema.json",
       	"lib/schemaOrg/wrapper.js",
       	"lib/jquery.cycle.js",
+		"lib/gmap-api.js",
+		"lib/main.js",
       	"terkait.js"]
     }
   ],

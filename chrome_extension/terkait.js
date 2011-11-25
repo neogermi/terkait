@@ -396,20 +396,8 @@ if (!window.terkait) {
         renderPlace : function(entity, rightSideCard) {        
             var card = rightSideCard.parent().first();    
             var res = this.getLabel(entity);
-            rightSideCard.append("name: " + '<a href ="#">' + res + '</a>');
+            //rightSideCard.append("name: " + '<a href ="#">' + res + '</a>');
 
-            var latitude = "";
-            var longitude = "";
-            if (entity.has("geo:lat")) {
-                latitude = entity.get("geo:lat");
-                rightSideCard.append("<p> Lat:" + latitude + "</P>");
-            }
-            if (entity.has("geo:long")) {
-                longitude = entity.get("geo:long");
-                // console.log("unknown request", geoCoordinates);
-                // var url = geoCoordinates.get("url");
-                rightSideCard.append("<p> Long:" + longitude + "</P>");
-            }
             var elem = $('<div id ="map_canvas">');
             rightSideCard.append(elem);
             // TODO: GUY: var options = window.terkait.initMap(latitude, longitude);
@@ -438,9 +426,22 @@ if (!window.terkait) {
         },
 
 		//used in renderPlace		
-		renderMap : function(entity) {
-					var latitude = entity.get("geo:lat");
-					var longitude = entity.get("geo:long");
+		renderMap : function(entity) {								
+					var latitude = "";
+					var longitude = "";
+					if (entity.has("geo:lat")){
+						latitude = entity.get("geo:lat");
+						if(jQuery.isArray(latitude)){
+							latitude = latitude[0];
+						}
+					}
+					if (entity.has("geo:long")) {
+						longitude = entity.get("geo:long");
+						if(jQuery.isArray(longitude)){
+							longitude = longitude[0];
+						}
+					}
+					
 					var res = $('<div id ="map_canvas"></div>');
 					res.append(this.retrieveMap(latitude,longitude));
 					return res;
@@ -507,7 +508,20 @@ if (!window.terkait) {
 		},
 		//used in renderMap
 		retrieveMap : function(latitude,longitude){
-			return 'hier comes the map';
+		
+		var latlng = new google.maps.LatLng(latitude,longitude);
+		var myOptions = {
+			zoom: 6,
+			center: latlng,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		var mapDiv = jQuery('<div>').css({height: '150px', width: '150px'});
+		var map = new google.maps.Map(mapDiv[0],myOptions);
+		var marker = new google.maps.Marker({
+			position: latlng,
+			map: map
+		});		
+			return mapDiv;
 		},
         
         getLabel : function(entity) {
