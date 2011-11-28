@@ -38,16 +38,13 @@ if (!window.terkait) {
                 
                 jQuery('<div id="terkait-container">')
                         .css({
-                              "background-image" : "url(" + chrome.extension.getURL("terkait_transparent.png") + ")"
-                        })
-                        /*
+                              "background-image" : "url(" + chrome.extension.getURL("icons/terkait_transparent.png") + ")"
+                        })/* TODO: for later
                         .hover(
                             function() {
-                                jQuery(this).animate({ "right" : "-1em" });
-                            },
-                            function() { 
-                                jQuery(this).animate({ "right" : "-25em" });
-                        })*/
+                                jQuery(this).animate({ "left" : "0px" });
+                            }
+                        ) */
                         .append(description)
                         .append(loadIndicator)
                         .append(entities)
@@ -57,7 +54,7 @@ if (!window.terkait) {
 
         selector : function() {
             var res = jQuery(
-                    ':header,header,section,article,div,span,p,q,i,b,u,em,strong,font')
+                    ':header,header,section,article,div,span,p,q,i,b,u,em,th,td,strong,font')
                     .filter(
                             function() {
                                 var jQuerythis = jQuery(this);
