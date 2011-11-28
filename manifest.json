@@ -35,7 +35,8 @@
       	"lib/schemaOrg/schema.json",
       	"lib/schemaOrg/wrapper.js",
       	"lib/jquery.cycle.js",
-      	"terkait.js"]
+      	"terkait_main.js",
+      	"terkait_render.js"]
     }
   ],
   "permissions": [
