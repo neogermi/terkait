@@ -60,7 +60,7 @@
 	background-color: transparent;
 	overflow-y: auto;
 	overflow-x: visible;
-	height:570px;
+	height:541px; /* could be 100% without the .desctiption text */
 	width:100%;
 }
 
