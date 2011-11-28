@@ -42,7 +42,7 @@
             data.time = (data.time)? data.time : new Date();
             if (data.queryId === this.options.query_id) {
                 for (var p = 0; p < data.objects.length; p++) {
-                    this._triplifyImage(data.objects[p], data.time, data.serviceId, data.entityId, data.queryId);
+                    //this._triplifyImage(data.objects[p], data.time, data.serviceId, data.entityId, data.queryId);
                     this.options.objects.push(data.objects[p]);
                 }
                 delete data["objects"];
@@ -319,13 +319,11 @@
                                 }
                                 if (jQuery.isArray(name))
                                     name = name[0]; // just take the first
-                                name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
-                                url += "&q="; // *no* type-specific keywords
-                                url += encodeURI(name.replace(/ /g, '+'));
-                            } 
-                            else {
-                                return undefined;
                             }
+                            name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
+                            
+                            url += "&q=";
+                            url += encodeURI(name.replace(/ /g, '+'));
                         } else {
                             return undefined
                         }
@@ -371,12 +369,12 @@
                                 }
                                 if (jQuery.isArray(name))
                                     name = name[0]; // just take the first
-                                name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
-                                
-                                url += "&imgtype=face";
-                                url += "&q=protrait+"; // type-specific keywords
-                                url += encodeURI(name.replace(/ /g, '+'));
                             }
+                            name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
+                            
+                            url += "&imgtype=photo";
+                            url += "&q=portrait+";
+                            url += encodeURI(name.replace(/ /g, '+'));
                         } else {
                             return undefined;
                         }
@@ -453,12 +451,12 @@
                                 }
                                 if (jQuery.isArray(name))
                                     name = name[0]; // just take the first
-                                name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
-                                
-                                url += "&imgtype=photo";
-                                url += "&q=tourist+attraction+";
-                                url += encodeURI(name.replace(/ /g, '+'));
                             }
+                            name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
+                            
+                            url += "&imgtype=photo";
+                            url += "&q=tourist+attraction+";
+                            url += encodeURI(name.replace(/ /g, '+'));
                         } else {
                             return undefined;
                         }
