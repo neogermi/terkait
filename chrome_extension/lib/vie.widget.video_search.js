@@ -173,6 +173,7 @@
             vie         : new VIE(),
             timeout     : 10000,
             bin_size  : 10,
+            lang_id     : "en",
             services    : {
                 'gvideo' : {
                     use       : false,
@@ -180,6 +181,7 @@
                     base_url  : "https://ajax.googleapis.com/ajax/services/search/video?v=1.0",
                     tail_url  : function (widget, service) {
                         var url = "&rsz=" + widget.options.bin_size;
+                        url += "&hl=" + widget.options["lang_id"];
                         url += "&start=" + (widget.options.page_num * widget.options.bin_size);
                         
                         return url;
@@ -234,20 +236,25 @@
                     'gvideo' : function (entity, serviceId) {
                         var url = "";
                         if (entity.has("name")) {
-                            url += "&q="; // *no* type-specific keywords
                             var name = entity.get("name");
                             if (jQuery.isArray(name) && name.length > 0) {
                                 for ( var i = 0; i < name.length; i++) {
-                                    if (name[i].indexOf('@en') > -1) {
+                                    if (name[i].indexOf('@' + this.options["lang_id"]) > -1) {
                                         name = name[i];
                                         break;
                                     }
                                 }
                                 if (jQuery.isArray(name))
                                     name = name[0]; // just take the first
-                                name = name.replace(/"/g, "").replace(/@[a-z]+/, '').replace(/ /g, "+");
-                                url += name;
+                                name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
+                                url += "&q="; // *no* type-specific keywords
+                                url += encodeURI(name.replace(/ /g, '+'));
+                            } 
+                            else {
+                                return undefined;
                             }
+                        } else {
+                            return undefined
                         }
                         return url;
                     }

@@ -21,7 +21,11 @@ if (!window.terkait) {
                 jQuery('#terkait-container .entities').empty();
             } else {
                 var description = jQuery("<span class=\"description\">\"<b>terkait</b> anaylzes semantic objects on a webpage and presents related content\"</span>");
-                var entities = jQuery('<div>').addClass("entities");
+                var entities = jQuery('<div>')
+                    .addClass("entities")
+                    .scroll(function () {
+                        jQuery('.terkait-recommended-content-dialog').remove(); //remove old dialog
+                    });
                 var wrapper = jQuery('<div id="terkait-wrapper">').appendTo(jQuery('body'));
                 
                 var loadIndicator = jQuery('<div>')
@@ -37,10 +41,13 @@ if (!window.terkait) {
                               "background-image" : "url(" + chrome.extension.getURL("terkait_transparent.png") + ")"
                         })
                         /*
-                         * no hovering for development .hover(function() {
-                         * jQuery(this).animate({ "right" : "-1em" }) },
-                         * function() { jQuery(this).animate({ "right" : "-25em" }) })
-                         */
+                        .hover(
+                            function() {
+                                jQuery(this).animate({ "right" : "-1em" });
+                            },
+                            function() { 
+                                jQuery(this).animate({ "right" : "-25em" });
+                        })*/
                         .append(description)
                         .append(loadIndicator)
                         .append(entities)
@@ -339,7 +346,7 @@ if (!window.terkait) {
         },
 
         renderPerson : function(entity, rightSideCard) {
-             var res = "TODO";//this.getLabel(entity);
+            var res = this.getLabel(entity);
 			var orderInOffice = "";
             rightSideCard.append("<p> Person  :" + res + "</p>");
 			if(entity.has('dbpedia:birthDate')) {
@@ -396,17 +403,7 @@ if (!window.terkait) {
         renderPlace : function(entity, rightSideCard) {        
             var card = rightSideCard.parent().first();    
             var res = this.getLabel(entity);
-            //rightSideCard.append("name: " + '<a href ="#">' + res + '</a>');
-
-            var elem = $('<div id ="map_canvas">');
-            rightSideCard.append(elem);
-            // TODO: GUY: var options = window.terkait.initMap(latitude, longitude);
-//max           var options = window.terkait.initMap(latitude, longitude);
-            // TODO: GUY: var map = new
-            // google.maps.Map(document.getElementById("map_canvas"), options);
-//max           google.maps.Map(document.getElementById("map_canvas"), options);
-            // DEBUG
-				if (entity.has("geo:lat")) {
+			if (entity.has("geo:lat")) {
 					if (entity.has("geo:long")) {
 			            rightSideCard.append(this.renderMap(entity));
 					}
@@ -442,7 +439,7 @@ if (!window.terkait) {
 						}
 					}
 					
-					var res = $('<div id ="map_canvas"></div>');
+					var res = $('<div class="map_canvas"></div>').css({height: '150px', width: '150px'});
 					res.append(this.retrieveMap(latitude,longitude));
 					return res;
 		},		
@@ -450,7 +447,7 @@ if (!window.terkait) {
 		renderButtonCountry : function(entity, card) {
 					var range = this.getLabel(entity.get("dbpedia:country"));
 					var prop = $('<p>country: </p>');
-					var button = $('<a href=""></a>');
+					var button = $('<a target="_blank" href=""></a>');
 					var country = entity.get("dbpedia:country");
 					button.click(function(entity, accordion) {
 						return function(event) {
@@ -464,9 +461,9 @@ if (!window.terkait) {
 		//used in renderPlace		
 		renderButtonDistrict : function(entity, card) {
                 if (entity.has("dbpedia:district")) {
-                    var range = "TOOD:";//this.getLabel(entity.get("dbpedia:district"));
+                    var range = "";//TODO: this.getLabel(entity.get("dbpedia:district"));
                     var prop = $('<p>district: </p>');
-					var button = $('<a href=""></a>');
+					var button = $('<a target="_blank" href=""></a>');
 					var district = entity.get("dbpedia:district");
 
                     button.click(function(entity, accordion) {
@@ -481,9 +478,9 @@ if (!window.terkait) {
 		},		
 		//used in renderPlace
 		renderButtonFederalState : function(entity, card) {
-                    var range = "toDo";//this.getLabel(entity.get("dbpedia:federalState"));
+                    var range = "";//TODO: this.getLabel(entity.get("dbpedia:federalState"));
                     var prop = $('<p>state: </p>');
-					var button = $('<a href=""></a>');
+					var button = $('<a target="_blank" href=""></a>');
 
                     button.click(function(entity, accordion) {
 						return function(event) {
@@ -502,7 +499,7 @@ if (!window.terkait) {
 					}
 					var rangeSt = new String(range.id);
 					rangeSt = rangeSt.replace(/</i,'').replace(/>/i,'');	
-					var prop = $('<p>find out <a href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
+					var prop = $('<p>find out <a target="_blank" href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
 
 					return prop;
 		},
@@ -515,7 +512,7 @@ if (!window.terkait) {
 			center: latlng,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
-		var mapDiv = jQuery('<div>').css({height: '150px', width: '150px'});
+		var mapDiv = jQuery('<div>').css({height: '100%', width: '100%'});
 		var map = new google.maps.Map(mapDiv[0],myOptions);
 		var marker = new google.maps.Marker({
 			position: latlng,
@@ -633,6 +630,7 @@ if (!window.terkait) {
                 .vieImageSearch({
                     vie    : window.terkait.vie,
                     bin_size: 3,
+                    lang_id : "en",
                     services : {
                         gimage : {
                             use: true
@@ -681,6 +679,7 @@ if (!window.terkait) {
             contentContainer
             .vieVideoSearch({
                 vie    : window.terkait.vie,
+                lang_id : "en",
                 bin_size: 3,
                 services : {
                     gvideo : {
@@ -694,7 +693,7 @@ if (!window.terkait) {
                     var time = data.time;
                     
                   //rendering
-                    var container = jQuery('<div>').css('position', 'relative');
+                    var container = jQuery('<div>');
                     for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
                         var obj = objects[o];
                         var border = jQuery('<div>')
@@ -706,8 +705,7 @@ if (!window.terkait) {
                         .attr({
                             "src": obj.original,
                             "width": "300px",
-                            "height": "210px",
-                            "controls" : 0
+                            "height": "220px"
                         });
                         container.append(border.append(vid));
                     }

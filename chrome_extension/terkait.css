@@ -131,11 +131,11 @@
 	overflow-y:scroll;
 }
 
-.link-to-slide {
+#terkait-container .link-to-slide {
 font:15px;
 text-decoration:underline;
 }
 
-.entity-details a {
+#terkait-container .entity-details a {
 	font:15px underline;
 }
