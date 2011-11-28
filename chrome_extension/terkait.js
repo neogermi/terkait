@@ -339,7 +339,7 @@ if (!window.terkait) {
         },
 
         renderPerson : function(entity, rightSideCard) {
-            var res = "TODO";//this.getLabel(entity);
+             var res = "TODO";//this.getLabel(entity);
 			var orderInOffice = "";
             rightSideCard.append("<p> Person  :" + res + "</p>");
 			if(entity.has('dbpedia:birthDate')) {
@@ -359,9 +359,9 @@ if (!window.terkait) {
                         orderInOffice = orderInOffice[0]; // just take the first
                     orderInOffice = orderInOffice.replace(/"/i, "").replace(/@[a-z]+/, '');
                 }
-				
+
 				rightSideCard.append("<p>office: " + orderInOffice + "</p>");
-								
+
 			}
 
 			if (entity.has("foaf:page")) {				
