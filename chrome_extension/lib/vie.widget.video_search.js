@@ -246,13 +246,11 @@
                                 }
                                 if (jQuery.isArray(name))
                                     name = name[0]; // just take the first
-                                name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
-                                url += "&q="; // *no* type-specific keywords
-                                url += encodeURI(name.replace(/ /g, '+'));
-                            } 
-                            else {
-                                return undefined;
                             }
+                            name = name.replace(/"/g, '').replace(/@[a-z]+/, '');
+                            
+                            url += "&q=";
+                            url += encodeURI(name.replace(/ /g, '+'));
                         } else {
                             return undefined
                         }

@@ -538,9 +538,10 @@ if (!window.terkait) {
                     }
                     if (jQuery.isArray(name))
                         name = name[0]; // just take the first
-                    name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-                    return name;
+                    
                 }
+                name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+                return name;
             }
             return "NO NAME";
         },
@@ -852,7 +853,7 @@ if (!window.terkait) {
                     'name' : text
                 });
                 window.terkait.vie.entities.add(entity);
-                //TODO: window.terkait.render(entity, $(selctor-that-selects-top-of-list));
+                window.terkait.render(entity);
 
                 window.terkait.vie.save({
                     entity : entity,
