@@ -1,7 +1,7 @@
 {
   // Required
   "name": "terkait",
-  "version": "0.1",
+  "version": "0.2",
 
   // Recommended
   "description": "A user interface to trigger a semantic search for related content.",
@@ -23,20 +23,17 @@
       "matches": ["http://*/*", "https://*/*"],
       "css": ["terkait.css"],
       "js": [
-      	"lib/jquery.js",
-      	"lib/jquery-ui.js",
-      	"lib/underscore.js",
-      	"lib/backbone.js",
-      	"lib/rdfquery.js",
+      	"lib/vie-deps.js",
       	"lib/vie.js",
+      	"lib/schemaOrg/schema.json",
+      	"lib/schemaOrg/wrapper.js",
       	"lib/vie.widget.image_search.js",
       	"lib/vie.widget.video_search.js",
       	"lib/vie.widget.news_search.js",
-      	"lib/schemaOrg/schema.json",
-      	"lib/schemaOrg/wrapper.js",
       	"lib/jquery.cycle.js",
       	"terkait_main.js",
-      	"terkait_render.js"]
+      	"terkait_render.js",
+      	"terkait_communication.js"]
     }
   ],
   "permissions": [
