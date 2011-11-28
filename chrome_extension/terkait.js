@@ -447,7 +447,7 @@ if (!window.terkait) {
 		renderButtonCountry : function(entity, card) {
 					var range = this.getLabel(entity.get("dbpedia:country"));
 					var prop = $('<p>country: </p>');
-					var button = $('<a href=""></a>');
+					var button = $('<a target="_blank" href=""></a>');
 					var country = entity.get("dbpedia:country");
 					button.click(function(entity, accordion) {
 						return function(event) {
@@ -463,7 +463,7 @@ if (!window.terkait) {
                 if (entity.has("dbpedia:district")) {
                     var range = "";//TODO: this.getLabel(entity.get("dbpedia:district"));
                     var prop = $('<p>district: </p>');
-					var button = $('<a href=""></a>');
+					var button = $('<a target="_blank" href=""></a>');
 					var district = entity.get("dbpedia:district");
 
                     button.click(function(entity, accordion) {
@@ -480,7 +480,7 @@ if (!window.terkait) {
 		renderButtonFederalState : function(entity, card) {
                     var range = "";//TODO: this.getLabel(entity.get("dbpedia:federalState"));
                     var prop = $('<p>state: </p>');
-					var button = $('<a href=""></a>');
+					var button = $('<a target="_blank" href=""></a>');
 
                     button.click(function(entity, accordion) {
 						return function(event) {
@@ -499,7 +499,7 @@ if (!window.terkait) {
 					}
 					var rangeSt = new String(range.id);
 					rangeSt = rangeSt.replace(/</i,'').replace(/>/i,'');	
-					var prop = $('<p>find out <a href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
+					var prop = $('<p>find out <a target="_blank" href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
 
 					return prop;
 		},
