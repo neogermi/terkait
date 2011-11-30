@@ -112,23 +112,17 @@ jQuery.extend(window.terkait, {
 		card.find('.card-content').css({height: '222px'});
 //		card.find('.entity-details').css({width: '74px'});
 		console.log("renderedCard? ",card.parent().find('.entity-card'));
-//		card.parent().find('.entity-card').click(window.terkait.rerenderAccordion());
 		card.parent().find('.entity-card').click(function() {
 		window.terkait.rerenderAccordion($(this));
-		/* $(this).parent().find('.entity-card').css({height: '35px'});
-		$(this).parent().find('.card-content').css({height: '1px'});
-		$(this).css({height: '245px'});
-		$(this).find('.card-content').css({height: '222px'});
- */
-		}); 
-		
-//		card.parent().find('.entity-card').click(function() {alert('Handler for .click() called.');});
-	},
+		}); 		
+	},//#f6a828
 	rerenderAccordion : function(card){
 		console.log("rerender: ", card)
 		card.parent().find('.entity-card').css({height: '35px'});
 		card.parent().find('.card-content').css({height: '1px'});
+		card.parent().find('.card-label').css({border: '2px solid #999', 'border-radius' : '10px', 'background-image' : '-webkit-linear-gradient(135deg, #5c9ccc, #ffffff)'});
 		card.css({height: '245px'});
+		card.find('.card-label').css({border: 'none', 'background-image' : '-webkit-linear-gradient(135deg, #ffffff, #ffffff'});
 		card.find('.card-content').css({height: '222px'});
 	},  
 	
