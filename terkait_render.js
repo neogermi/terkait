@@ -61,7 +61,6 @@ jQuery.extend(window.terkait, {
     render : function(entity, selector) {
         var labelView = this.createLabelView(entity);
         var cardView = this.createCardView(entity); // create the VIEW on that entity
-        
         var card = jQuery('<div>')
             .addClass("entity-card")
             .append(jQuery(labelView.el))
@@ -102,8 +101,37 @@ jQuery.extend(window.terkait, {
             jQuery('#terkait-container .entities')
                 .append(accordionContainer);
         }
+		terkait.renderAccordion(card);
     },
-    
+
+	renderAccordion : function(card){
+		card.parent().find('.entity-card').css({height: '35px'});
+		card.parent().find('.card-content').css({height: '1px'});
+//		card.parent().find('.entity-details').css({width: '1px'});
+		card.css({height: '245px'});
+		card.find('.card-content').css({height: '222px'});
+//		card.find('.entity-details').css({width: '74px'});
+		console.log("renderedCard? ",card.parent().find('.entity-card'));
+//		card.parent().find('.entity-card').click(window.terkait.rerenderAccordion());
+		card.parent().find('.entity-card').click(function() {
+		window.terkait.rerenderAccordion($(this));
+		/* $(this).parent().find('.entity-card').css({height: '35px'});
+		$(this).parent().find('.card-content').css({height: '1px'});
+		$(this).css({height: '245px'});
+		$(this).find('.card-content').css({height: '222px'});
+ */
+		}); 
+		
+//		card.parent().find('.entity-card').click(function() {alert('Handler for .click() called.');});
+	},
+	rerenderAccordion : function(card){
+		console.log("rerender: ", card)
+		card.parent().find('.entity-card').css({height: '35px'});
+		card.parent().find('.card-content').css({height: '1px'});
+		card.css({height: '245px'});
+		card.find('.card-content').css({height: '222px'});
+	},  
+	
     _renderEntityDetails : function (entity, card) {
         var leftSideCard = jQuery('<div>').addClass("recommended-content");
         var rightSideCard = jQuery('<div>').addClass("entity-details");
@@ -127,7 +155,7 @@ jQuery.extend(window.terkait, {
                     console.log("no renderer for type", e.get('@type'));
                 }
             };
-        }(entity, rightSideCard), 1);
+       }(entity, rightSideCard), 1);
     },
     
     //TODO: do not use this yet
@@ -147,6 +175,7 @@ jQuery.extend(window.terkait, {
     },
 
     renderPerson : function(entity, rightSideCard) {
+        var card = rightSideCard.parent().first();    
         var res = this.getLabel(entity);
         var orderInOffice = "";
         rightSideCard.append("<p> Person  :" + res + "</p>");
@@ -154,22 +183,11 @@ jQuery.extend(window.terkait, {
             birthDate = entity.get('dbpedia:birthDate');
             rightSideCard.append("<p>born: " + birthDate + "</p>");
         }
+        if(entity.has('dbpedia:birthPlace')) {
+            rightSideCard.append(this.renderBirthPlace(entity,card));
+        }
         if(entity.has('dbpedia:orderInOffice')) {
-            orderInOffice = entity.get('dbpedia:orderInOffice');
-            if (jQuery.isArray(orderInOffice) && orderInOffice.length > 0) {
-                for ( var i = 0; i < orderInOffice.length; i++) {
-                    if (orderInOffice[i].indexOf('@en') > -1) {
-                        orderInOffice = orderInOffice[i];
-                        break;
-                    }
-                }
-                if (jQuery.isArray(orderInOffice))
-                    orderInOffice = orderInOffice[0]; // just take the first
-                orderInOffice = orderInOffice.replace(/"/i, "").replace(/@[a-z]+/, '');
-            }
-            
-            rightSideCard.append("<p>office: " + orderInOffice + "</p>");
-                            
+		            rightSideCard.append(this.renderOffice(entity,card));
         }
 
         if (entity.has("foaf:page")) {              
@@ -212,6 +230,9 @@ jQuery.extend(window.terkait, {
             if (entity.has("dbpedia:country")) {
                 rightSideCard.append(this.renderButtonCountry(entity,card));
             }
+            if (entity.has("dbpedia:capital")) {
+                rightSideCard.append(this.renderButtonCapital(entity,card));
+            }
             if (entity.has("dbpedia:district")) {
                 rightSideCard.append(this.renderButtonDistrict(entity,card));
             }
@@ -223,6 +244,48 @@ jQuery.extend(window.terkait, {
             }
     },
 
+	//used in renderPerson
+	renderBirthPlace : function(entity, card) {
+            var birthPlace = entity.get('dbpedia:birthPlace');
+			var res = "";
+            var button = $('<a target="_blank" href=""></a>');
+
+			if(jQuery.isArray(birthPlace)){
+				birthPlace.reverse();
+				res = birthPlace[0]; //just the last			
+			}
+			
+			button.click(function(entity, accordion) {
+					return function(event) {
+						event.preventDefault();                     
+						window.terkait.render(res, accordion);
+						};
+					}(entity, card.parent()));
+					
+			var placeName = this.getLabel(res);
+			var prop = $('<p>born: </p>');
+			return prop.append(button.append(placeName));
+	},
+	//used in renderPerson
+	renderOffice : function(entity, card) {
+            var orderInOffice = entity.get('dbpedia:orderInOffice');
+			var res = "";
+            if (jQuery.isArray(orderInOffice) && orderInOffice.length > 0) {
+                for ( var i = 0; i < orderInOffice.length; i++) {
+                    if (orderInOffice[i].indexOf('@en') > -1) {
+                        res = res + orderInOffice[i];
+                        //break;
+                    }
+                } 
+			} else if (jQuery.isArray(orderInOffice)){
+                res = orderInOffice[0]; // just take the first}
+			} else {
+				res = orderInOffice;
+			}
+			res = res.replace(/"/g, "").replace(/@[a-z]+/g, '');          
+            var prop = $("<p>office: " + res + "</p>");                            
+			return prop;
+	},			
     //used in renderPlace       
     renderMap : function(entity) {                              
                 var latitude = "";
@@ -254,6 +317,20 @@ jQuery.extend(window.terkait, {
                     return function(event) {
                         event.preventDefault();                     
                         window.terkait.render(country, accordion);
+                    };
+                }(entity, card.parent()));
+
+                return prop.append(button.append(range));
+    }, //used in renderPlace       
+    renderButtonCapital : function(entity, card) {
+                var range = this.getLabel(entity.get("dbpedia:capital"));
+                var prop = $('<p>capital: </p>');
+                var button = $('<a target="_blank" href=""></a>');
+                var capital = entity.get("dbpedia:capital");
+	            button.click(function(entity, accordion) {
+                    return function(event) {
+                        event.preventDefault();                     
+                        window.terkait.render(capital, accordion);
                     };
                 }(entity, card.parent()));
 
