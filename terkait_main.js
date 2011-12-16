@@ -3,19 +3,29 @@ if (!window.terkait) {
 }
 
 jQuery.extend(window.terkait, {
-        
-    vie : function() {
-        var v = new VIE();
-        v.loadSchemaOrg();
-        v.namespaces.add("purl", "http://purl.org/dc/terms/subject");
-        v.use(new v.StanbolService({
-            url : "http://dev.iks-project.eu:8081",
-            proxyDisabled : true
-        }));
-        v.use(new v.RdfaRdfQueryService());
-        v.use(new v.DBPediaService());
-        return v;
-    }(),
+
+	options : {
+		types : ["Place"/*, "Person", "Organization", "Product"*/],
+		"max-entities" : 5
+	},
+	
+	vie : function() {
+	try {
+		var v = new VIE();
+		v.loadSchema("http://schema.rdfs.org/all.json", {
+			baseNS : "http://schema.org/"
+		});
+		v.namespaces.add("purl", "http://purl.org/dc/terms/subject");
+		v.use(new v.StanbolService({
+			url : ["http://dev.iks-project.eu/stanbolfull", "http://dev.iks-project.eu:8081"]
+		}));
+		v.use(new v.RdfaRdfQueryService());
+		v.use(new v.DBPediaService());
+		return v;
+		} catch (e) {
+		console.log(e);
+		}
+	}(),
 
     create : function() {
         try {
@@ -54,6 +64,7 @@ jQuery.extend(window.terkait, {
                         .appendTo(wrapper);
             }
         } catch (e) {
+		console.log(e);
             return false;
         }
         return true;
@@ -113,10 +124,13 @@ jQuery.extend(window.terkait, {
             function(entities) {
                 // filtering for the interesting entities
                 var entitiesOfInterest = [];
-                for ( var e = 0; e < entities.length; e++) {
+                for ( var e = 0, len = entities.length; e < len; e++) {
                     var entity = entities[e];
-                    var isEntityOfInterest = (!entity.isof("enhancer:Enhancement"))
-                            && (entity.isof("Person") || entity.isof("Place") || entity.isof("Organization"));
+                    var isEntityOfInterest = false;
+					for (var t = 0, len2 = window.terkait.options.types.length; t < len2 && !isEntityOfInterest;  t++) {
+						isEntityOfInterest = isEntityOfInterest || entity.isof(window.terkait.options.types[t]);
+					}
+					isEntityOfInterest = isEntityOfInterest && !entity.isof("enhancer:Enhancement");
                     var hasAnnotations = entity.has("enhancer:hasEntityAnnotation")
                             || entity.has("enhancer:hasTextAnnotation");
 
@@ -146,7 +160,8 @@ jQuery.extend(window.terkait, {
                             else
                                 return -1;
                         });
-                for (var i = 0; i < entitiesOfInterest.length; i++) {
+				entitiesOfInterest = entitiesOfInterest.slice(0, entitiesOfInterest.length < window.terkait.options["max-entities"] ? entitiesOfInterest.length : window.terkait.options["max-entities"]);
+                for (var i = 0, len = entitiesOfInterest.length; i < len; i++) {
                     var entity = entitiesOfInterest[i];
                     window.terkait.render(entity);
                     var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
