@@ -298,7 +298,7 @@ jQuery.extend(window.terkait, {
                 }
                 
                 var res = $('<div class="map_canvas"></div>').css({height: '150px', width: '150px'});
-                //TODO: this.retrieveMap(latitude,longitude, res);
+                this.retrieveMap(latitude,longitude, res);
                 return res;
     },      
     //used in renderPlace       
@@ -377,17 +377,16 @@ jQuery.extend(window.terkait, {
     },
     //used in renderMap
     retrieveMap : function(latitude,longitude, mapDiv){
-        var latlng = new google.maps.LatLng(latitude,longitude);
-        var myOptions = {
-            zoom: 6,
-            center: latlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        var map = new google.maps.Map(mapDiv[0],myOptions);
-        var marker = new google.maps.Marker({
-            position: latlng,
-            map: map
-        });
+		var a = $('<a target="_blank">');
+		var zoom = 8;
+		var a_href = 'http://maps.google.com/maps?z='+zoom+'&q='+latitude+','+longitude;
+		a.attr('href',a_href);
+		
+		var map_img = $('<img>');
+		img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=150x150&sensor=false&markers='+latitude+','+longitude;
+		map_img.attr('src',img_src);
+		a.append(map_img);
+		mapDiv.append(a);
     },
     
     getLabel : function(entity) {
