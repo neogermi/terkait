@@ -383,7 +383,7 @@ jQuery.extend(window.terkait, {
 		a.attr('href',a_href);
 		
 		var map_img = $('<img>');
-		img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=150x150&sensor=false&markers='+latitude+','+longitude;
+		img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
 		map_img.attr('src',img_src);
 		a.append(map_img);
 		mapDiv.append(a);
