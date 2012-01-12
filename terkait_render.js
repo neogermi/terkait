@@ -394,9 +394,9 @@ jQuery.extend(window.terkait, {
 
             return "NO NAME";
         }
-        else if (entity.has("name")) {
+        else if (entity.has("rdfs:label")) {//was entity.has("name") before. doesn't work with entity.get("name") since entity's 'name' attribute is stored as <<:name>>
 
-            var name = entity.get("name");
+            var name = entity.get("rdfs:label"); //doesn't work with entity.get("name") since entity's 'name' attribute is stored as <<:name>>
             if (jQuery.isArray(name) && name.length > 0) {
                 for ( var i = 0; i < name.length; i++) {
                     if (name[i].indexOf('@en') > -1) {
