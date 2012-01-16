@@ -4,48 +4,39 @@ if (!window.terkait) {
 
 jQuery.extend(window.terkait, {
     
-    createLabelView : function(entity) {
-        var LabelView = Backbone.View.extend({
-
-            tagName : "div",
-            className : "card-label",
-
-            initialize : function() {
-                // bind the entitie's "change" event to a rerendering of the VIEW
-                this.model.bind("rerender", this.render, this);
-                this.render(); // render it the first time
-            },
-            
-            render : function() {
-                var $el = jQuery(this.el);
-                $el.text(window.terkait.getLabel(this.model));
-            }
-        });
-        return new LabelView({
-            model : entity
-        });
-    },
-    
-    createCardView : function(entity) {
-        var CardView = Backbone.View.extend({
+    createContentView : function(entity) {
+        var ContentView = Backbone.View.extend({
 
             className : "card-content",
 
             initialize : function() {
-                // bind the entitie's "change" event to a rerendering of the
-                // VIEW
+                // bind the entitie's "rerender" event to a rerendering of the VIEW
                 this.model.bind("rerender", this.render, this);
                 this.render(); // render it the first time
+                var labelElem = jQuery("<div>").addClass("card-label");
+                var leftElem = jQuery("<div>").addClass("recommended-content");
+                var rightElem = jQuery("<div>").addClass("entity-details");
+                
+                jQuery(this.el)
+                .append(labelElem)
+                .append(leftElem)
+                .append(rightElem);
             },
 
             render : function() {
                 var $el = jQuery(this.el);
-                $el.empty(); // clear card first
-
-                window.terkait._renderEntityDetails(this.model, $el);
+                var renderer = window.terkait._selectRenderer(this.model);
+                if (renderer !== undefined) {
+                    $el.empty(); // clear card first
+                    renderer["label"](this.model, jQuery(".card-label", $el));
+                    renderer["left"](this.model, jQuery(".recommended-content", $el));
+                    renderer["right"](this.model, jQuery(".entity-details", $el));
+                } else {
+                    console.log("no renderer found for entity", this.model);
+                }
             }
         });
-        return new CardView({
+        return new ContentView({
             model : entity
         });
     },
@@ -59,12 +50,11 @@ jQuery.extend(window.terkait, {
     },
 
     render : function(entity, selector) {
-        var labelView = this.createLabelView(entity);
-        var cardView = this.createCardView(entity); // create the VIEW on that entity
+         // create the VIEW on that entity
+        var contentView = this.createContentView(entity);
         var card = jQuery('<div>')
             .addClass("entity-card")
-            .append(jQuery(labelView.el))
-            .append(jQuery(cardView.el));
+            .append(jQuery(contentView.el));
         
         // where to put it?
         if (selector) {
@@ -101,39 +91,16 @@ jQuery.extend(window.terkait, {
             jQuery('#terkait-container .entities')
                 .append(accordionContainer);
         }
-		terkait.renderAccordion(card);
     },
-
-	renderAccordion : function(card){
-		card.parent().find('.entity-card').css({height: '35px'});
-		card.parent().find('.card-content').css({height: '1px'});
-//		card.parent().find('.entity-details').css({width: '1px'});
-		card.css({height: '245px'});
-		card.find('.card-content').css({height: '222px'});
-//		card.find('.entity-details').css({width: '74px'});
-		console.log("renderedCard? ",card.parent().find('.entity-card'));
-		card.parent().find('.entity-card').click(function() {
-		window.terkait.rerenderAccordion($(this));
-		}); 		
-	},//#f6a828
-	rerenderAccordion : function(card){
-		console.log("rerender: ", card)
-		card.parent().find('.entity-card').css({height: '35px'});
-		card.parent().find('.card-content').css({height: '1px'});
-		card.parent().find('.card-label').css({border: '2px solid #999', 'border-radius' : '10px', 'background-image' : '-webkit-linear-gradient(135deg, #5c9ccc, #ffffff)'});
-		card.css({height: '245px'});
-		card.find('.card-label').css({border: 'none', 'background-image' : '-webkit-linear-gradient(135deg, #ffffff, #ffffff'});
-		card.find('.card-content').css({height: '222px'});
-	},  
 	
-    _renderEntityDetails : function (entity, card) {
-        var leftSideCard = jQuery('<div>').addClass("recommended-content");
-        var rightSideCard = jQuery('<div>').addClass("entity-details");
+    /*_renderEntityDetails : function (entity, card) {
+        var leftSideCard = jQuery('<div>').addClass("");
+        var rightSideCard = jQuery('<div>').addClass("");
         card.append(leftSideCard).append(rightSideCard);
 
         setTimeout(function (e, l) {
                 return function () {
-                    window.terkait.renderRecommendedContent(e, l);
+                    
                 };
         }(entity, leftSideCard), 1);
         
@@ -150,27 +117,37 @@ jQuery.extend(window.terkait, {
                 }
             };
        }(entity, rightSideCard), 1);
-    },
+    },*/
     
-    //TODO: do not use this yet
-    _renderer : {
-        'Person' : function (entity, div) {
-          //TODO
-        },
-        'Organization' : function (entity, div) {
-          //TODO
-        },
-        'Place' : function (entity, div) {
-          //TODO
-        },
-        'Thing' : function (entity, div) {
-          //TODO
+    _selectRenderer : function (entity) {
+        var types = entity.get('@type');
+        types = (jQuery.isArray(types))? types : [ types ];
+        
+        var tsKeys = [];
+        for (var q in window.terkait._renderer) {
+            tsKeys.push(q);
         }
+        //sort the keys in ascending order!
+        tsKeys = window.terkait.vie.types.sort(tsKeys, false);
+                
+        for (var t = 0; t < types.length; t++) {
+            var type = window.terkait.vie.types.get(types[t]);
+            if (type) {
+                for (var q = 0, qlen = tsKeys.length; q < qlen; q++) {
+                    var key = tsKeys[q];
+                    if (type.isof(key)) {
+                        return window.terkait._renderer[key];
+                    }
+                }
+            }
+        }
+        return undefined;
     },
 
+/*
     renderPerson : function(entity, rightSideCard) {
         var card = rightSideCard.parent().first();    
-        var res = this.getLabel(entity);
+        var res = this._getLabel(entity);
         var orderInOffice = "";
         rightSideCard.append("<p> Person  :" + res + "</p>");
         if(entity.has('dbpedia:birthDate')) {
@@ -190,7 +167,7 @@ jQuery.extend(window.terkait, {
     },
 
     renderOrganization : function(entity, rightSideCard) {            
-        var res = this.getLabel(entity);
+        var res = this._getLabel(entity);
         rightSideCard.append("<p> Organization NAME : " + res + "</p>");
         
         if (entity.has("url")) {
@@ -210,12 +187,12 @@ jQuery.extend(window.terkait, {
         if (entity.has("foaf:page")) {              
             rightSideCard.append(this.renderLinkWikiPage(entity));
         }
-    },
+    },*/
 
     
     renderPlace : function(entity, rightSideCard) {        
         var card = rightSideCard.parent().first();    
-        var res = this.getLabel(entity);
+        var res = this._getLabel(entity);
         if (entity.has("geo:lat")) {
                 if (entity.has("geo:long")) {
                     rightSideCard.append(this.renderMap(entity));
@@ -237,7 +214,7 @@ jQuery.extend(window.terkait, {
                 rightSideCard.append(this.renderLinkWikiPage(entity));
             }
     },
-
+/*
 	//used in renderPerson
 	renderBirthPlace : function(entity, card) {
             var birthPlace = entity.get('dbpedia:birthPlace');
@@ -256,7 +233,7 @@ jQuery.extend(window.terkait, {
 						};
 					}(entity, card.parent()));
 					
-			var placeName = this.getLabel(res);
+			var placeName = this._getLabel(res);
 			var prop = $('<p>born: </p>');
 			return prop.append(button.append(placeName));
 	},
@@ -280,6 +257,7 @@ jQuery.extend(window.terkait, {
             var prop = $("<p>office: " + res + "</p>");                            
 			return prop;
 	},			
+	*/
     //used in renderPlace       
     renderMap : function(entity) {                              
                 var latitude = "";
@@ -303,7 +281,7 @@ jQuery.extend(window.terkait, {
     },      
     //used in renderPlace       
     renderButtonCountry : function(entity, card) {
-                var range = this.getLabel(entity.get("dbpedia:country"));
+                var range = this._getLabel(entity.get("dbpedia:country"));
                 var prop = $('<p>country: </p>');
                 var button = $('<a target="_blank" href=""></a>');
                 var country = entity.get("dbpedia:country");
@@ -317,7 +295,7 @@ jQuery.extend(window.terkait, {
                 return prop.append(button.append(range));
     }, //used in renderPlace       
     renderButtonCapital : function(entity, card) {
-                var range = this.getLabel(entity.get("dbpedia:capital"));
+                var range = this._getLabel(entity.get("dbpedia:capital"));
                 var prop = $('<p>capital: </p>');
                 var button = $('<a target="_blank" href=""></a>');
                 var capital = entity.get("dbpedia:capital");
@@ -333,7 +311,7 @@ jQuery.extend(window.terkait, {
     //used in renderPlace       
     renderButtonDistrict : function(entity, card) {
             if (entity.has("dbpedia:district")) {
-                var range = "";//TODO: this.getLabel(entity.get("dbpedia:district"));
+                var range = "";//TODO: this._getLabel(entity.get("dbpedia:district"));
                 var prop = $('<p>district: </p>');
                 var button = $('<a target="_blank" href=""></a>');
                 var district = entity.get("dbpedia:district");
@@ -350,7 +328,7 @@ jQuery.extend(window.terkait, {
     },      
     //used in renderPlace
     renderButtonFederalState : function(entity, card) {
-                var range = "";//TODO: this.getLabel(entity.get("dbpedia:federalState"));
+                var range = "";//TODO: this._getLabel(entity.get("dbpedia:federalState"));
                 var prop = $('<p>state: </p>');
                 var button = $('<a target="_blank" href=""></a>');
 
@@ -389,7 +367,7 @@ jQuery.extend(window.terkait, {
 		mapDiv.append(a);
     },
     
-    getLabel : function(entity) {
+    _getLabel : function(entity) {
         if (typeof entity === "string") {
 
             return "NO NAME";
@@ -676,6 +654,70 @@ jQuery.extend(window.terkait, {
             }, 'slow');
         }
         button.data('activated', !activated);
+    },
+    
+    //this registers the individual renderer for the differerent types
+    _renderer : {
+        'Place' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                //TODO
+                div.text("Place");
+            }
+        },
+        'Country' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                //TODO
+                div.text("Country");
+            }
+        },
+        'State' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                //TODO
+                div.text("State");
+            }
+        },
+        'City' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                //TODO
+                div.text("City");
+            }
+        },
+        'Thing' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                //TODO
+                div.text("Thing");
+            }
+        }
     }
     
 });

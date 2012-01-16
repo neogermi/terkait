@@ -10,21 +10,23 @@ jQuery.extend(window.terkait, {
 	},
 	
 	vie : function() {
-	try {
-		var v = new VIE();
-		v.loadSchema("http://schema.rdfs.org/all.json", {
-			baseNS : "http://schema.org/"
-		});
-		v.namespaces.add("purl", "http://purl.org/dc/terms/subject");
-		v.use(new v.StanbolService({
-			url : ["http://dev.iks-project.eu/stanbolfull", "http://dev.iks-project.eu:8081"]
-		}));
-		v.use(new v.RdfaRdfQueryService());
-		v.use(new v.DBPediaService());
-		return v;
-		} catch (e) {
-		console.log(e);
-		}
+    	try {
+    		var v = new VIE();
+    		v.loadSchema("http://schema.rdfs.org/all.json", {
+    			baseNS : "http://schema.org/"
+    		});
+    		var stanbol = new v.StanbolService({
+    			url : ["http://dev.iks-project.eu/stanbolfull", "http://dev.iks-project.eu:8081"]
+    		});
+            v.use(stanbol);
+    		stanbol.rules = jQuery.merge(stanbol.rules, window.terkait.getRules(stanbol));
+    		v.use(new v.RdfaRdfQueryService());
+    		v.use(new v.DBPediaService());
+    		
+    		return v;
+    	} catch (e) {
+    		console.log(e);
+    	}
 	}(),
 
     create : function() {
