@@ -80,6 +80,8 @@
 }
 
 #terkait-container .entity-card {
+	width: 100%;
+	overflow-y: scroll;
 }
 
 #terkait-container .card-label {
@@ -95,8 +97,8 @@
 }
 
 #terkait-container .recommended-content {
-	height: 100%;
-	width: 25%;
+	height: 194px;
+	width: 74px;
 	float: left;
 	overflow: hidden;
 }
@@ -104,9 +106,7 @@
 #terkait-container .recommended-icon {
     height: 64px;
     width: 64px;
-    margin-top:10px;
-    margin-left:auto;
-    margin-right:auto;
+    margin:0px;
 	cursor:pointer;
 }
 
@@ -123,11 +123,38 @@
 }
 
 #terkait-container .entity-details {
-	height: 100%;
-	width: 74%;
+	height: 197px;
+	width: 222px;
 	display: block;
 	float: right;
 	overflow-y:scroll;
+}
+
+#terkait-container .entity-details .abstract {
+	float:left;
+	width: 100px;
+	font-style: italic;
+	font-size: 13px;
+}
+
+#terkait-container .entity-details .abstract a {
+	font-style: italic;
+	font-size: 13px;
+	text-shadow: 1px 1px lightblue;
+}
+
+#terkait-container .entity-details .map_canvas {
+	height: 100px;
+	width: 100px;
+	float:right;
+	box-shadow: 5px 7px 6px grey;
+	margin-right: 10px;
+}
+
+#terkait-container .entity-details .map_canvas a div {
+	height: 100px;
+	width: 100px;
+	border-radius: 5px 5px;
 }
 
 #terkait-container .link-to-slide {
@@ -136,5 +163,4 @@ text-decoration:underline;
 }
 
 #terkait-container .entity-details a {
-	font:15px underline;
 }

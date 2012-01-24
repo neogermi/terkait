@@ -6,13 +6,14 @@ jQuery.extend(window.terkait, {
 
 	options : {
 		types : ["Place"/*, "Person", "Organization", "Product"*/],
-		"max-entities" : 5
+		"max-entities" : 5,
+		language : "en"
 	},
 	
 	vie : function() {
     	try {
     		var v = new VIE();
-    		v.loadSchema("http://schema.rdfs.org/all.json", {
+    		v.loadSchema(chrome.extension.getURL("lib/schemaOrg/all.json"), {
     			baseNS : "http://schema.org/"
     		});
     		var stanbol = new v.StanbolService({
@@ -20,8 +21,14 @@ jQuery.extend(window.terkait, {
     		});
             v.use(stanbol);
     		stanbol.rules = jQuery.merge(stanbol.rules, window.terkait.getRules(stanbol));
-    		v.use(new v.RdfaRdfQueryService());
-    		v.use(new v.DBPediaService());
+    		
+    		var rdfa = new v.RdfaRdfQueryService();
+            v.use(rdfa);
+            //TODO: rdfa.rules = jQuery.merge(rdfa.rules, window.terkait.getRules(rdfa));
+            
+    		var dbpedia = new v.DBPediaService();
+            v.use(dbpedia);
+            dbpedia.rules = jQuery.merge(dbpedia.rules, window.terkait.getRules(dbpedia));
     		
     		return v;
     	} catch (e) {
@@ -185,6 +192,19 @@ jQuery.extend(window.terkait, {
                                             .get(entities[e].id);
                                     updated.trigger("rerender");
                                 }
+                                var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
+                                aJobs--;
+                                jQuery('#terkait-container .loader').data('active_jobs', aJobs);
+                                if (aJobs <= 0) {
+                                    jQuery('#terkait-container .loader').hide();
+                                } else {
+                                    jQuery('#terkait-container .loader').show();
+                                }
+                            }
+                        )
+                        .fail(
+                            function (err) {
+                                console.warn("Could not connect to DBPedia service!");
                                 var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
                                 aJobs--;
                                 jQuery('#terkait-container .loader').data('active_jobs', aJobs);

@@ -12,7 +12,6 @@ jQuery.extend(window.terkait, {
             initialize : function() {
                 // bind the entitie's "rerender" event to a rerendering of the VIEW
                 this.model.bind("rerender", this.render, this);
-                this.render(); // render it the first time
                 var labelElem = jQuery("<div>").addClass("card-label");
                 var leftElem = jQuery("<div>").addClass("recommended-content");
                 var rightElem = jQuery("<div>").addClass("entity-details");
@@ -21,16 +20,22 @@ jQuery.extend(window.terkait, {
                 .append(labelElem)
                 .append(leftElem)
                 .append(rightElem);
+                
+                this.render(); // render it the first time
             },
 
             render : function() {
                 var $el = jQuery(this.el);
                 var renderer = window.terkait._selectRenderer(this.model);
                 if (renderer !== undefined) {
-                    $el.empty(); // clear card first
-                    renderer["label"](this.model, jQuery(".card-label", $el));
-                    renderer["left"](this.model, jQuery(".recommended-content", $el));
-                    renderer["right"](this.model, jQuery(".entity-details", $el));
+                    // first clear the content
+                    var labelElem = jQuery(".card-label", $el).empty();
+                    var leftElem = jQuery(".recommended-content", $el).empty();
+                    var rightElem = jQuery(".entity-details", $el).empty();
+                    
+                    renderer["label"](this.model, labelElem);
+                    renderer["left"](this.model, leftElem);
+                    renderer["right"](this.model, rightElem);
                 } else {
                     console.log("no renderer found for entity", this.model);
                 }
@@ -188,9 +193,38 @@ jQuery.extend(window.terkait, {
             rightSideCard.append(this.renderLinkWikiPage(entity));
         }
     },*/
+   
+    renderPlace : function (entity, div) {
+        var PlaceView = Backbone.View.extend({
 
-    
-    renderPlace : function(entity, rightSideCard) {        
+            className : "place",
+
+            initialize : function() {
+                // bind the entitie's "rerender" event to a rerendering of the VIEW
+                this.model.bind("rerender", this.render, this);
+                this.render(); // render it the first time
+            },
+
+            render : function() {
+                var $el = jQuery(this.el);
+                var map = window.terkait.renderMap(entity);
+                $el.append(map);
+                
+                var abs = jQuery('<div class="abstract">');
+                abs.html("France is a unitary state in <a href=\"http://dbpedia.org/Europe\">Europe</a> with a population of 65 million. It's capital is <a href=\"http://dbpedia.org/Paris\">Paris</a>.")
+                
+                $el.append(abs);
+                
+                return this;
+            }
+        });
+        var view = new PlaceView({
+            model : entity
+        });
+        div.append(jQuery(view.el));
+    },
+    /*
+    renderPlace : function(entity, rightSideCard) {
         var card = rightSideCard.parent().first();    
         var res = this._getLabel(entity);
         if (entity.has("geo:lat")) {
@@ -214,7 +248,7 @@ jQuery.extend(window.terkait, {
                 rightSideCard.append(this.renderLinkWikiPage(entity));
             }
     },
-/*
+
 	//used in renderPerson
 	renderBirthPlace : function(entity, card) {
             var birthPlace = entity.get('dbpedia:birthPlace');
@@ -259,26 +293,23 @@ jQuery.extend(window.terkait, {
 	},			
 	*/
     //used in renderPlace       
-    renderMap : function(entity) {                              
-                var latitude = "";
-                var longitude = "";
-                if (entity.has("geo:lat")){
-                    latitude = entity.get("geo:lat");
-                    if(jQuery.isArray(latitude)){
-                        latitude = latitude[0];
-                    }
-                }
-                if (entity.has("geo:long")) {
-                    longitude = entity.get("geo:long");
-                    if(jQuery.isArray(longitude)){
-                        longitude = longitude[0];
-                    }
-                }
-                
-                var res = $('<div class="map_canvas"></div>').css({height: '150px', width: '150px'});
-                this.retrieveMap(latitude,longitude, res);
-                return res;
-    },      
+    renderMap : function(entity) {
+        var res = $('<div class="map_canvas"></div>');
+        var latitude = entity.get("geo:lat");
+        var longitude = entity.get("geo:long");
+        if (latitude && longitude){
+            if (jQuery.isArray(latitude)) {
+                latitude = latitude[0];
+            }
+            if (jQuery.isArray(longitude)) {
+                longitude = longitude[0];
+            }
+        
+            this.retrieveMap(latitude,longitude, res);
+        }
+        return res;
+    },
+    
     //used in renderPlace       
     renderButtonCountry : function(entity, card) {
                 var range = this._getLabel(entity.get("dbpedia:country"));
@@ -354,40 +385,43 @@ jQuery.extend(window.terkait, {
                 return prop;
     },
     //used in renderMap
-    retrieveMap : function(latitude,longitude, mapDiv){
-		var a = $('<a target="_blank">');
-		var zoom = 8;
-		var a_href = 'http://maps.google.com/maps?z='+zoom+'&q='+latitude+','+longitude;
-		a.attr('href',a_href);
+    retrieveMap : function(latitude, longitude, mapDiv) {
+        var zoom = 8;
+		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + zoom + '&q=' + latitude + ',' + longitude + '">');
 		
-		var map_img = $('<img>');
-		img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
-		map_img.attr('src',img_src);
-		a.append(map_img);
-		mapDiv.append(a);
+		var map = $('<div>');
+		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
+        jQuery(map)
+        .css({
+            "background-image" : "url(" + img_src + ")"
+        });
+		
+		a
+		.append(map)
+		.appendTo(mapDiv);
     },
     
     _getLabel : function(entity) {
-        if (typeof entity === "string") {
-
-            return "NO NAME";
-        }
-        else if (entity.has("rdfs:label")) {//was entity.has("name") before. doesn't work with entity.get("name") since entity's 'name' attribute is stored as <<:name>>
-
-            var name = entity.get("rdfs:label"); //doesn't work with entity.get("name") since entity's 'name' attribute is stored as <<:name>>
-            if (jQuery.isArray(name) && name.length > 0) {
-                for ( var i = 0; i < name.length; i++) {
-                    if (name[i].indexOf('@en') > -1) {
-                        name = name[i];
-                        break;
+        if (typeof entity !== "string") {
+            var possibleAttrs = ["name", "rdfs:label"];
+            for (var p = 0; p < possibleAttrs.length; p++) {
+                var attr = possibleAttrs[p];
+                if (entity.has(attr)) {
+                    var name = entity.get(attr);
+                    if (jQuery.isArray(name) && name.length > 0) {
+                        for ( var i = 0; i < name.length; i++) {
+                            if (name[i].indexOf('@' + window.terkait.options.language) > -1) {
+                                name = name[i];
+                                break;
+                            }
+                        }
+                        if (jQuery.isArray(name))
+                            name = name[0]; // just take the first
                     }
+                    name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
+                    return name;
                 }
-                if (jQuery.isArray(name))
-                    name = name[0]; // just take the first
-                
             }
-            name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-            return name;
         }
         return "NO NAME";
     },
@@ -714,8 +748,7 @@ jQuery.extend(window.terkait, {
                 window.terkait.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                //TODO
-                div.text("Thing");
+                window.terkait.renderPlace(entity, div);
             }
         }
     }

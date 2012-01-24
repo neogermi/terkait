@@ -112,6 +112,28 @@ jQuery.extend(window.terkait, {
                              ];
                      };
                  }(service.vie.namespaces)
+             },
+            {
+                'left' : [
+                    '?subject a dbpedia:Person',
+                    '?subject rdfs:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'Person>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
              }
         ];
     }

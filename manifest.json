@@ -24,10 +24,9 @@
       "matches": ["http://*/*", "https://*/*"],
       "css": ["terkait.css"],
       "js": [
-      	"lib/vie-deps.js",
-      	"lib/vie.js",
-      	"lib/schemaOrg/schema.json",
-      	"lib/schemaOrg/wrapper.js",
+      	"lib/vie-latest-ALL.debug.js",
+        "lib/jquery.rdfquery.js",
+        "lib/jquery-ui-1.8.16.js",
       	"lib/vie.widget.image_search.js",
       	"lib/vie.widget.video_search.js",
       	"lib/vie.widget.news_search.js",

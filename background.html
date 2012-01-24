@@ -1,17 +1,45 @@
 <html>
-<script type="text/javascript" src="./lib/vie-deps.js"></script>
-
-<!-- vie.js itself -->
-<script type="text/javascript" src="./lib/vie.js"></script>
-<script type="text/javascript" src="./lib/schemaOrg/schema.json"></script>
-<script type="text/javascript" src="./lib/schemaOrg/wrapper.js"></script>
+    
+<script type="text/javascript" src="./lib/vie-latest-ALL.debug.js"></script>
+<script type="text/javascript" src="./lib/jquery.rdfquery.js"></script>
 
 <script>
       window.terkait = {
 
           vie : function() {
               var v = new VIE();
-              v.loadSchemaOrg();
+              v.loadSchema("lib/schemaOrg/all.json", {
+                baseNS : "http://schema.org/",
+                success : function () {
+                    // this needs to be done here, as "loadSchema" works asynchronously
+                    
+                    // assemble context menue
+                    chrome.contextMenus.create({
+                        type : "normal",
+                        title : "Annotate as...",
+                        contexts : [ "selection" ]
+                    });
+                
+                    chrome.contextMenus.create({
+                        type : "separator",
+                        contexts : [ "selection" ]
+                    });
+                
+                    var thing = window.terkait.vie.types.get("Thing").hierarchy();
+                    window.terkait.appendType(null, thing.id, thing.subtypes);
+                
+                    chrome.contextMenus.create({
+                        type : "separator",
+                        contexts : [ "selection" ]
+                    });
+                
+                    for ( var i = 0; i < window.terkait.config.commonTypes.length; i++) {
+                        var type = window.terkait.vie.types.get(
+                                window.terkait.config.commonTypes[i]).hierarchy();
+                        window.terkait.appendType(null, type.id, type.subtypes);
+                    }
+                }
+              });
               return v;
           }(),
               
@@ -70,30 +98,6 @@
         });
     });
 
-    // assemble context menue
-    chrome.contextMenus.create({
-        type : "normal",
-        title : "Annotate as...",
-        contexts : [ "selection" ]
-    });
-
-    chrome.contextMenus.create({
-        type : "separator",
-        contexts : [ "selection" ]
-    });
-
-    var thing = window.terkait.vie.types.get("Thing").hierarchy();
-    window.terkait.appendType(null, thing.id, thing.subtypes);
-
-    chrome.contextMenus.create({
-        type : "separator",
-        contexts : [ "selection" ]
-    });
-
-    for ( var i = 0; i < window.terkait.config.commonTypes.length; i++) {
-        var type = window.terkait.vie.types.get(
-                window.terkait.config.commonTypes[i]).hierarchy();
-        window.terkait.appendType(null, type.id, type.subtypes);
-    }
+    
 </script>
 </html>
