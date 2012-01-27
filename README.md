@@ -4,6 +4,8 @@ terkait is a [VIE](https://github.com/bergie/VIE) meta-widget and is conceived a
 
 terkait is currently only available as a [Google chrome extension](https://www.google.com/chrome/) with the purpose to easily demonstrate the capabilities of VIE and VIE widgets. However, the extension-specific code parts are rather small and there are plans to release versions for other browsers soon.
 
+![Terkait example](https://github.com/neogermi/terkait/raw/master/doc/pics/Terkait_image.png "Terkait on the New York Times website")
+
 ## Functionality
 * Parsing of existing semantic annotations. (e.g., RDFa or microdata format)
 * Intelligent algorithm to retrieve content of interest (COI) from a page.
