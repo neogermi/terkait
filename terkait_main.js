@@ -22,7 +22,7 @@ jQuery.extend(window.terkait, {
             v.use(stanbol);
     		stanbol.rules = jQuery.merge(stanbol.rules, window.terkait.getRules(stanbol));
     		
-    		var rdfa = new v.RdfaRdfQueryService();
+    		var rdfa = new v.RdfaService();
             v.use(rdfa);
             //TODO: rdfa.rules = jQuery.merge(rdfa.rules, window.terkait.getRules(rdfa));
             
@@ -169,6 +169,7 @@ jQuery.extend(window.terkait, {
                             else
                                 return -1;
                         });
+                //TODO: filter out duplicates
 				entitiesOfInterest = entitiesOfInterest.slice(0, entitiesOfInterest.length < window.terkait.options["max-entities"] ? entitiesOfInterest.length : window.terkait.options["max-entities"]);
                 for (var i = 0, len = entitiesOfInterest.length; i < len; i++) {
                     var entity = entitiesOfInterest[i];
@@ -178,7 +179,7 @@ jQuery.extend(window.terkait, {
                     jQuery('#terkait-container .loader').data('active_jobs', aJobs);
 
                     // trigger a search in DBPedia to ensure to have "all" properties
-
+                    if (!entity.has("DBPediaServiceLoad")) {
                         window.terkait.vie
                         .load({
                             entity : entity.id
@@ -186,12 +187,9 @@ jQuery.extend(window.terkait, {
                         .using('dbpedia')
                         .execute()
                         .done(
-                            function(entities) {
-                                for ( var e = 0; e < entities.length; e++) {
-                                    var updated = window.terkait.vie.entities
-                                            .get(entities[e].id);
-                                    updated.trigger("rerender");
-                                }
+                            function(ent) {
+                                var updated = window.terkait.vie.entities.get(ent.id);
+                                updated.trigger("rerender");
                                 var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
                                 aJobs--;
                                 jQuery('#terkait-container .loader').data('active_jobs', aJobs);
@@ -215,6 +213,7 @@ jQuery.extend(window.terkait, {
                                 }
                             }
                         );
+                    }
                 }
                 console.log("rendering " + entitiesOfInterest.length + " entities", entitiesOfInterest);
                 var aJobs = jQuery('#terkait-container .loader').data('active_jobs');

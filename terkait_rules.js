@@ -34,6 +34,27 @@ jQuery.extend(window.terkait, {
                      };
                  }(service.vie.namespaces)
              },
+            {
+                'left' : [
+                    '?subject dbpedia:country ?country'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'City>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.country.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'Country>', {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
+             },
              {
                 'left' : [
                     '?subject a dbpedia:Town',

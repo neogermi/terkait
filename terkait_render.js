@@ -134,8 +134,9 @@ jQuery.extend(window.terkait, {
         }
         //sort the keys in ascending order!
         tsKeys = window.terkait.vie.types.sort(tsKeys, false);
+        types = window.terkait.vie.types.sort(types, false);
                 
-        for (var t = 0; t < types.length; t++) {
+        for (var t = 0, tlen = types.length; t < tlen; t++) {
             var type = window.terkait.vie.types.get(types[t]);
             if (type) {
                 for (var q = 0, qlen = tsKeys.length; q < qlen; q++) {
@@ -193,36 +194,84 @@ jQuery.extend(window.terkait, {
             rightSideCard.append(this.renderLinkWikiPage(entity));
         }
     },*/
-   
+    
     renderPlace : function (entity, div) {
-        var PlaceView = Backbone.View.extend({
-
-            className : "place",
-
-            initialize : function() {
-                // bind the entitie's "rerender" event to a rerendering of the VIEW
-                this.model.bind("rerender", this.render, this);
-                this.render(); // render it the first time
-            },
-
-            render : function() {
-                var $el = jQuery(this.el);
-                var map = window.terkait.renderMap(entity);
-                $el.append(map);
-                
-                var abs = jQuery('<div class="abstract">');
-                abs.html("France is a unitary state in <a href=\"http://dbpedia.org/Europe\">Europe</a> with a population of 65 million. It's capital is <a href=\"http://dbpedia.org/Paris\">Paris</a>.")
-                
-                $el.append(abs);
-                
-                return this;
-            }
-        });
-        var view = new PlaceView({
-            model : entity
-        });
-        div.append(jQuery(view.el));
+        div.addClass("place");
+        var map = window.terkait.renderMap(entity);
+        div.append(map);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.html("This is a very abstract place which is located in <a href=\"http://dbpedia.org/Something\">another place</a>.");
+        div.append(abs);
     },
+    
+    renderCountry : function (entity, div) {
+        div.addClass("country");
+        var map = window.terkait.renderMap(entity);
+        div.append(map);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.html(window.terkait._getLabel(entity) + " is a country with a population of " + 
+        window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + 
+        ". It's capital is <a href=\"http://dbpedia.org/Paris\">Paris</a>.");
+        
+        div.append(abs);
+    },
+    
+    renderContinent : function (entity, div) {
+        div.addClass("continent");
+        var map = window.terkait.renderMap(entity);
+        div.append(map);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.html(window.terkait._getLabel(entity) + " is a continent with an area of " + 
+        window.terkait._humanReadable(parseInt(entity.get("dbpedia:areaTotal")) / 1000) + " km&sup2; and a population of " + 
+        window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + 
+        ".It comprises " + entity.get("dbprop:countries") + " countries.");
+        
+        div.append(abs);
+    },
+    
+    renderCity : function (entity, div) {
+        div.addClass("country");
+        var map = window.terkait.renderMap(entity);
+        div.append(map);
+        
+        //collect information from connected entities!
+        var countries = entity.get("dbpedia:country");
+        var loader = function (entity, e) {
+            //be sure that we query DBPedia only once per entity!
+            if (!e.has("DBPediaServiceLoad")) {
+                window.terkait.vie
+                .load({
+                    entity : e.id
+                })
+                .using('dbpedia')
+                .execute()
+                .done(
+                    function(ret) {
+                        entity.trigger("rerender");
+                    }
+                );
+            }
+        };
+        
+        if (countries.isCollection) {
+            countries.each(function (e) {
+                loader(entity, e);
+            });
+        } else if (countries.isEntity) {
+            loader(entity, countries);
+        }
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.html(window.terkait._getLabel(entity) + " is a city in " + 
+        window.terkait._getLabel(entity.get("dbpedia:country")) + " with a population of " + 
+        window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + ".");
+        
+        div.append(abs);
+    },
+    
     /*
     renderPlace : function(entity, rightSideCard) {
         var card = rightSideCard.parent().first();    
@@ -424,6 +473,24 @@ jQuery.extend(window.terkait, {
             }
         }
         return "NO NAME";
+    },
+    
+    _humanReadable : function (number) {
+        number = (_.isArray(number))? number[0] : number;
+        
+        if (number > 1000000000) {
+            return Math.floor(number / 1000000000) + " billion";
+        }
+        if (number > 1000000) {
+            return Math.floor(number / 1000000) + " million";
+        }
+        if (number > 1000) {
+            return Math.floor(number / 1000) + " thousand";
+        }
+        if (number > 100) {
+            return Math.floor(number / 100) + " houndred";
+        }
+        return number;
     },
     
     renderRecommendedContent: function (entity, panel) {
@@ -700,8 +767,18 @@ jQuery.extend(window.terkait, {
                 window.terkait.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                //TODO
-                div.text("Place");
+                window.terkait.renderPlace(entity, div);
+            }
+        },
+        'Continent' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                window.terkait.renderContinent(entity, div);
             }
         },
         'Country' : {
@@ -712,8 +789,7 @@ jQuery.extend(window.terkait, {
                 window.terkait.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                //TODO
-                div.text("Country");
+                window.terkait.renderCountry(entity, div);
             }
         },
         'State' : {
@@ -736,8 +812,7 @@ jQuery.extend(window.terkait, {
                 window.terkait.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                //TODO
-                div.text("City");
+                window.terkait.renderCity(entity, div);
             }
         },
         'Thing' : {
@@ -748,7 +823,7 @@ jQuery.extend(window.terkait, {
                 window.terkait.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderPlace(entity, div);
+                div.text("Thing");
             }
         }
     }
