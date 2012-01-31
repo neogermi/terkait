@@ -8,7 +8,6 @@ jQuery.extend(window.terkait, {
         return [
             {
                 'left' : [
-                    '?subject a dbpedia:City',
                     '?subject dbpedia:country ?country',
                     '?subject rdfs:label ?label'
                  ],
@@ -28,22 +27,6 @@ jQuery.extend(window.terkait, {
                              jQuery.rdf.triple(this.subject.toString(),
                                  '<' + ns.base() + 'name>',
                                  this.label, {
-                                     namespaces: ns.toObj()
-                                 })
-                             ];
-                     };
-                 }(service.vie.namespaces)
-             },
-            {
-                'left' : [
-                    '?subject dbpedia:country ?country'
-                 ],
-                 'right': function(ns){
-                     return function(){
-                         return [
-                             jQuery.rdf.triple(this.subject.toString(),
-                                 'a',
-                                 '<' + ns.base() + 'City>', {
                                      namespaces: ns.toObj()
                                  }),
                              jQuery.rdf.triple(this.country.toString(),

@@ -197,17 +197,17 @@ jQuery.extend(window.terkait, {
     
     renderPlace : function (entity, div) {
         div.addClass("place");
-        var map = window.terkait.renderMap(entity);
+        var map = window.terkait._renderMap(entity);
         div.append(map);
         
         var abs = jQuery('<div class="abstract">');
-        abs.html("This is a very abstract place which is located in <a href=\"http://dbpedia.org/Something\">another place</a>.");
+        abs.html("This is an abstract place.");
         div.append(abs);
     },
     
     renderCountry : function (entity, div) {
         div.addClass("country");
-        var map = window.terkait.renderMap(entity);
+        var map = window.terkait._renderMap(entity);
         div.append(map);
         
         var abs = jQuery('<div class="abstract">');
@@ -220,223 +220,67 @@ jQuery.extend(window.terkait, {
     
     renderContinent : function (entity, div) {
         div.addClass("continent");
-        var map = window.terkait.renderMap(entity);
+        var map = window.terkait._renderMap(entity);
         div.append(map);
         
         var abs = jQuery('<div class="abstract">');
         abs.html(window.terkait._getLabel(entity) + " is a continent with an area of " + 
         window.terkait._humanReadable(parseInt(entity.get("dbpedia:areaTotal")) / 1000) + " km&sup2; and a population of " + 
         window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + 
-        ".It comprises " + entity.get("dbprop:countries") + " countries.");
+        ". It comprises " + entity.get("dbprop:countries") + " countries.");
         
         div.append(abs);
     },
     
     renderCity : function (entity, div) {
-        div.addClass("country");
-        var map = window.terkait.renderMap(entity);
+        div.addClass("city");
+        var map = window.terkait._renderMap(entity);
         div.append(map);
         
         //collect information from connected entities!
-        var countries = entity.get("dbpedia:country");
-        var loader = function (entity, e) {
-            //be sure that we query DBPedia only once per entity!
-            if (!e.has("DBPediaServiceLoad")) {
-                window.terkait.vie
-                .load({
-                    entity : e.id
-                })
-                .using('dbpedia')
-                .execute()
-                .done(
-                    function(ret) {
-                        entity.trigger("rerender");
-                    }
-                );
-            }
-        };
+        var country = entity.get("dbpedia:country");
+        country = (country.isCollection)? country.at(0) : country;
+        _dbpediaLoader(entity, country);
         
-        if (countries.isCollection) {
-            countries.each(function (e) {
-                loader(entity, e);
-            });
-        } else if (countries.isEntity) {
-            loader(entity, countries);
-        }
+        var population = entity.get("dbpedia:populationTotal");
         
         var abs = jQuery('<div class="abstract">');
-        abs.html(window.terkait._getLabel(entity) + " is a city in " + 
-        window.terkait._getLabel(entity.get("dbpedia:country")) + " with a population of " + 
-        window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + ".");
+        abs.html(window.terkait._getLabel(entity) + " is a city in " +
+        window.terkait._getLabel(country) + " with a population of " + 
+        window.terkait._humanReadable(population) + ".");
         
         div.append(abs);
     },
     
-    /*
-    renderPlace : function(entity, rightSideCard) {
-        var card = rightSideCard.parent().first();    
-        var res = this._getLabel(entity);
-        if (entity.has("geo:lat")) {
-                if (entity.has("geo:long")) {
-                    rightSideCard.append(this.renderMap(entity));
-                }
-            }   
-            if (entity.has("dbpedia:country")) {
-                rightSideCard.append(this.renderButtonCountry(entity,card));
-            }
-            if (entity.has("dbpedia:capital")) {
-                rightSideCard.append(this.renderButtonCapital(entity,card));
-            }
-            if (entity.has("dbpedia:district")) {
-                rightSideCard.append(this.renderButtonDistrict(entity,card));
-            }
-            if (entity.has("dbpedia:federalState")) {               
-                rightSideCard.append(this.renderButtonFederalState(entity,card));
-            }               
-            if (entity.has("foaf:page")) {              
-                rightSideCard.append(this.renderLinkWikiPage(entity));
-            }
-    },
-
-	//used in renderPerson
-	renderBirthPlace : function(entity, card) {
-            var birthPlace = entity.get('dbpedia:birthPlace');
-			var res = "";
-            var button = $('<a target="_blank" href=""></a>');
-
-			if(jQuery.isArray(birthPlace)){
-				birthPlace.reverse();
-				res = birthPlace[0]; //just the last			
-			}
-			
-			button.click(function(entity, accordion) {
-					return function(event) {
-						event.preventDefault();                     
-						window.terkait.render(res, accordion);
-						};
-					}(entity, card.parent()));
-					
-			var placeName = this._getLabel(res);
-			var prop = $('<p>born: </p>');
-			return prop.append(button.append(placeName));
-	},
-	//used in renderPerson
-	renderOffice : function(entity, card) {
-            var orderInOffice = entity.get('dbpedia:orderInOffice');
-			var res = "";
-            if (jQuery.isArray(orderInOffice) && orderInOffice.length > 0) {
-                for ( var i = 0; i < orderInOffice.length; i++) {
-                    if (orderInOffice[i].indexOf('@en') > -1) {
-                        res = res + orderInOffice[i];
-                        //break;
-                    }
-                } 
-			} else if (jQuery.isArray(orderInOffice)){
-                res = orderInOffice[0]; // just take the first}
-			} else {
-				res = orderInOffice;
-			}
-			res = res.replace(/"/g, "").replace(/@[a-z]+/g, '');          
-            var prop = $("<p>office: " + res + "</p>");                            
-			return prop;
-	},			
-	*/
     //used in renderPlace       
-    renderMap : function(entity) {
+    _renderMap : function(entity) {
         var res = $('<div class="map_canvas"></div>');
         var latitude = entity.get("geo:lat");
         var longitude = entity.get("geo:long");
-        if (latitude && longitude){
-            if (jQuery.isArray(latitude)) {
-                latitude = latitude[0];
-            }
-            if (jQuery.isArray(longitude)) {
-                longitude = longitude[0];
-            }
+        if (latitude && longitude) {
+            latitude = (jQuery.isArray(latitude))? latitude[0] : latitude;
+            longitude = (jQuery.isArray(longitude))? longitude[0] : longitude;
         
-            this.retrieveMap(latitude,longitude, res);
+            this._retrieveMap(latitude,longitude, res);
         }
         return res;
     },
+          
+    _renderLinkWikiPage: function(entity) {
+        var range = entity.get("foaf:page");
+        if($.isArray(range)){
+        range = range[0];
+        }
+        var rangeSt = new String(range.id);
+        rangeSt = rangeSt.replace(/</i,'').replace(/>/i,'');    
+        var prop = $('<p>find out <a target="_blank" href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
     
-    //used in renderPlace       
-    renderButtonCountry : function(entity, card) {
-                var range = this._getLabel(entity.get("dbpedia:country"));
-                var prop = $('<p>country: </p>');
-                var button = $('<a target="_blank" href=""></a>');
-                var country = entity.get("dbpedia:country");
-                button.click(function(entity, accordion) {
-                    return function(event) {
-                        event.preventDefault();                     
-                        window.terkait.render(country, accordion);
-                    };
-                }(entity, card.parent()));
-
-                return prop.append(button.append(range));
-    }, //used in renderPlace       
-    renderButtonCapital : function(entity, card) {
-                var range = this._getLabel(entity.get("dbpedia:capital"));
-                var prop = $('<p>capital: </p>');
-                var button = $('<a target="_blank" href=""></a>');
-                var capital = entity.get("dbpedia:capital");
-	            button.click(function(entity, accordion) {
-                    return function(event) {
-                        event.preventDefault();                     
-                        window.terkait.render(capital, accordion);
-                    };
-                }(entity, card.parent()));
-
-                return prop.append(button.append(range));
+        return prop;
     },
-    //used in renderPlace       
-    renderButtonDistrict : function(entity, card) {
-            if (entity.has("dbpedia:district")) {
-                var range = "";//TODO: this._getLabel(entity.get("dbpedia:district"));
-                var prop = $('<p>district: </p>');
-                var button = $('<a target="_blank" href=""></a>');
-                var district = entity.get("dbpedia:district");
-
-                button.click(function(entity, accordion) {
-                    return function(event) {
-                        event.preventDefault();                     
-                        window.terkait.render(district, accordion);
-                    };
-                }(entity, card.parent()));
-
-                return prop.append(button.append(range));
-            }
-    },      
-    //used in renderPlace
-    renderButtonFederalState : function(entity, card) {
-                var range = "";//TODO: this._getLabel(entity.get("dbpedia:federalState"));
-                var prop = $('<p>state: </p>');
-                var button = $('<a target="_blank" href=""></a>');
-
-                button.click(function(entity, accordion) {
-                    return function(event) {
-                        event.preventDefault();                     
-                        window.terkait.render(entity, accordion);
-                    };
-                }(entity, card.parent()));
-
-                return prop.append(button.append(range));
-    },      
-    //used in renderPlace       
-    renderLinkWikiPage : function(entity) {
-                var range = entity.get("foaf:page");
-                if($.isArray(range)){
-                range = range[0];
-                }
-                var rangeSt = new String(range.id);
-                rangeSt = rangeSt.replace(/</i,'').replace(/>/i,'');    
-                var prop = $('<p>find out <a target="_blank" href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
-
-                return prop;
-    },
-    //used in renderMap
-    retrieveMap : function(latitude, longitude, mapDiv) {
+    //used in _renderMap
+    _retrieveMap : function(latitude, longitude, mapDiv) {
         var zoom = 8;
-		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + zoom + '&q=' + latitude + ',' + longitude + '">');
+		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + latitude + ',' + longitude + '">');
 		
 		var map = $('<div>');
 		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
@@ -598,14 +442,13 @@ jQuery.extend(window.terkait, {
                         .css({
                             'background-color': 'white'
                         });
-                        var img = jQuery('<img src="' + obj.original + '" width="300px" height="220px" />');
+                        //TODO: visualize in a grid with zoom functionality instead of slideshow
+                        var img = jQuery('<img src="' + obj.original + '" height="200px"/>')
+                            .error(function(){
+                                $(this).remove();
+                            });
                         container.append(border.append(img));
                     }
-                    
-                    container.cycle({
-                        fx: 'fade',
-                        pause: true
-                    });
                     
                     // clear the container element
                     self.element.empty();
@@ -755,6 +598,23 @@ jQuery.extend(window.terkait, {
             }, 'slow');
         }
         button.data('activated', !activated);
+    },
+    
+    _dbpediaLoader : function (entity, e) {
+        //be sure that we query DBPedia only once per entity!
+        if (!e.has("DBPediaServiceLoad")) {
+            window.terkait.vie
+            .load({
+                entity : e.id
+            })
+            .using('dbpedia')
+            .execute()
+            .done(
+                function(ret) {
+                    entity.trigger("rerender");
+                }
+            );
+        }
     },
     
     //this registers the individual renderer for the differerent types

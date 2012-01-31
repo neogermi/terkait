@@ -311,6 +311,21 @@ jQuery.extend(window.terkait, {
             return false;
         }
 
+    },
+    
+    filterDups: function (entities, properties) {
+        for (var i = 0; i < entities.length; i++) {
+            var object = entities[i];
+            for (var p = 0; p < properties.length; p++) {
+                if (object.has(p)) {
+                    var ids = object.get(p);
+                    for (var j = 0; j < entities.length; j++) {
+                        if (j === i) continue;
+                        
+                    }
+                }
+            }
+        }
     }
     
 });
