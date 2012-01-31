@@ -97,32 +97,6 @@ jQuery.extend(window.terkait, {
                 .append(accordionContainer);
         }
     },
-	
-    /*_renderEntityDetails : function (entity, card) {
-        var leftSideCard = jQuery('<div>').addClass("");
-        var rightSideCard = jQuery('<div>').addClass("");
-        card.append(leftSideCard).append(rightSideCard);
-
-        setTimeout(function (e, l) {
-                return function () {
-                    
-                };
-        }(entity, leftSideCard), 1);
-        
-        setTimeout(function (e, r) {
-            return function () {
-                if (entity.isof("Person")) {
-                    window.terkait.renderPerson(e, r);
-                } else if (entity.isof("Organization")) {
-                    window.terkait.renderOrganization(e, r);
-                } else if (entity.isof("Place")) {
-                    window.terkait.renderPlace(e, r);
-                } else {
-                    console.log("no renderer for type", e.get('@type'));
-                }
-            };
-       }(entity, rightSideCard), 1);
-    },*/
     
     _selectRenderer : function (entity) {
         var types = entity.get('@type');
@@ -240,7 +214,7 @@ jQuery.extend(window.terkait, {
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
         country = (country.isCollection)? country.at(0) : country;
-        _dbpediaLoader(entity, country);
+        window.terkait._dbpediaLoader(entity, country);
         
         var population = entity.get("dbpedia:populationTotal");
         
@@ -250,6 +224,57 @@ jQuery.extend(window.terkait, {
         window.terkait._humanReadable(population) + ".");
         
         div.append(abs);
+    },
+    
+    renderState : function (entity, div) {
+        div.addClass("state");
+        var map = window.terkait._renderMap(entity);
+        //div.append(map);
+
+        //collect information from connected entities!
+        var country = entity.get("dbpedia:country");
+        country = (country.isCollection)? country.at(0) : country;
+        window.terkait._dbpediaLoader(entity, country);
+
+        var capital = entity.get("dbprop:capital");
+        capital = (capital.isCollection)? capital.at(0) : capital;
+        window.terkait._dbpediaLoader(entity, capital);
+        
+        var largestCity = entity.get("dbpedia:largestCity");
+        var capitalSent = ".";
+        if (largestCity) {
+	        largestCity = (largestCity.isCollection)? largestCity.at(0) : largestCity;
+	        window.terkait._dbpediaLoader(entity, largestCity);
+	        if (largestCity.getSubject() === capital.getSubject()) {
+	        	capitalSent = " which is also the largest city.";
+	        } else {
+	        	capitalSent = " which is <b>not</b> the largest city.";
+        	}
+        }
+
+        var area = entity.get("dbpedia:areaTotal");
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.append(map);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a state in " +
+        window.terkait._getLabel(country) + " with a total area of " + 
+        window.terkait._humanReadable(parseInt(area) / 1000) + " km&sup2;. It's capital is " +
+        window.terkait._getLabel(capital) +
+        capitalSent + "</div>"));
+        
+        div.append(abs);
+    },
+          
+    _renderLinkWikiPage: function(entity) {
+        var range = entity.get("foaf:page");
+        if($.isArray(range)){
+        range = range[0];
+        }
+        var rangeSt = new String(range.id);
+        rangeSt = rangeSt.replace(/</i,'').replace(/>/i,'');    
+        var prop = $('<p>find out <a target="_blank" href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
+    
+        return prop;
     },
     
     //used in renderPlace       
@@ -265,76 +290,9 @@ jQuery.extend(window.terkait, {
         }
         return res;
     },
-          
-    _renderLinkWikiPage: function(entity) {
-        var range = entity.get("foaf:page");
-        if($.isArray(range)){
-        range = range[0];
-        }
-        var rangeSt = new String(range.id);
-        rangeSt = rangeSt.replace(/</i,'').replace(/>/i,'');    
-        var prop = $('<p>find out <a target="_blank" href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
     
-        return prop;
-    },
-    //used in _renderMap
-    _retrieveMap : function(latitude, longitude, mapDiv) {
-        var zoom = 8;
-		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + latitude + ',' + longitude + '">');
-		
-		var map = $('<div>');
-		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
-        jQuery(map)
-        .css({
-            "background-image" : "url(" + img_src + ")"
-        });
-		
-		a
-		.append(map)
-		.appendTo(mapDiv);
-    },
-    
-    _getLabel : function(entity) {
-        if (typeof entity !== "string") {
-            var possibleAttrs = ["name", "rdfs:label"];
-            for (var p = 0; p < possibleAttrs.length; p++) {
-                var attr = possibleAttrs[p];
-                if (entity.has(attr)) {
-                    var name = entity.get(attr);
-                    if (jQuery.isArray(name) && name.length > 0) {
-                        for ( var i = 0; i < name.length; i++) {
-                            if (name[i].indexOf('@' + window.terkait.options.language) > -1) {
-                                name = name[i];
-                                break;
-                            }
-                        }
-                        if (jQuery.isArray(name))
-                            name = name[0]; // just take the first
-                    }
-                    name = name.replace(/"/g, "").replace(/@[a-z]+/, '');
-                    return name;
-                }
-            }
-        }
-        return "NO NAME";
-    },
-    
-    _humanReadable : function (number) {
-        number = (_.isArray(number))? number[0] : number;
-        
-        if (number > 1000000000) {
-            return Math.floor(number / 1000000000) + " billion";
-        }
-        if (number > 1000000) {
-            return Math.floor(number / 1000000) + " million";
-        }
-        if (number > 1000) {
-            return Math.floor(number / 1000) + " thousand";
-        }
-        if (number > 100) {
-            return Math.floor(number / 100) + " houndred";
-        }
-        return number;
+    _getLabel : function (entity) {
+    	return window.terkait._extractString(entity, ["name", "rdfs:label"]);
     },
     
     renderRecommendedContent: function (entity, panel) {
@@ -600,23 +558,6 @@ jQuery.extend(window.terkait, {
         button.data('activated', !activated);
     },
     
-    _dbpediaLoader : function (entity, e) {
-        //be sure that we query DBPedia only once per entity!
-        if (!e.has("DBPediaServiceLoad")) {
-            window.terkait.vie
-            .load({
-                entity : e.id
-            })
-            .using('dbpedia')
-            .execute()
-            .done(
-                function(ret) {
-                    entity.trigger("rerender");
-                }
-            );
-        }
-    },
-    
     //this registers the individual renderer for the differerent types
     _renderer : {
         'Place' : {
@@ -660,8 +601,7 @@ jQuery.extend(window.terkait, {
                 window.terkait.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                //TODO
-                div.text("State");
+            	window.terkait.renderState(entity, div);
             }
         },
         'City' : {

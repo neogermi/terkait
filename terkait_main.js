@@ -246,29 +246,6 @@ jQuery.extend(window.terkait, {
     
     ////////////////////////////////////////////////////////
     
-    _getRangeObject : function() {
-        try {
-            var selectionObject;
-            if (window.getSelection) {
-                selectionObject = window.getSelection();
-            } else if (document.selection) {
-                selectionObject = document.selection.createRange();
-            }
-            if (selectionObject.getRangeAt)
-                return selectionObject.getRangeAt(0);
-            else { // Safari!
-                var range = document.createRange();
-                range.setStart(selectionObject.anchorNode,
-                        selectionObject.anchorOffset);
-                range.setEnd(selectionObject.focusNode,
-                        selectionObject.focusOffset);
-                return range;
-            }
-        } catch (e) {
-            // nothing to be ranged
-            return undefined;
-        }
-    },
     
     annotate : function(type, sendResponse) {
         var rng = window.terkait._getRangeObject();
@@ -311,21 +288,6 @@ jQuery.extend(window.terkait, {
             return false;
         }
 
-    },
-    
-    filterDups: function (entities, properties) {
-        for (var i = 0; i < entities.length; i++) {
-            var object = entities[i];
-            for (var p = 0; p < properties.length; p++) {
-                if (object.has(p)) {
-                    var ids = object.get(p);
-                    for (var j = 0; j < entities.length; j++) {
-                        if (j === i) continue;
-                        
-                    }
-                }
-            }
-        }
     }
     
 });
