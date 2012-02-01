@@ -170,7 +170,6 @@ jQuery.extend(window.terkait, {
                             else
                                 return -1;
                         });
-                //TODO: filter out duplicates
 				entitiesOfInterest = entitiesOfInterest.slice(0, entitiesOfInterest.length < window.terkait.options["max-entities"] ? entitiesOfInterest.length : window.terkait.options["max-entities"]);
                 for (var i = 0, len = entitiesOfInterest.length; i < len; i++) {
                     var entity = entitiesOfInterest[i];
