@@ -30,10 +30,10 @@ jQuery.extend(window.terkait, {
         }
     },
     
-    _dbpediaLoader : function (entity, e) {
+    _dbpediaLoader : function (parent, entity) {
         //be sure that we query DBPedia only once per entity!
-        if (typeof e === "string" || !e.has("DBPediaServiceLoad")) {
-        	var id = (typeof e === "string")? e : e.id;
+        if (typeof entity === "string" || !entity.has("DBPediaServiceLoad")) {
+        	var id = (typeof entity === "string")? entity : entity.id;
             window.terkait.vie
             .load({
                 entity : id
@@ -42,25 +42,88 @@ jQuery.extend(window.terkait, {
             .execute()
             .done(
                 function(ret) {
-                    entity.trigger("rerender");
+                	parent.trigger("rerender");
                 }
             );
         }
     },
     
-    filterDups: function (entities, properties) {
+    _filterDups: function (entities, properties) {
+    	properties = (_.isArray(properties))? properties : [ properties ];
+    	
         for (var i = 0; i < entities.length; i++) {
             var object = entities[i];
+            var ids = [];
             for (var p = 0; p < properties.length; p++) {
-                if (object.has(p)) {
-                    var ids = object.get(p);
-                    for (var j = 0; j < entities.length; j++) {
-                        if (j === i) continue;
-                        
+            	var prop = properties[p];
+                if (object.has(prop)) {
+                	var tmpIds = object.get(prop);
+                	tmpIds = (_.isArray(tmpIds))? tmpIds : [ tmpIds ];
+                	//normalisierung auf IDs
+                	for (var t = 0; t < tmpIds.length; t++) {
+                		var x = tmpIds[t];
+                		if (typeof x !== "string") {
+                			if (x.isEntity) {
+                				x = x.getSubject();
+                        		ids.push(x);
+                			} else if (x.isCollection) {
+                				x.each(function (m) {
+                					ids.push(m.getSubject());
+                				});
+                			} else {
+                				throw new Error ("what?");
+                			}
+                		} else {
+                    		ids.push(x);
+                		}
+                	}
+                }
+            }
+            if (ids.length > 0) {
+                for (var j = 0; j < entities.length; j++) {
+                    if (i === j) continue;
+                    var subject = entities[j];
+                    var containedIdx = -1;
+                    for (var x = 0; x < ids.length; x++) {
+                    	if (entities[j].getSubject() === ids[x]) {
+                    		containedIdx = x;
+                    		break;
+                    	}
                     }
+                    if (containedIdx !== -1) {
+                    	// that means that entities[i] has a property which points to entities[j]
+                    	// unification!!!
+                    	window.terkait._unification(object, subject);
+                    	entities.splice(i, 1);
+                    	i--;
+                    	ids.splice(containedIdx, 1);
+                    }
+                }
+                for (var x = 0; x < ids.length; x++) {
+                	var newEntity = new window.terkait.vie.Entity({"@subject" : ids[x]});
+                	window.terkait._unification(object, newEntity);
+                	entities.splice(i, 1, newEntity);
+                	console.log("replacing entity", object.getSubject(), "with", newEntity.getSubject());
                 }
             }
         }
+    },
+    
+    _unification : function (source, target, properties) {
+    	//TODO: filter for non-properties only!
+    	for (var attribute in source.attributes) {
+    		if (attribute.indexOf("@") !== 0) {
+        		if (!target.has(attribute))
+        			target.set(attribute, source.get(attribute));
+        		else {
+        			try {
+        				target.setOrAdd(attribute, source.get(attribute));
+        			} catch (e) {
+        				console.log("could not unify", attribute, e);
+        			}
+        		}
+    		}
+    	}
     },
     
     _humanReadable : function (number) {

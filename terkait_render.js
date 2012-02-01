@@ -184,10 +184,21 @@ jQuery.extend(window.terkait, {
         var map = window.terkait._renderMap(entity);
         div.append(map);
         
+        var capital = entity.get("dbprop:capital");
+        var capSentence = "";
+        if (capital) {
+	        capital = (capital.isCollection)? capital.at(0) : capital;
+	        window.terkait._dbpediaLoader(entity, capital);
+	        capSentence = " It's capital is <a href=\"" + capital.getSubject().replace(/[<>]/g, "") + "\">" + 
+	        			  window.terkait._getLabel(capital) + "</a>.";
+	        
+        }
+        
         var abs = jQuery('<div class="abstract">');
-        abs.html(window.terkait._getLabel(entity) + " is a country with a population of " + 
+        abs.append(map);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a country with a population of " + 
         window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + 
-        ". It's capital is <a href=\"http://dbpedia.org/Paris\">Paris</a>.");
+        "." + capSentence + "</div>"));
         
         div.append(abs);
     },
@@ -229,8 +240,7 @@ jQuery.extend(window.terkait, {
     renderState : function (entity, div) {
         div.addClass("state");
         var map = window.terkait._renderMap(entity);
-        //div.append(map);
-
+        
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
         country = (country.isCollection)? country.at(0) : country;

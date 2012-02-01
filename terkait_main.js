@@ -24,7 +24,7 @@ jQuery.extend(window.terkait, {
     		
     		var rdfa = new v.RdfaService();
             v.use(rdfa);
-            //TODO: rdfa.rules = jQuery.merge(rdfa.rules, window.terkait.getRules(rdfa));
+            rdfa.rules = jQuery.merge(rdfa.rules, window.terkait.getRules(rdfa));
             
     		var dbpedia = new v.DBPediaService();
             v.use(dbpedia);
@@ -133,6 +133,7 @@ jQuery.extend(window.terkait, {
             function(entities) {
                 // filtering for the interesting entities
                 var entitiesOfInterest = [];
+                window.terkait._filterDups(entities, ["rdfs:seeAlso", "dbpedia:wikiPageRedirects"]);
                 for ( var e = 0, len = entities.length; e < len; e++) {
                     var entity = entities[e];
                     var isEntityOfInterest = false;
