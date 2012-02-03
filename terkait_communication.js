@@ -29,3 +29,8 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
         console.log("unknown request", request);
     }
 });
+
+chrome.extension.sendRequest({action: 'gpmeGetOptions'}, function (theOptions) {
+	window.terkait.settings = theOptions;
+	window.terkait.vie = window.terkait.vie();
+});

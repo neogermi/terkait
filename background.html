@@ -1,18 +1,34 @@
 <html>
     
+<script type="text/javascript" src="resources/fancy-settings/lib/store.js"></script>
 <script type="text/javascript" src="./lib/vie-latest-ALL.debug.js"></script>
 <script type="text/javascript" src="./lib/jquery.rdfquery.js"></script>
 
 <script>
-      window.terkait = {
+
+	var defaults = {
+		commonTypes : [ "Person", "Organization", "Product", "Place" ],
+		filterTypes : ["Place"/*, "Person", "Organization", "Product"*/],
+		"max-entities" : 5,
+		language : "en",
+		baseNamespace : "http://schema.org",
+		schemaDefintion: "lib/schemaOrg/all.json",
+		stanbol: "http://dev.iks-project.eu/stanbolfull,http://dev.iks-project.eu:8081"
+	};
+
+    window.terkait = {
+    		  
+    	settings : new Store("settings", defaults).toObject(),
+          
+    };
+      
+    jQuery.extend(window.terkait, {
 
           vie : function() {
               var v = new VIE();
-              v.loadSchema("lib/schemaOrg/all.json", {
-                baseNS : "http://schema.org/",
+              v.loadSchema(window.terkait.settings.schemaDefintion, {
+                baseNS : window.terkait.settings.baseNamespace,
                 success : function () {
-                    // this needs to be done here, as "loadSchema" works asynchronously
-                    
                     // assemble context menue
                     chrome.contextMenus.create({
                         type : "normal",
@@ -32,10 +48,10 @@
                         type : "separator",
                         contexts : [ "selection" ]
                     });
-                
-                    for ( var i = 0; i < window.terkait.config.commonTypes.length; i++) {
+                    
+                    for ( var i = 0; i < window.terkait.settings.commonTypes.length; i++) {
                         var type = window.terkait.vie.types.get(
-                                window.terkait.config.commonTypes[i]).hierarchy();
+                                window.terkait.settings.commonTypes[i]).hierarchy();
                         window.terkait.appendType(null, type.id, type.subtypes);
                     }
                 }
@@ -68,12 +84,8 @@
             for ( var i = 0; i < subtypes.length; i++) {
                 window.terkait.appendType(menuId, subtypes[i].id, subtypes[i].subtypes);
             }
-        },
-
-        config : {
-            commonTypes : [ "Person", "Organization", "Product", "Place" ]
         }
-    };
+    });
 
     //React when a browser action's icon is clicked.
     chrome.browserAction.onClicked.addListener(function(tab) {
@@ -97,6 +109,12 @@
             });
         });
     });
+    
+    chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+   		if (request.action == 'gpmeGetOptions') {
+   			sendResponse(window.terkait.settings);
+   	    }
+   	});
 
     
 </script>

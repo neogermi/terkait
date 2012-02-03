@@ -169,7 +169,7 @@ jQuery.extend(window.terkait, {
                     var name = entity.get(attr);
                     if (jQuery.isArray(name) && name.length > 0) {
                         for ( var i = 0; i < name.length; i++) {
-                            if (name[i].indexOf('@' + window.terkait.options.language) > -1) {
+                            if (name[i].indexOf('@' + window.terkait.settings.language) > -1) {
                                 name = name[i];
                                 break;
                             }

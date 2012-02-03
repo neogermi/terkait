@@ -10,7 +10,9 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png"
   },
-
+  
+  "options_page": "resources/fancy-settings/index.html",
+  
   "browser_action": {
     "default_icon":  "icons/icon18.png",
     "default_title": "Show related content"
@@ -30,7 +32,7 @@
       	"lib/vie.widget.image_search.js",
       	"lib/vie.widget.video_search.js",
       	"lib/vie.widget.news_search.js",
-      	"lib/jquery.cycle.js",
+      	"lib/annotate.js",
       	"terkait_util.js",
       	"terkait_rules.js",
       	"terkait_main.js",

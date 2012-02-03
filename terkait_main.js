@@ -3,21 +3,15 @@ if (!window.terkait) {
 }
 
 jQuery.extend(window.terkait, {
-
-	options : {
-		types : ["Place"/*, "Person", "Organization", "Product"*/],
-		"max-entities" : 5,
-		language : "en"
-	},
 	
 	vie : function() {
     	try {
     		var v = new VIE();
-    		v.loadSchema(chrome.extension.getURL("lib/schemaOrg/all.json"), {
-    			baseNS : "http://schema.org/"
+    		v.loadSchema(chrome.extension.getURL(window.terkait.settings.schemaDefintion), {
+    			baseNS : window.terkait.settings.baseNamespace
     		});
     		var stanbol = new v.StanbolService({
-    			url : ["http://dev.iks-project.eu/stanbolfull", "http://dev.iks-project.eu:8081"]
+    			url : window.terkait.settings.stanbol.split(",")
     		});
             v.use(stanbol);
     		stanbol.rules = jQuery.merge(stanbol.rules, window.terkait.getRules(stanbol));
@@ -34,7 +28,7 @@ jQuery.extend(window.terkait, {
     	} catch (e) {
     		console.log(e);
     	}
-	}(),
+	},
 
     create : function() {
         try {
@@ -137,8 +131,8 @@ jQuery.extend(window.terkait, {
                 for ( var e = 0, len = entities.length; e < len; e++) {
                     var entity = entities[e];
                     var isEntityOfInterest = false;
-					for (var t = 0, len2 = window.terkait.options.types.length; t < len2 && !isEntityOfInterest;  t++) {
-						isEntityOfInterest = isEntityOfInterest || entity.isof(window.terkait.options.types[t]);
+					for (var t = 0, len2 = window.terkait.settings.filterTypes.length; t < len2 && !isEntityOfInterest;  t++) {
+						isEntityOfInterest = isEntityOfInterest || entity.isof(window.terkait.settings.filterTypes[t]);
 					}
 					isEntityOfInterest = isEntityOfInterest && !entity.isof("enhancer:Enhancement");
                     var hasAnnotations = entity.has("enhancer:hasEntityAnnotation")
@@ -148,8 +142,7 @@ jQuery.extend(window.terkait, {
                         entitiesOfInterest.push(entity);
                     }
                 }
-                // sorting by "relevance" (number of occurrences
-                // in the text)
+                // sorting by "relevance" (number of occurrences in the text)
                 entitiesOfInterest
                         .sort(function(a, b) {
                             var numOfEntityAnnotsA = (jQuery.isArray(a.get("enhancer:hasEntityAnnotation"))) ? a
@@ -170,7 +163,7 @@ jQuery.extend(window.terkait, {
                             else
                                 return -1;
                         });
-				entitiesOfInterest = entitiesOfInterest.slice(0, entitiesOfInterest.length < window.terkait.options["max-entities"] ? entitiesOfInterest.length : window.terkait.options["max-entities"]);
+				entitiesOfInterest = entitiesOfInterest.slice(0, entitiesOfInterest.length < window.terkait.settings["max-entities"] ? entitiesOfInterest.length : window.terkait.settings["max-entities"]);
                 for (var i = 0, len = entitiesOfInterest.length; i < len; i++) {
                     var entity = entitiesOfInterest[i];
                     window.terkait.render(entity);
@@ -246,6 +239,30 @@ jQuery.extend(window.terkait, {
     
     ////////////////////////////////////////////////////////
     
+    instantiate : function(elem){
+        $(elem).annotate({
+            vie: window.terkait.vie,
+            // typeFilter: ["http://dbpedia.org/ontology/Place", "http://dbpedia.org/ontology/Organisation", "http://dbpedia.org/ontology/Person"],
+            debug: true,
+            //autoAnalyze: true,
+            showTooltip: true,
+            decline: function(event, ui){
+                console.info('decline event', event, ui);
+            },
+            select: function(event, ui){
+                console.info('select event', event, ui);
+            },
+            remove: function(event, ui){
+                console.info('remove event', event, ui);
+            },
+            success: function(event, ui){
+                console.info('success event', event, ui);
+            },
+            error: function(event, ui){
+                console.info('error event', event, ui);
+            }
+        });
+    },
     
     annotate : function(type, sendResponse) {
         var rng = window.terkait._getRangeObject();
@@ -257,7 +274,14 @@ jQuery.extend(window.terkait, {
             var jQueryelem = jQuery("<span>" + selectedText + "</span>").addClass(
                     "terkait-annotation");
             rng.insertNode(jQueryelem.get(0));
-
+            
+            
+            //////////////////
+            window.terkait.instantiate(jQueryelem);
+            
+            
+            //////////////////
+            /*
             var text = rng.toString();
 
             var entity = new window.terkait.vie.Entity({
@@ -282,7 +306,7 @@ jQuery.extend(window.terkait, {
                 sendResponse({
                     success : false
                 });
-            });
+            });*/
             return true;
         } else {
             return false;
