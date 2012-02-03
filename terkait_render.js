@@ -12,14 +12,82 @@ jQuery.extend(window.terkait, {
             initialize : function() {
                 // bind the entitie's "rerender" event to a rerendering of the VIEW
                 this.model.bind("rerender", this.render, this);
+
+                var front = jQuery("<div>").addClass("front");
+                var back = jQuery("<div>").addClass("back");
+                
                 var labelElem = jQuery("<div>").addClass("card-label");
                 var leftElem = jQuery("<div>").addClass("recommended-content");
                 var rightElem = jQuery("<div>").addClass("entity-details");
+
+                var $el = jQuery(this.el);
                 
-                jQuery(this.el)
+                $el
+                .append(front)
+                .append(back);
+                
+                front
                 .append(labelElem)
                 .append(leftElem)
                 .append(rightElem);
+                
+                back
+                .append($('<div> this is the back side</div>'));
+                
+                var closeButton = window.terkait.createCloseButton();
+                closeButton
+                .css({"position":"absolute", top: "0px", left: "0px"})
+                .appendTo(front)
+                .click(function (view) {
+                	return function () {
+                		var $accord = jQuery(view.el).parents('.accordion').first();
+		                $accord.slideUp(500, function () {
+			                view.remove();
+		                	jQuery(this).remove();
+		                });
+		            };
+                }(this));
+                
+                var editButton = window.terkait.createEditButton();
+                editButton
+                .css({"position":"absolute", top: "0px", left: "35px"})
+                .appendTo(front)
+                .click(function (view) {
+                	return function () {
+                		jQuery(view.el).css("-webkit-transform", "rotateY(180deg)");
+		            };
+                }(this));
+                
+                var finishEditButton = window.terkait.createFinishEditButton();
+                finishEditButton
+                .css({"position":"absolute", top: "10px", left: "0px"})
+                .appendTo(back)
+                .click(function (view) {
+                	return function () {
+                		jQuery(view.el).css("-webkit-transform", "rotateY(0deg)");
+		            };
+                }(this));
+                
+                var upButton = window.terkait.createUpButton();
+                upButton
+                .css({"position":"absolute", top: "0px", right: "35px"})
+                .appendTo(front)
+                .click(function (view) {
+                	return function () {
+                		//TODO
+		            };
+                }(this));
+                
+                var downButton = window.terkait.createDownButton();
+                downButton
+                .css({"position":"absolute", top: "0px", right: "0px"})
+                .appendTo(front)
+                .click(function (view) {
+                	return function () {
+                		//TODO
+		            };
+                }(this));
+                
                 
                 this.render(); // render it the first time
             },
@@ -47,52 +115,64 @@ jQuery.extend(window.terkait, {
     },
 
     createCloseButton : function () {
-      return jQuery('<div>')
-        .addClass('close-button')
-        .css({
-            "background-image" : "url(" + chrome.extension.getURL("icons/close_button.png") + ")"
-        });
-    },
+	    return jQuery('<div>')
+	      .addClass('button')
+	      .css({
+	          "background-image" : "url(" + chrome.extension.getURL("icons/close_button.png") + ")"
+	      });
+	  },
+	  
+	  createEditButton : function () {
+	      return jQuery('<div>')
+	      .addClass('button')
+	        /*.css({
+	            "background-image" : "url(" + chrome.extension.getURL("icons/close_button.png") + ")"
+	        })*/
+	        .text("edit");
+	    },
+	    
+    createFinishEditButton : function () {
+	      return jQuery('<div>')
+	      .addClass('button')
+	        /*.css({
+	            "background-image" : "url(" + chrome.extension.getURL("icons/close_button.png") + ")"
+	        })*/
+	        .text("finish editing");
+	    },
+		    
+    createUpButton : function () {
+	      return jQuery('<div>')
+	      .addClass('button')
+	        /*.css({
+	            "background-image" : "url(" + chrome.extension.getURL("icons/close_button.png") + ")"
+	        })*/
+	        .text("up");
+	    },
+			    
+    createDownButton : function () {
+	      return jQuery('<div>')
+	      .addClass('button')
+	        /*.css({
+	            "background-image" : "url(" + chrome.extension.getURL("icons/close_button.png") + ")"
+	        })*/
+	        .text("down");
+	    },
 
     render : function(entity, selector) {
          // create the VIEW on that entity
         var contentView = this.createContentView(entity);
-        var card = jQuery('<div>')
-            .addClass("entity-card")
-            .append(jQuery(contentView.el));
+        var card = jQuery(contentView.el);
         
         // where to put it?
         if (selector) {
             // append to that accordion!
             jQuery(selector).parent('.accordion').first().append(card);
         } else {
-            var closeButton = window.terkait.createCloseButton();
-            closeButton.click(function () {
-                var $this = $(this);
-                var $accord = $this.parent('.accordion').first();
-                $this.remove();
-                $accord
-                .slideUp(500, function () {
-                    $(this).remove();
-                });
-            });
             
             // append at the end of the container!
             var accordionContainer = jQuery('<div>')
             .addClass("accordion")
-            .append(closeButton.hide())
-            .append(card)
-            .hover (function () {
-                var $this = $(this);
-                var $button = $('.close-button', this);
-                $button
-                .fadeIn(500);
-                return true;
-            }, function () {
-                var $button = $('.close-button', this);
-                $button.fadeOut(500);
-                return true;
-            });
+            .append(card);
             jQuery('#terkait-container .entities')
                 .append(accordionContainer);
         }
@@ -326,7 +406,7 @@ jQuery.extend(window.terkait, {
         })
         .click(function () {
             var $this = $(this);
-            var $parent = $this.parents('.entity-card').first();
+            var $parent = $this.parents('.accordion').first();
             
             terkait.registerRecommendedContentDialog($this, $parent, terkait._renderImages, entity);
         });
@@ -349,7 +429,7 @@ jQuery.extend(window.terkait, {
         })
         .click(function () {
             var $this = $(this);
-            var $parent = $this.parents('.entity-card').first();
+            var $parent = $this.parents('.accordion').first();
             
             terkait.registerRecommendedContentDialog($this, $parent, terkait._renderVideos, entity);
         });
@@ -372,7 +452,7 @@ jQuery.extend(window.terkait, {
         })
         .click(function () {
             var $this = $(this);
-            var $parent = $this.parents('.entity-card').first();
+            var $parent = $this.parents('.accordion').first();
             
             terkait.registerRecommendedContentDialog($this, $parent, terkait._renderNews, entity);
         });

@@ -3,8 +3,13 @@
  */
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    if (request.action === "create") {
+	if (request.action === "create") {
         var res = window.terkait.create();
+        sendResponse({
+            success : res
+        });
+    } else if (request.action === "destroy") {
+        var res = window.terkait.destroy();
         sendResponse({
             success : res
         });

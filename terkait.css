@@ -65,35 +65,55 @@
 
 #terkait-container .accordion {
     position:relative;
-    border: 2px solid #999;
-	border-radius: 10px;
 	margin-top:10px;
+	-webkit-perspective: 1000;
 }
 
-#terkait-container .close-button {
-	width: 33px;
-	height: 33px;
-	position: absolute;
-	top: -16px;
-	left: -18px;
+#terkait-container .button {
+	width: 24px;
+	height: 24px;
 	cursor:pointer;
-}
-
-#terkait-container .entity-card {
-	width: 100%;
-	overflow-y: scroll;
+	background-color:transparent;
+	border: 0px;
+	padding:3px;
 }
 
 #terkait-container .card-label {
 	font-size:20px;
 	text-align:center;
 	overflow: hidden;
-	height:25px;
+	height:28px;
 }
 
 #terkait-container .card-content {
 	height:222px;
 	clear: both;
+	overflow-y: scroll;
+	
+    -webkit-transform-style: preserve-3d;
+    -webkit-transition: -webkit-transform 1s;
+}
+
+#terkait-container .front {
+	width: 296px;
+	height: 218px;
+	-webkit-backface-visibility: hidden;
+	position: absolute;
+    border: 2px solid #999;
+	border-radius: 10px;
+}
+
+#terkait-container .back {
+	display: block;
+	-webkit-transform: rotateY(180deg);
+	-webkit-box-sizing: border-box;
+	-webkit-backface-visibility: hidden;
+	position: absolute;
+	width: 296px;
+	height: 218px;
+	background-color:red;
+    border: 2px solid #999;
+	border-radius: 10px;
 }
 
 #terkait-container .recommended-content {

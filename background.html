@@ -13,7 +13,8 @@
 		language : "en",
 		baseNamespace : "http://schema.org",
 		schemaDefintion: "lib/schemaOrg/all.json",
-		stanbol: "http://dev.iks-project.eu/stanbolfull,http://dev.iks-project.eu:8081"
+		stanbol: "http://dev.iks-project.eu/stanbolfull,http://dev.iks-project.eu:8081",
+		created: false
 	};
 
     window.terkait = {
@@ -90,21 +91,24 @@
     //React when a browser action's icon is clicked.
     chrome.browserAction.onClicked.addListener(function(tab) {
         chrome.tabs.getSelected(null, function(tab) {
+        	var destroy = window.terkait.settings.created;
+        	
             chrome.tabs.sendRequest(tab.id, {
-                action : "create"
-            }, function(response) {
-                if (response.success) {
+                action : (destroy)? "destroy" : "create"
+            }, function (response) {
+                if (!destroy && response.success) {
+                	window.terkait.settings.created = true;
                     chrome.tabs.sendRequest(tab.id, {
                         action : "recommend"
                     }, function(response) {
-                        if (response.success) {
-                            //TODO
-                        } else {
-                            //TODO
+                        if (response.error) {
+                            console.log(response.error)
                         }
                     });
-                } else {
-                    //TODO
+                } else if (destroy) {
+                	window.terkait.settings.created = false;
+                } else if (response.error) {
+                    console.log(response.error)
                 }
             });
         });

@@ -67,9 +67,14 @@ jQuery.extend(window.terkait, {
                         .appendTo(wrapper);
             }
         } catch (e) {
-		console.log(e);
+        	console.log(e);
             return false;
         }
+        return true;
+    },
+
+    destroy : function() {
+        jQuery('#terkait-container').remove();
         return true;
     },
 
@@ -113,10 +118,8 @@ jQuery.extend(window.terkait, {
             var text = jQuery(this).text();
             meta.text(meta.text() + " " + text.replace(/"/g, '\\"'));
         });
-        jQuery('#terkait-container .loader')
-        .show()
-        .data('active_jobs', 1);
         
+        window.terkait.updateActiveJobs(1);
         window.terkait.vie
         .analyze({
             element : meta
@@ -126,6 +129,7 @@ jQuery.extend(window.terkait, {
         .done(
             function(entities) {
                 // filtering for the interesting entities
+                window.terkait.updateActiveJobs(-1);
                 var entitiesOfInterest = [];
                 window.terkait._filterDups(entities, ["rdfs:seeAlso", "dbpedia:wikiPageRedirects"]);
                 for ( var e = 0, len = entities.length; e < len; e++) {
@@ -167,80 +171,28 @@ jQuery.extend(window.terkait, {
                 for (var i = 0, len = entitiesOfInterest.length; i < len; i++) {
                     var entity = entitiesOfInterest[i];
                     window.terkait.render(entity);
-                    var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
-                    aJobs++;
-                    jQuery('#terkait-container .loader').data('active_jobs', aJobs);
 
                     // trigger a search in DBPedia to ensure to have "all" properties
-                    if (!entity.has("DBPediaServiceLoad")) {
-                        window.terkait.vie
-                        .load({
-                            entity : entity.id
-                        })
-                        .using('dbpedia')
-                        .execute()
-                        .done(
-                            function(ent) {
-                                var updated = window.terkait.vie.entities.get(ent.id);
-                                updated.trigger("rerender");
-                                var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
-                                aJobs--;
-                                jQuery('#terkait-container .loader').data('active_jobs', aJobs);
-                                if (aJobs <= 0) {
-                                    jQuery('#terkait-container .loader').hide();
-                                } else {
-                                    jQuery('#terkait-container .loader').show();
-                                }
-                            }
-                        )
-                        .fail(
-                            function (err) {
-                                console.warn("Could not connect to DBPedia service!");
-                                var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
-                                aJobs--;
-                                jQuery('#terkait-container .loader').data('active_jobs', aJobs);
-                                if (aJobs <= 0) {
-                                    jQuery('#terkait-container .loader').hide();
-                                } else {
-                                    jQuery('#terkait-container .loader').show();
-                                }
-                            }
-                        );
-                    }
+                    window.terkait._dbpediaLoader(entity, entity);
                 }
                 console.log("rendering " + entitiesOfInterest.length + " entities", entitiesOfInterest);
-                var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
-                aJobs--;
-                jQuery('#terkait-container .loader').data('active_jobs', aJobs);
-                if (aJobs <= 0) {
-                    jQuery('#terkait-container .loader').hide();
-                } else {
-                    jQuery('#terkait-container .loader').show();
-                }
             }
         )
         .fail(function(f) {
+            window.terkait.updateActiveJobs(-1);
             console.warn(f);
-            var aJobs = jQuery('#terkait-container .loader').data('active_jobs');
-            aJobs--;
-            jQuery('#terkait-container .loader').data('active_jobs', aJobs);
-            if (aJobs <= 0) {
-                jQuery('#terkait-container .loader').hide();
-            } else {
-                jQuery('#terkait-container .loader').show();
-            }
         });
         
         return {
             foundElems : elems.size() > 0
-        }
+        };
     },
     
     
     ////////////////////////////////////////////////////////
     
     instantiate : function(elem){
-        $(elem).annotate({
+        jQuery(elem).annotate({
             vie: window.terkait.vie,
             // typeFilter: ["http://dbpedia.org/ontology/Place", "http://dbpedia.org/ontology/Organisation", "http://dbpedia.org/ontology/Person"],
             debug: true,

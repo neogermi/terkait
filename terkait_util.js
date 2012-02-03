@@ -4,6 +4,20 @@ if (!window.terkait) {
 
 jQuery.extend(window.terkait, {
 
+	active_jobs : 0,
+	
+	updateActiveJobs : function (i) {
+		window.terkait.active_jobs += i;
+		if (window.terkait.active_jobs <= 0) {
+			window.terkait.active_jobs = 0;
+			jQuery('#terkait-container .loader')
+	        .hide();
+		} else {
+			jQuery('#terkait-container .loader')
+	        .show();
+		}
+	},
+	
     _getRangeObject : function() {
         try {
             var selectionObject;
@@ -33,6 +47,7 @@ jQuery.extend(window.terkait, {
     _dbpediaLoader : function (parent, entity) {
         //be sure that we query DBPedia only once per entity!
         if (typeof entity === "string" || !entity.has("DBPediaServiceLoad")) {
+            window.terkait.updateActiveJobs(1);
         	var id = (typeof entity === "string")? entity : entity.id;
             window.terkait.vie
             .load({
@@ -42,7 +57,14 @@ jQuery.extend(window.terkait, {
             .execute()
             .done(
                 function(ret) {
+                    window.terkait.updateActiveJobs(-1);
                 	parent.trigger("rerender");
+                }
+            )
+            .fail(
+                function(e) {
+                    window.terkait.updateActiveJobs(-1);
+                	console.warn(e);
                 }
             );
         }
