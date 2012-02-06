@@ -112,7 +112,7 @@ jQuery.extend(window.terkait, {
 
     recommend : function() {
         var elems = this.selector();
-        elems.addClass("terkait-toi");
+        //DEBUG ONLY: elems.addClass("terkait-toi");
         var meta = jQuery('<span>');
         elems.each(function() {
             var text = jQuery(this).text();
