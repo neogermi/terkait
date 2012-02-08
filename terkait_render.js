@@ -4,7 +4,7 @@ if (!window.terkait) {
 
 jQuery.extend(window.terkait, {
     
-    createContentView : function(entity) {
+    createContentView : function(entity, parentEl) {
         var ContentView = Backbone.View.extend({
 
             className : "card-content",
@@ -24,7 +24,8 @@ jQuery.extend(window.terkait, {
                 
                 $el
                 .append(front)
-                .append(back);
+                .append(back)
+                .appendTo(parentEl);
                 
                 front
                 .append(labelElem)
@@ -38,7 +39,7 @@ jQuery.extend(window.terkait, {
                 });
                 
                 back
-                .append($('<div> this is the back side</div>'));
+                .append(window.terkait._renderEntityEditor(this.model));
                 
                 var closeButton = window.terkait.createCloseButton();
                 closeButton
@@ -76,7 +77,8 @@ jQuery.extend(window.terkait, {
 		            };
                 }(this));
                 
-                this.render(); // render it the first time
+                
+                this.render();
             },
 
             render : function() {
@@ -99,7 +101,8 @@ jQuery.extend(window.terkait, {
             }
         });
         return new ContentView({
-            model : entity
+            model : entity,
+            parentEl : parentEl
         });
     },
 
@@ -126,24 +129,27 @@ jQuery.extend(window.terkait, {
             "background-image" : "url(" + chrome.extension.getURL("icons/check-true.png") + ")"
         });
     },
+    
+    _renderEntityEditor : function (entity) {
+    	var view = new window.terkait.formEditor.EntityView({model : entity});
+    	return jQuery(view.el);
+    },
 
     render : function(entity, selector) {
-         // create the VIEW on that entity
-        var contentView = this.createContentView(entity);
-        var card = jQuery(contentView.el);
         
+        var accordionContainer;
         // where to put it?
         if (selector) {
-            // append to that accordion!
-            jQuery(selector).parent('.accordion').first().append(card);
+        	accordionContainer = jQuery(selector).parent('.accordion').first();
         } else {
-            // append at the end of the container!
-            var accordionContainer = jQuery('<div>')
+            accordionContainer = jQuery('<div>')
             .addClass("accordion")
-            .append(card);
-            jQuery('#terkait-container .entities')
-                .append(accordionContainer);
+            .hide()
+            .appendTo(jQuery('#terkait-container .entities'));
         }
+        
+        // create the VIEW on that entity
+        this.createContentView(entity, accordionContainer);
     },
     
     _selectRenderer : function (entity) {

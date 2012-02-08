@@ -222,7 +222,19 @@ jQuery.extend(window.terkait, {
                 var attr = possibleAttrs[p];
                 if (entity.has(attr)) {
                     var name = entity.get(attr);
-                    if (jQuery.isArray(name) && name.length > 0) {
+                    if (name.isCollection) {
+                    	name.each(function (model) {
+                    		var val = model.get("value");
+                    		if (val.indexOf('@' + window.terkait.settings.language) > -1) {
+                                name = val;
+                                return true;
+                            }
+                    	});
+                    	if (name.isCollection) {
+                    		name = name.at(0).get("value");
+                    	}
+                    }
+                    else if (jQuery.isArray(name) && name.length > 0) {
                         for ( var i = 0; i < name.length; i++) {
                             if (name[i].indexOf('@' + window.terkait.settings.language) > -1) {
                                 name = name[i];
@@ -232,12 +244,15 @@ jQuery.extend(window.terkait, {
                         if (jQuery.isArray(name))
                             name = name[0]; // just take the first
                     }
-                    name = name.replace(/"/g, "").replace(/@[a-z]+/, '').trim();
-                    return name;
+                    return (name) ? name.replace(/"/g, "").replace(/@[a-z]+/, '').trim() : name;
                 }
             }
         }
         return undefined;
     },
+    
+    capitaliseFirstLetter : function(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
 	
 });

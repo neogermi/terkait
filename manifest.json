@@ -38,6 +38,7 @@
       	"terkait_rules.js",
       	"terkait_main.js",
       	"terkait_render.js",
+      	"terkait_form_editor.js",
       	"terkait_communication.js"]
     }
   ],

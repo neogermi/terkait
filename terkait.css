@@ -101,6 +101,7 @@
 	position: absolute;
     border: 2px solid #999;
 	border-radius: 10px;
+	overflow:hidden;
 }
 
 #terkait-container .back {
@@ -111,9 +112,9 @@
 	position: absolute;
 	width: 296px;
 	height: 218px;
-	background-color:red;
     border: 2px solid #999;
 	border-radius: 10px;
+	overflow:scroll;
 }
 
 #terkait-container .recommended-content {

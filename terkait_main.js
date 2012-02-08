@@ -14,6 +14,7 @@ jQuery.extend(window.terkait, {
     			url : window.terkait.settings.stanbol.split(",")
     		});
             v.use(stanbol);
+    		stanbol.connector.baseUrl = window.terkait.settings.stanbol.split(",");
     		stanbol.rules = jQuery.merge(stanbol.rules, window.terkait.getRules(stanbol));
     		
     		var rdfa = new v.RdfaService();
@@ -142,6 +143,9 @@ jQuery.extend(window.terkait, {
 					for (var t = 0, len2 = window.terkait.settings.filterTypes.length; t < len2 && !isEntityOfInterest;  t++) {
 						isEntityOfInterest = isEntityOfInterest || entity.isof(window.terkait.settings.filterTypes[t]);
 					}
+					//DEBUG
+					isEntityOfInterest = isEntityOfInterest || entity.isof("dbpedia:Place");
+					//DEBUG
 					isEntityOfInterest = isEntityOfInterest && !entity.isof("enhancer:Enhancement");
                     var hasAnnotations = entity.has("enhancer:hasEntityAnnotation")
                             || entity.has("enhancer:hasTextAnnotation");
@@ -241,7 +245,9 @@ jQuery.extend(window.terkait, {
                 'name' : text
             });
             window.terkait.vie.entities.add(entity);
-            window.terkait.create();
+            if (jQuery('#terkait-container').size() === 0) {
+            	window.terkait.create();
+            }
             window.terkait.render(entity);
 
             window.terkait.vie.save({
