@@ -8,10 +8,10 @@
 
 	var defaults = {
 		commonTypes : [ "Person", "Organization", "Product", "Place" ],
-		filterTypes : ["Place"/*, "Person", "Organization", "Product"*/],
-		"max-entities" : 5,
+		filterTypes : [],
+		maxEntities : 5,
 		language : "en",
-		baseNamespace : "http://schema.org",
+		baseNamespace : "http://schema.org/",
 		schemaDefintion: "lib/schemaOrg/all.json",
 		stanbol: "http://dev.iks-project.eu/stanbolfull,http://dev.iks-project.eu:8081",
 		created: false
@@ -19,7 +19,20 @@
 
     window.terkait = {
     		  
-    	settings : new Store("settings", defaults).toObject(),
+    	settings : function () {
+    		var sett = new Store("settings", defaults).toObject();
+
+    		if (sett.filterCheckboxPlace)
+    			jQuery.merge(sett.filterTypes, ["Place"]);
+    		if (sett.filterCheckboxPerson)
+    			jQuery.merge(sett.filterTypes, ["Person"]);
+    		if (sett.filterCheckboxOrganization)
+    			jQuery.merge(sett.filterTypes, ["Organization"]);
+    		if (sett.filterCheckboxProduct)
+    			jQuery.merge(sett.filterTypes, ["Product"]);
+    		
+    		return sett;
+    	}()
           
     };
       

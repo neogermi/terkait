@@ -20,6 +20,10 @@ jQuery.extend(window.terkait, {
             v.use(rdfa);
             rdfa.rules = jQuery.merge(rdfa.rules, window.terkait.getRules(rdfa));
             
+            var microdata = new v.MicrodataService();
+            v.use(microdata);
+            microdata.rules = jQuery.merge(microdata.rules, window.terkait.getRules(microdata));
+            
     		var dbpedia = new v.DBPediaService();
             v.use(dbpedia);
             dbpedia.rules = jQuery.merge(dbpedia.rules, window.terkait.getRules(dbpedia));
@@ -167,7 +171,7 @@ jQuery.extend(window.terkait, {
                             else
                                 return -1;
                         });
-				entitiesOfInterest = entitiesOfInterest.slice(0, entitiesOfInterest.length < window.terkait.settings["max-entities"] ? entitiesOfInterest.length : window.terkait.settings["max-entities"]);
+				entitiesOfInterest = entitiesOfInterest.slice(0, entitiesOfInterest.length < window.terkait.settings.maxEntities ? entitiesOfInterest.length : window.terkait.settings.maxEntities);
                 for (var i = 0, len = entitiesOfInterest.length; i < len; i++) {
                     var entity = entitiesOfInterest[i];
                     window.terkait.render(entity);
@@ -190,7 +194,7 @@ jQuery.extend(window.terkait, {
     
     
     ////////////////////////////////////////////////////////
-    
+    /* TODO
     instantiate : function(elem){
         jQuery(elem).annotate({
             vie: window.terkait.vie,
@@ -214,26 +218,22 @@ jQuery.extend(window.terkait, {
                 console.info('error event', event, ui);
             }
         });
-    },
+    },*/
     
     annotate : function(type, sendResponse) {
         var rng = window.terkait._getRangeObject();
         if (rng && rng.startContainer === rng.endContainer
                 && rng.startOffset !== rng.endOffset) {
             rng.expand("word"); // expands to word boundaries
-            var selectedText = jQuery(rng.cloneContents()).text();
-            rng.deleteContents();
-            var jQueryelem = jQuery("<span>" + selectedText + "</span>").addClass(
-                    "terkait-annotation");
-            rng.insertNode(jQueryelem.get(0));
             
+            var newNode = document.createElement("span");
+            rng.surroundContents(newNode);
             
             //////////////////
-            window.terkait.instantiate(jQueryelem);
-            
+            //TODO: window.terkait.instantiate(jQueryelem);
             
             //////////////////
-            /*
+            newNode = jQuery(newNode).addClass("terkait-annotation");
             var text = rng.toString();
 
             var entity = new window.terkait.vie.Entity({
@@ -241,13 +241,14 @@ jQuery.extend(window.terkait, {
                 'name' : text
             });
             window.terkait.vie.entities.add(entity);
+            window.terkait.create();
             window.terkait.render(entity);
 
             window.terkait.vie.save({
                 entity : entity,
-                element : jQueryelem
+                element : newNode
             })
-            .using('rdfardfquery')
+            .using('microdata')
             .execute()
             .done(function() {
                 sendResponse({
@@ -258,7 +259,7 @@ jQuery.extend(window.terkait, {
                 sendResponse({
                     success : false
                 });
-            });*/
+            });
             return true;
         } else {
             return false;

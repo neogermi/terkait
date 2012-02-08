@@ -45,6 +45,7 @@ jQuery.extend(window.terkait, {
     },
     
     _dbpediaLoader : function (parent, entity) {
+    	if (!entity) return; //TODO: maybe better to throw an exception?
         //be sure that we query DBPedia only once per entity!
         if (typeof entity === "string" || !entity.has("DBPediaServiceLoad")) {
             window.terkait.updateActiveJobs(1);
@@ -166,9 +167,24 @@ jQuery.extend(window.terkait, {
         return number;
     },
     
-    _retrieveMap : function(latitude, longitude, mapDiv) {
+    _retrieveLatLongMap : function(latitude, longitude, mapDiv) {
+    	
+    	if (!latitude && !longitude) {
+    		if (navigator.geolocation) {
+    	        navigator.geolocation.getCurrentPosition(function (position) {
+    	            var latitude = position.coords.latitude;
+    	            var longitude = position.coords.longitude;
+
+    	            window.terkait._retrieveMap(latitude, longitude, mapDiv);
+    	        });
+    	    } else {
+    	        error('not supported');
+    	    }
+	        return;
+    	}
+    	
         var zoom = 8;
-		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + latitude + ',' + longitude + '">');
+		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + latitude + ',' + longitude + '&iwloc=A">');
 		
 		var map = $('<div>');
 		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
@@ -182,8 +198,25 @@ jQuery.extend(window.terkait, {
 		.appendTo(mapDiv);
     },
     
+    _retrieveKeywordMap : function(kw, mapDiv) {
+    	
+        var zoom = 8;
+		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + kw + '&iwloc=A">');
+		
+		var map = $('<div>');
+		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+ encodeURI(kw);
+        jQuery(map)
+        .css({
+            "background-image" : "url(" + img_src + ")"
+        });
+		
+		a
+		.append(map)
+		.appendTo(mapDiv);
+    },
+    
     _extractString : function(entity, attrs) {
-        if (typeof entity !== "string") {
+        if (entity && typeof entity !== "string") {
             var possibleAttrs = (_.isArray(attrs))? attrs : [ attrs ];
             for (var p = 0; p < possibleAttrs.length; p++) {
                 var attr = possibleAttrs[p];
@@ -204,7 +237,7 @@ jQuery.extend(window.terkait, {
                 }
             }
         }
-        return "NO NAME";
+        return undefined;
     },
 	
 });

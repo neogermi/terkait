@@ -140,7 +140,6 @@ jQuery.extend(window.terkait, {
             // append at the end of the container!
             var accordionContainer = jQuery('<div>')
             .addClass("accordion")
-            .hide()
             .append(card);
             jQuery('#terkait-container .entities')
                 .append(accordionContainer);
@@ -263,7 +262,7 @@ jQuery.extend(window.terkait, {
         
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
-        country = (country.isCollection)? country.at(0) : country;
+        country = (country && country.isCollection)? country.at(0) : country;
         window.terkait._dbpediaLoader(entity, country);
         
         var population = entity.get("dbpedia:populationTotal");
@@ -331,11 +330,17 @@ jQuery.extend(window.terkait, {
         var res = $('<div class="map_canvas"></div>');
         var latitude = entity.get("geo:lat");
         var longitude = entity.get("geo:long");
+        var label = this._getLabel(entity);
         if (latitude && longitude) {
-            latitude = (jQuery.isArray(latitude))? latitude[0] : latitude;
-            longitude = (jQuery.isArray(longitude))? longitude[0] : longitude;
+        	latitude = (jQuery.isArray(latitude))? latitude[0] : latitude;
         
-            this._retrieveMap(latitude,longitude, res);
+        	longitude = (jQuery.isArray(longitude))? longitude[0] : longitude;
+    
+        	this._retrieveLatLongMap(latitude,longitude, res);
+        } else if (label) {
+        	this._retrieveKeywordMap(label, res);
+        } else {
+        	this._retrieveLatLongMap(undefined, undefined, res);
         }
         return res;
     },

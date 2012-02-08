@@ -10,7 +10,7 @@ this.i18n = {
     },
     "nothing-found": {
         "en": "No matches were found.",
-        "de": "Keine �bereinstimmungen gefunden."
+        "de": "Keine Übereinstimmungen gefunden."
     },
     
     
@@ -33,10 +33,18 @@ this.i18n = {
     },
     "opencalais-key-label": {
     	"en": "OpenCalais Service Key",
-    	"de": "OpenCalais Service Schl&uuml;ssel",
+    	"de": "OpenCalais Service Schlüssel",
     },
     "zemanta-key-label": {
     	"en": "Zemanta Service Key",
-    	"de": "Zemanta Service Schl&uuml;ssel",
+    	"de": "Zemanta Service Schlüssel",
+    },
+    "filter": {
+        "en": "Filter",
+        "de": "Filter"
+    },
+    "max-entities": {
+        "en": "Max no. of entities to show",
+        "de": "Maximale Anzahl Entitäten"
     }
 };
