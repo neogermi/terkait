@@ -19,26 +19,30 @@
 
     window.terkait = {
     		  
-    	settings : function () {
-    		var sett = new Store("settings", defaults).toObject();
+    		updateSettings : function () {
+        		var sett = new Store("settings", defaults).toObject();
 
-    		if (sett.filterCheckboxPlace)
-    			jQuery.merge(sett.filterTypes, ["Place"]);
-    		if (sett.filterCheckboxPerson)
-    			jQuery.merge(sett.filterTypes, ["Person"]);
-    		if (sett.filterCheckboxOrganization)
-    			jQuery.merge(sett.filterTypes, ["Organization"]);
-    		if (sett.filterCheckboxProduct)
-    			jQuery.merge(sett.filterTypes, ["Product"]);
-    		
-    		return sett;
-    	}()
-          
+        		if (sett.filterCheckboxPlace)
+        			jQuery.merge(sett.filterTypes, ["Place"]);
+        		if (sett.filterCheckboxPerson)
+        			jQuery.merge(sett.filterTypes, ["Person"]);
+        		if (sett.filterCheckboxOrganization)
+        			jQuery.merge(sett.filterTypes, ["Organization"]);
+        		if (sett.filterCheckboxProduct)
+        			jQuery.merge(sett.filterTypes, ["Product"]);
+        		
+        		sett.created = false;
+        		window.terkait.settings = sett;
+        	},
+        	
+        	settings : defaults
     };
       
     jQuery.extend(window.terkait, {
 
           vie : function() {
+        	  window.terkait.updateSettings();
+        	  
               var v = new VIE();
               v.loadSchema(window.terkait.settings.schemaDefintion, {
                 baseNS : window.terkait.settings.baseNamespace,
@@ -128,7 +132,9 @@
     });
     
     chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-   		if (request.action == 'gpmeGetOptions') {
+   		if (request.action === 'gpmeGetOptions') {
+   			window.terkait.updateSettings();
+   			console.log(window.terkait.settings);
    			sendResponse(window.terkait.settings);
    	    }
    	});
