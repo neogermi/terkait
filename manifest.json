@@ -28,7 +28,7 @@
       "js": [
       	"lib/vie-latest-ALL.debug.js",
         "lib/jquery.rdfquery.js",
-        "lib/MicrodataService.js",
+        "lib/RdfaRdfQueryService.js",
         "lib/jquery-ui-1.8.16.js",
       	"lib/vie.widget.image_search.js",
       	"lib/vie.widget.video_search.js",
