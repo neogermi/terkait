@@ -291,6 +291,17 @@ jQuery.extend(window.terkait, {
         div.append(abs);
     },
     
+    renderPlace : function (entity, div) {
+    	div.addClass("place");
+        var map = window.terkait._renderMap(entity);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.append(map);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a place.</div>"));
+        
+        div.append(abs);
+    },
+    
     renderCity : function (entity, div) {
         div.addClass("city");
         var map = window.terkait._renderMap(entity);
@@ -397,7 +408,7 @@ jQuery.extend(window.terkait, {
         return prop;
     },
     
-    //used in renderPlace       
+  //used in renderPlace
     _renderMap : function(entity) {
         var res = $('<div class="map_canvas"></div>');
         var latitude = entity.get("geo:lat");
@@ -413,6 +424,27 @@ jQuery.extend(window.terkait, {
         	this._retrieveKeywordMap(label, res);
         } else {
         	this._retrieveLatLongMap(undefined, undefined, res);
+        }
+        return res;
+    },
+    
+    //used in renderPerson       
+    _renderDepiction : function(entity) {
+        var res = $('<img>');
+        var depict = entity.get("dbpedia:thumbnail");
+        if (depict) {
+        	depict = (jQuery.isArray(depict))? depict[0] : depict;
+        	depict = depict.replace(/[<>]/g, "");
+        	res.attr("src", depict);
+        	res.css({
+        		"width" : "100px",
+        		"height": "auto",
+        		"float" : "right",
+        		"box-shadow": "5px 7px 6px grey",
+        		"margin-left": "10px",
+        		"margin-bottom": "10px",
+        		"margin-right": "10px"
+        	});
         }
         return res;
     },
@@ -728,6 +760,17 @@ jQuery.extend(window.terkait, {
             },
             right : function (entity, div) {
                 window.terkait.renderCity(entity, div);
+            }
+        },
+        'Place' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                window.terkait.renderPlace(entity, div);
             }
         },
         'Person' : {
