@@ -67,6 +67,7 @@
     position:relative;
 	margin-top:10px;
 	-webkit-perspective: 1000;
+	overflow: hidden;
 }
 
 #terkait-container .button {
@@ -76,6 +77,7 @@
 	background-color:transparent;
 	border: 0px;
 	padding:0px;
+	z-index: 9999;
 }
 
 #terkait-container .card-label {
@@ -88,7 +90,7 @@
 #terkait-container .card-content {
 	height:222px;
 	clear: both;
-	overflow-y: scroll;
+	overflow: hidden;
 	
     -webkit-transform-style: preserve-3d;
     -webkit-transition: -webkit-transform 1s;
@@ -114,7 +116,8 @@
 	height: 218px;
     border: 2px solid #999;
 	border-radius: 10px;
-	overflow:scroll;
+	overflow-x:hidden;
+	overflow-y:scroll;
 }
 
 #terkait-container .recommended-content {

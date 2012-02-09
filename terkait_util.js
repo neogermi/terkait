@@ -44,31 +44,74 @@ jQuery.extend(window.terkait, {
         }
     },
     
-    _dbpediaLoader : function (parent, entity) {
-    	if (!entity) return; //TODO: maybe better to throw an exception?
-        //be sure that we query DBPedia only once per entity!
-        if (typeof entity === "string" || !entity.has("DBPediaServiceLoad")) {
-            window.terkait.updateActiveJobs(1);
-        	var id = (typeof entity === "string")? entity : entity.id;
-            window.terkait.vie
-            .load({
-                entity : id
-            })
-            .using('dbpedia')
-            .execute()
-            .done(
-                function(ret) {
-                    window.terkait.updateActiveJobs(-1);
-                	parent.trigger("rerender");
-                }
-            )
-            .fail(
-                function(e) {
-                    window.terkait.updateActiveJobs(-1);
-                	console.warn(e);
-                }
-            );
-        }
+    _dbpediaLoader : function (entities, done, fail) {
+    	entities = (_.isArray(entities))? entities : [ entities ];
+    	var max = 20;
+    	
+    	if (entities.length > max) {
+    		var first = entities.slice(0, max);
+    		var rest = entities.slice(max);
+    		
+    		var followUp = function (rest, done, fail, ret) {
+    			window.terkait._dbpediaLoader(rest, function (retRest) {
+					retRest = (_.isArray(retRest))? retRest : [ retRest ];
+					var x = jQuery.merge([], ret);
+					jQuery.merge(x, retRest);
+					done(x);
+				}, function (err) {
+					done(ret);
+					fail(err);
+				});
+    		};
+
+    		window.terkait._dbpediaLoader(first, function (ret) {
+    			ret = (_.isArray(ret))? ret : [ ret ];
+    			followUp(rest, done, fail, ret);
+    		}, function (err) {
+    			followUp(rest, done, fail, []);
+    			fail(err);
+    		});
+    		return;
+    	}
+    	
+    	var queryEntities = [];
+    	
+    	for (var e = 0; e < entities.length; e++) {
+    		var entity = entities[e];
+    		//filter for dbpedia entities only!
+    		if (entity && ((typeof entity === "string" && entity.indexOf("<http://dbpedia") === 0) || (!entity.has("DBPediaServiceLoad") && entity.getSubject().indexOf("<http://dbpedia") === 0)))
+    			queryEntities.push(entity);
+    	}
+    	if (queryEntities.length > 0) {
+	    	 window.terkait.updateActiveJobs(1);
+	    	 window.terkait.vie
+	         .load({
+	             entities : queryEntities
+	         })
+	         .using('dbpedia')
+	         .execute()
+	         .done(function(e) {
+	             window.terkait.updateActiveJobs(-1);
+	         	if (done) done(e);
+	         })
+	         .fail(
+	             function(e) {
+	                 window.terkait.updateActiveJobs(-1);
+	             	if (fail) fail(e);
+	         });
+    	} else {
+    		if (done) done([]);
+    	}
+    },
+    
+    _isEntityOfInterest : function (entity) {
+    	var isEntityOfInterest = false;
+		for (var t = 0, len2 = window.terkait.settings.filterTypes.length; t < len2 && !isEntityOfInterest;  t++) {
+			isEntityOfInterest = isEntityOfInterest || entity.isof(window.terkait.settings.filterTypes[t]);
+		}
+		isEntityOfInterest = isEntityOfInterest && !entity.isof("enhancer:Enhancement");
+
+        return isEntityOfInterest;
     },
     
     _filterDups: function (entities, properties) {

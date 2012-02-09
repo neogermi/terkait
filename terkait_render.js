@@ -142,10 +142,13 @@ jQuery.extend(window.terkait, {
         if (selector) {
         	accordionContainer = jQuery(selector).parent('.accordion').first();
         } else {
-            accordionContainer = jQuery('<div>')
-            .addClass("accordion")
-            .hide()
-            .appendTo(jQuery('#terkait-container .entities'));
+        	var numEntitiesShown = jQuery("#terkait-container .entities .accordion").size();
+        	if (numEntitiesShown < window.terkait.settings.maxEntities) {
+	            accordionContainer = jQuery('<div>')
+	            .addClass("accordion")
+	            .hide()
+	            .appendTo(jQuery('#terkait-container .entities'));
+        	}
         }
         
         // create the VIEW on that entity
@@ -163,16 +166,24 @@ jQuery.extend(window.terkait, {
         //sort the keys in ascending order!
         tsKeys = window.terkait.vie.types.sort(tsKeys, false);
         types = window.terkait.vie.types.sort(types, false);
+        
+        var whiteTypes = window.terkait.settings.filterTypes;
                 
         for (var t = 0, tlen = types.length; t < tlen; t++) {
             var type = window.terkait.vie.types.get(types[t]);
             if (type) {
-                for (var q = 0, qlen = tsKeys.length; q < qlen; q++) {
-                    var key = tsKeys[q];
-                    if (type.isof(key)) {
-                        return window.terkait._renderer[key];
-                    }
-                }
+            	var isWhiteType = false;
+            	for (var w = 0; w < whiteTypes.length && !isWhiteType; w++) {
+            		isWhiteType = isWhiteType || type.isof(whiteTypes[w]);
+            	}
+            	if (isWhiteType) {
+	                for (var q = 0, qlen = tsKeys.length; q < qlen; q++) {
+	                    var key = tsKeys[q];
+	                    if (type.isof(key)) {
+	                        return window.terkait._renderer[key];
+	                    }
+	                }
+            	}
             }
         }
         return undefined;
@@ -223,16 +234,35 @@ jQuery.extend(window.terkait, {
         }
     },*/
     
+    renderPerson : function (entity, div) {
+        div.addClass("person");
+        var img = window.terkait._renderDepiction(entity);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.append(img);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a person!</div>"));
+        
+        div.append(abs);
+    },
+    
     renderCountry : function (entity, div) {
         div.addClass("country");
         var map = window.terkait._renderMap(entity);
-        div.append(map);
         
         var capital = entity.get("dbprop:capital");
         var capSentence = "";
         if (capital) {
 	        capital = (capital.isCollection)? capital.at(0) : capital;
-	        window.terkait._dbpediaLoader(entity, capital);
+	        window.terkait._dbpediaLoader(capital, 
+	        		function (e) {
+	        			if (_.isArray(e) && e.length === 0) 
+	        				return;
+	        			else
+	        				entity.trigger("rerender");
+			        }, 
+			        function (e) {
+			        	console.warn(e);
+			        });
 	        capSentence = " It's capital is <a href=\"" + capital.getSubject().replace(/[<>]/g, "") + "\">" + 
 	        			  window.terkait._getLabel(capital) + "</a>.";
 	        
@@ -269,7 +299,16 @@ jQuery.extend(window.terkait, {
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
         country = (country && country.isCollection)? country.at(0) : country;
-        window.terkait._dbpediaLoader(entity, country);
+        window.terkait._dbpediaLoader(country, 
+        		function (e) {
+					if (_.isArray(e) && e.length === 0) 
+						return;
+					else
+						entity.trigger("rerender");
+		        }, 
+		        function (e) {
+		        	console.warn(e);
+		        });
         
         var population = entity.get("dbpedia:populationTotal");
         
@@ -288,17 +327,44 @@ jQuery.extend(window.terkait, {
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
         country = (country.isCollection)? country.at(0) : country;
-        window.terkait._dbpediaLoader(entity, country);
+        window.terkait._dbpediaLoader(country, 
+        		function (e) {
+					if (_.isArray(e) && e.length === 0) 
+						return;
+					else
+						entity.trigger("rerender");
+		        }, 
+		        function (e) {
+		        	console.warn(e);
+		        });
 
         var capital = entity.get("dbprop:capital");
         capital = (capital.isCollection)? capital.at(0) : capital;
-        window.terkait._dbpediaLoader(entity, capital);
+        window.terkait._dbpediaLoader(capital, 
+        		function (e) {
+					if (_.isArray(e) && e.length === 0) 
+						return;
+					else
+	        			entity.trigger("rerender");
+		        }, 
+		        function (e) {
+		        	console.warn(e);
+		        });
         
         var largestCity = entity.get("dbpedia:largestCity");
         var capitalSent = ".";
         if (largestCity) {
 	        largestCity = (largestCity.isCollection)? largestCity.at(0) : largestCity;
-	        window.terkait._dbpediaLoader(entity, largestCity);
+	        window.terkait._dbpediaLoader(largestCity, 
+	        		function (e) {
+						if (_.isArray(e) && e.length === 0) 
+							return;
+						else
+							entity.trigger("rerender");
+			        }, 
+			        function (e) {
+			        	console.warn(e);
+			        });
 	        if (largestCity.getSubject() === capital.getSubject()) {
 	        	capitalSent = " which is also the largest city.";
 	        } else {
@@ -662,6 +728,17 @@ jQuery.extend(window.terkait, {
             },
             right : function (entity, div) {
                 window.terkait.renderCity(entity, div);
+            }
+        },
+        'Person' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                window.terkait.renderPerson(entity, div);
             }
         }/*,
         'Thing' : {

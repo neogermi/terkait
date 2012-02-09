@@ -4,6 +4,8 @@ if (!window.terkait) {
 
 jQuery.extend(window.terkait, {
 	
+	entitiesOfInterest : [],
+	
 	vie : function() {
     	try {
     		var v = new VIE();
@@ -14,20 +16,31 @@ jQuery.extend(window.terkait, {
     			url : window.terkait.settings.stanbol.split(",")
     		});
             v.use(stanbol);
-    		stanbol.connector.baseUrl = window.terkait.settings.stanbol.split(",");
     		stanbol.rules = jQuery.merge(stanbol.rules, window.terkait.getRules(stanbol));
     		
     		var rdfa = new v.RdfaService();
             v.use(rdfa);
             rdfa.rules = jQuery.merge(rdfa.rules, window.terkait.getRules(rdfa));
             
-            var microdata = new v.MicrodataService();
-            v.use(microdata);
-            microdata.rules = jQuery.merge(microdata.rules, window.terkait.getRules(microdata));
+            var rdfardfquery = new v.RdfaRdfQueryService();
+            v.use(rdfardfquery);
+            rdfardfquery.rules = jQuery.merge(rdfardfquery.rules, window.terkait.getRules(rdfardfquery));
             
-    		var dbpedia = new v.DBPediaService();
+            var dbpedia = new v.DBPediaService();
             v.use(dbpedia);
             dbpedia.rules = jQuery.merge(dbpedia.rules, window.terkait.getRules(dbpedia));
+            
+            var zemanta = new v.ZemantaService({
+            	api_key : window.terkait.settings.zemanta
+            });
+            v.use(zemanta);
+            zemanta.rules = jQuery.merge(zemanta.rules, window.terkait.getRules(zemanta));
+            
+            var opencalais = new v.OpenCalaisService({
+            	api_key : window.terkait.settings.opencalais
+            });
+            v.use(opencalais);
+            opencalais.rules = jQuery.merge(opencalais.rules, window.terkait.getRules(opencalais));
     		
     		return v;
     	} catch (e) {
@@ -124,72 +137,44 @@ jQuery.extend(window.terkait, {
             meta.text(meta.text() + " " + text.replace(/"/g, '\\"'));
         });
         
-        window.terkait.updateActiveJobs(1);
-        window.terkait.vie
-        .analyze({
-            element : meta
-        })
-        .using('stanbol')
-        .execute()
-        .done(
-            function(entities) {
-                // filtering for the interesting entities
-                window.terkait.updateActiveJobs(-1);
-                var entitiesOfInterest = [];
-                window.terkait._filterDups(entities, ["rdfs:seeAlso", "dbpedia:wikiPageRedirects"]);
-                for ( var e = 0, len = entities.length; e < len; e++) {
-                    var entity = entities[e];
-                    var isEntityOfInterest = false;
-					for (var t = 0, len2 = window.terkait.settings.filterTypes.length; t < len2 && !isEntityOfInterest;  t++) {
-						isEntityOfInterest = isEntityOfInterest || entity.isof(window.terkait.settings.filterTypes[t]);
-					}
-					//DEBUG
-					isEntityOfInterest = isEntityOfInterest || entity.isof("dbpedia:Place");
-					//DEBUG
-					isEntityOfInterest = isEntityOfInterest && !entity.isof("enhancer:Enhancement");
-                    var hasAnnotations = entity.has("enhancer:hasEntityAnnotation")
-                            || entity.has("enhancer:hasTextAnnotation");
-
-                    if (isEntityOfInterest && hasAnnotations) {
-                        entitiesOfInterest.push(entity);
-                    }
-                }
-                // sorting by "relevance" (number of occurrences in the text)
-                entitiesOfInterest
-                        .sort(function(a, b) {
-                            var numOfEntityAnnotsA = (jQuery.isArray(a.get("enhancer:hasEntityAnnotation"))) ? a
-                                    .get("enhancer:hasEntityAnnotation").length : 1;
-                            var numOfTextAnnotsA = (jQuery.isArray(a.get("enhancer:hasTextAnnotation"))) ? a
-                                    .get("enhancer:hasTextAnnotation").length : 1;
-                            var sumA = numOfEntityAnnotsA + numOfTextAnnotsA;
-                            var numOfEntityAnnotsB = (jQuery.isArray(b.get("enhancer:hasEntityAnnotation"))) ? b
-                                    .get("enhancer:hasEntityAnnotation").length : 1;
-                            var numOfTextAnnotsB = (jQuery.isArray(b.get("enhancer:hasTextAnnotation"))) ? b
-                                    .get("enhancer:hasTextAnnotation").length : 1;
-                            var sumB = numOfEntityAnnotsB + numOfTextAnnotsB;
-
-                            if (sumA == sumB)
-                                return 0;
-                            else if (sumA < sumB)
-                                return 1;
-                            else
-                                return -1;
-                        });
-				entitiesOfInterest = entitiesOfInterest.slice(0, entitiesOfInterest.length < window.terkait.settings.maxEntities ? entitiesOfInterest.length : window.terkait.settings.maxEntities);
-                for (var i = 0, len = entitiesOfInterest.length; i < len; i++) {
-                    var entity = entitiesOfInterest[i];
-                    window.terkait.render(entity);
-
-                    // trigger a search in DBPedia to ensure to have "all" properties
-                    window.terkait._dbpediaLoader(entity, entity);
-                }
-                console.log("rendering " + entitiesOfInterest.length + " entities", entitiesOfInterest);
-            }
-        )
-        .fail(function(f) {
+        var doneCallback = function(entities) {
+        	console.log("service returned with " + entities.length + " entities", entities);
+            // filtering for the interesting entities
             window.terkait.updateActiveJobs(-1);
-            console.warn(f);
-        });
+            window.terkait._dbpediaLoader(entities, 
+				function (ent) {
+            		ent = (_.isArray(ent))? ent : [ ent ];
+            		for (var e = 0; e < ent.length; e++) {
+            			window.terkait.entitiesOfInterest.push(ent[e]);
+            			//TODO: sort by relevance
+            			window.terkait.render(ent[e]);
+            		}
+	        		window.terkait._filterDups(window.terkait.entitiesOfInterest, ["rdfs:seeAlso", "dbpedia:wikiPageRedirects"]);
+					console.log("rendering " + window.terkait.entitiesOfInterest.length + " entities", window.terkait.entitiesOfInterest);
+				}, function (e) {
+					console.warn(e);
+				});
+            for (var e = 0; e < entities.length; e++) {
+            	var entity = entities[e];
+            	if (window.terkait._isEntityOfInterest(entity)) {
+	            	
+            	}
+            }
+        };
+        
+        var servicesToUse = ["stanbol", "zemanta"/*, "TODO: interpret response! opencalais"*/];
+        for (var s = 0; s < servicesToUse.length; s++) {
+            window.terkait.updateActiveJobs(1);
+	        window.terkait.vie
+	        .analyze({element : meta})
+	        .using(servicesToUse[s])
+	        .execute()
+	        .done(doneCallback)
+	        .fail(function(f) {
+	            window.terkait.updateActiveJobs(-1);
+	            console.warn(f);
+	        });
+        }
         
         return {
             foundElems : elems.size() > 0
@@ -254,7 +239,7 @@ jQuery.extend(window.terkait, {
                 entity : entity,
                 element : newNode
             })
-            .using('microdata')
+            .using('rdfardfquery')
             .execute()
             .done(function() {
                 sendResponse({
