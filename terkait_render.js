@@ -38,9 +38,9 @@ jQuery.extend(window.terkait, {
                 	$(this).find(".button").fadeOut(500);
                 });
                 
-                back
+                /*TODO: back
                 .append(window.terkait._renderEntityEditor(this.model));
-                
+                */
                 var closeButton = window.terkait.createCloseButton();
                 closeButton
                 .hide()
