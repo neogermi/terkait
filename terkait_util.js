@@ -227,7 +227,7 @@ jQuery.extend(window.terkait, {
     	}
     	
         var zoom = 8;
-		if(areaKm != ""){ //adjusting the gmap's zoom level depending on the size of the place
+		if(areaKm && areaKm != ""){ //adjusting the gmap's zoom level depending on the size of the place
 			switch(true){	
 				case(areaKm>10000000) : zoom = 2; break;
 				case(areaKm>9600000 && areaKm<10000000) : zoom = 3; break;
@@ -258,7 +258,7 @@ jQuery.extend(window.terkait, {
     
     _retrieveKeywordMap : function(kw, mapDiv) {
     	
-		var a = $('<a target="_blank" href="http://maps.google.com/maps?'  + '&q=' + kw + '&iwloc=A">');
+		var a = $('<a target="_blank" href="http://maps.google.com/maps?&q=' + kw + '&iwloc=A">');
 		
 		var map = $('<div>');
 		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&size=100x100&sensor=false&markers='+ encodeURI(kw);
