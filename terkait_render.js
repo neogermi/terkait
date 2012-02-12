@@ -414,12 +414,13 @@ jQuery.extend(window.terkait, {
         var latitude = entity.get("geo:lat");
         var longitude = entity.get("geo:long");
         var label = this._getLabel(entity);
+        var areaKm = entity.get("<http://dbpedia.org/property/areaKm>");
         if (latitude && longitude) {
         	latitude = (jQuery.isArray(latitude))? latitude[0] : latitude;
         
         	longitude = (jQuery.isArray(longitude))? longitude[0] : longitude;
-    
-        	this._retrieveLatLongMap(latitude,longitude, res);
+			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+        	this._retrieveLatLongMap(latitude,longitude,areaKm,res);
         } else if (label) {
         	this._retrieveKeywordMap(label, res);
         } else {

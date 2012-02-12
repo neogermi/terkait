@@ -162,7 +162,7 @@ jQuery.extend(window.terkait, {
             }
         };
         
-        var servicesToUse = ["stanbol", /*"zemanta"/*, "TODO: interpret response! opencalais"*/];
+        var servicesToUse = ["stanbol"/*, /*"zemanta"/*, "TODO: interpret response! opencalais"*/];
         for (var s = 0; s < servicesToUse.length; s++) {
             window.terkait.updateActiveJobs(1);
 	        window.terkait.vie

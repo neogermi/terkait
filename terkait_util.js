@@ -210,7 +210,7 @@ jQuery.extend(window.terkait, {
         return number;
     },
     
-    _retrieveLatLongMap : function(latitude, longitude, mapDiv) {
+    _retrieveLatLongMap : function(latitude, longitude,areaKm, mapDiv) {
     	
     	if (!latitude && !longitude) {
     		if (navigator.geolocation) {
@@ -227,8 +227,23 @@ jQuery.extend(window.terkait, {
     	}
     	
         var zoom = 8;
-		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + latitude + ',' + longitude + '&iwloc=A">');
-		
+		if(areaKm != ""){ //adjusting the gmap's zoom level depending on the size of the place
+			switch(true){	
+				case(areaKm>10000000) : zoom = 2; break;
+				case(areaKm>9600000 && areaKm<10000000) : zoom = 3; break;
+				case(areaKm>2750000 && areaKm<9600000) : zoom = 4; break;
+				case(areaKm>1200000 && areaKm<2750000) : zoom = 5; break;
+				case(areaKm>150000 && areaKm<1200000) : zoom = 6; break;
+				case(areaKm>30000 && areaKm<150000) : zoom = 7; break;
+				case(areaKm>10000 && areaKm<30000) : zoom = 8; break;
+				case(areaKm>2000 && areaKm<10000) : zoom = 9; break;
+				case(areaKm>1000 && areaKm<2000) : zoom = 10; break;
+				case(areaKm>200 && areaKm<1000) : zoom = 11; break;
+				case(areaKm<200) : zoom = 12; break;
+			}
+		}
+		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + zoom + '&q=' + latitude + ',' + longitude + '&iwloc=A">');
+		zoom = Math.floor(zoom/2);
 		var map = $('<div>');
 		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
         jQuery(map)
@@ -243,11 +258,10 @@ jQuery.extend(window.terkait, {
     
     _retrieveKeywordMap : function(kw, mapDiv) {
     	
-        var zoom = 8;
-		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + kw + '&iwloc=A">');
+		var a = $('<a target="_blank" href="http://maps.google.com/maps?'  + '&q=' + kw + '&iwloc=A">');
 		
 		var map = $('<div>');
-		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+ encodeURI(kw);
+		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&size=100x100&sensor=false&markers='+ encodeURI(kw);
         jQuery(map)
         .css({
             "background-image" : "url(" + img_src + ")"
