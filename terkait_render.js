@@ -241,7 +241,7 @@ jQuery.extend(window.terkait, {
         
         var abs = jQuery('<div class="abstract">');
         abs.html(window.terkait._getLabel(entity) + " is a continent with an area of " + 
-        window.terkait._humanReadable(parseInt(entity.get("dbpedia:areaTotal")) / 1000) + " km&sup2; and a population of " + 
+        window.terkait._humanReadable(parseInt(entity.get("dbpedia:areaTotal")) / 1000000) + " km&sup2; and a population of " + 
         window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + 
         ". It comprises " + entity.get("dbprop:countries") + " countries.");
         
@@ -338,7 +338,7 @@ jQuery.extend(window.terkait, {
         abs.append(map);
         abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a state in " +
         window.terkait._getLabel(country) + " with a total area of " + 
-        window.terkait._humanReadable(parseInt(area) / 1000) + " km&sup2;. It's capital is " +
+        window.terkait._humanReadable(parseInt(area) / 1000000) + " km&sup2;. It's capital is " +
         window.terkait._getLabel(capital) +
         capitalSent + "</div>"));
         
@@ -363,13 +363,11 @@ jQuery.extend(window.terkait, {
         var latitude = entity.get("geo:lat");
         var longitude = entity.get("geo:long");
         var label = this._getLabel(entity);
-        var areaKm = entity.get("<http://dbpedia.org/property/areaKm>");
+		var zoom = this._getMapZoomFactor(entity);
         if (latitude && longitude) {
         	latitude = (jQuery.isArray(latitude))? latitude[0] : latitude;
-        
         	longitude = (jQuery.isArray(longitude))? longitude[0] : longitude;
-			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
-        	this._retrieveLatLongMap(latitude,longitude,areaKm,res);
+        	this._retrieveLatLongMap(latitude,longitude,zoom,res);
         } else if (label) {
         	this._retrieveKeywordMap(label, res);
         } else {
@@ -378,6 +376,51 @@ jQuery.extend(window.terkait, {
         return res;
     },
     
+	_getMapZoomFactor : function (entity) {
+		var zoom = 12;
+        var areaKm = entity.get("dbprop:areaKm");
+		areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+		if(!areaKm || areaKm == "" || isNaN(areaKm)){
+			areaKm = entity.get("dbpedia:areaTotal");
+			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+			areaKm = areaKm/1000000;
+		}
+		if(!areaKm || areaKm == "" || isNaN(areaKm)){
+			var areaLand = entity.get("dbpedia:areaLand");
+			var areaWater = entity.get("dbpedia:areaWater");
+			areaLand = (jQuery.isArray(areaLand))? areaLand[0] : areaLand;
+			areaWater = (jQuery.isArray(areaWater))? areaWater[0] : areaWater;
+			areaKm = (areaLand+areaWater)/1000000;
+		}
+		if(!areaKm || areaKm == "" || isNaN(areaKm)){
+			areaKm = entity.get("<http://dbpedia.org/ontology/areaSqMi>");
+			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+			areaKm = areaKm* 2.598;
+		}
+		if(areaKm && areaKm != ""){
+			switch(true){	
+				case(areaKm>10000000) : zoom = 2; break;
+				case(areaKm>9600000 && areaKm<10000000) : zoom = 3; break;
+				case(areaKm>2750000 && areaKm<9600000) : zoom = 4; break;
+				case(areaKm>1200000 && areaKm<2750000) : zoom = 5; break;
+				case(areaKm>150000 && areaKm<1200000) : zoom = 6; break;
+				case(areaKm>30000 && areaKm<150000) : zoom = 7; break;
+				case(areaKm>10000 && areaKm<30000) : zoom = 8; break;
+				case(areaKm>2000 && areaKm<10000) : zoom = 9; break;
+				case(areaKm>1000 && areaKm<2000) : zoom = 10; break;
+				case(areaKm>200 && areaKm<1000) : zoom = 11; break;
+				case(areaKm<200) : zoom = 12; break;
+			}
+		}
+		else{	
+			if(entity.isof("Continent")){zoom =  1;}
+			if(entity.isof("Country")){zoom =  3;}
+			if(entity.isof("State")){zoom =  5;}
+			if(entity.isof("City")){zoom =  11;}
+		}
+		return zoom;
+	},
+	
     //used in renderPerson       
     _renderDepiction : function(entity) {
         var res = $('<img>');
