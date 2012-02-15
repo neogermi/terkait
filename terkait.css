@@ -34,7 +34,7 @@
 	border-bottom-left-radius: 5px;
 	height: 75%;
 	width: 300px;
-	/*TODO: for later left: 250px;*/
+	left: 250px;
 	position: relative;
 	background-repeat: no-repeat;
 	background-size: 100px;
@@ -97,7 +97,8 @@
 }
 
 #terkait-container .front {
-	width: 296px;
+	background-color: whiteSmoke;
+	width: 280px;
 	height: 218px;
 	-webkit-backface-visibility: hidden;
 	position: absolute;
@@ -107,12 +108,13 @@
 }
 
 #terkait-container .back {
+	background-color: whiteSmoke;
 	display: block;
 	-webkit-transform: rotateY(180deg);
 	-webkit-box-sizing: border-box;
 	-webkit-backface-visibility: hidden;
 	position: absolute;
-	width: 296px;
+	width: 280px;
 	height: 218px;
     border: 2px solid #999;
 	border-radius: 10px;
@@ -144,14 +146,15 @@
 	border-top-left-radius: 10px;
 	border-bottom-left-radius: 10px;
 	z-index: 99998;
+	overflow: hidden;
 }
 
 #terkait-container .entity-details {
 	height: 197px;
-	width: 222px;
+	width: 206px;
 	display: block;
 	float: right;
-	overflow-y:scroll;
+	overflow:hidden;
 }
 
 #terkait-container .entity-details .abstract {

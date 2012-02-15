@@ -1,7 +1,7 @@
 <html>
     
 <script type="text/javascript" src="resources/fancy-settings/lib/store.js"></script>
-<script type="text/javascript" src="./lib/vie-latest-ALL.debug.js"></script>
+<script type="text/javascript" src="./lib/vie-ALL-2.0.0_20120214162453.debug.js"></script>
 <script type="text/javascript" src="./lib/jquery.rdfquery.js"></script>
 
 <script>
@@ -21,7 +21,7 @@
     		  
     		updateSettings : function () {
         		var sett = new Store("settings", defaults).toObject();
-
+debugger;
         		if (sett.filterCheckboxPlace)
         			jQuery.merge(sett.filterTypes, ["Place"]);
         		if (sett.filterCheckboxPerson)
@@ -134,7 +134,6 @@
     chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
    		if (request.action === 'gpmeGetOptions') {
    			window.terkait.updateSettings();
-   			console.log(window.terkait.settings);
    			sendResponse(window.terkait.settings);
    	    }
    	});

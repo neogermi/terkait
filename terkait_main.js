@@ -54,7 +54,7 @@ jQuery.extend(window.terkait, {
                 // clear former results!
                 jQuery('#terkait-container .entities').empty();
             } else {
-                var description = jQuery("<span class=\"description\">\"<b>terkait</b> anaylzes semantic objects on a webpage and presents related content\"</span>");
+                var description = jQuery("<span class=\"description\">\"<b>terkait</b> analyzes semantic objects on a webpage and presents related content\"</span>");
                 var entities = jQuery('<div>')
                     .addClass("entities")
                     .scroll(function () {
@@ -73,12 +73,12 @@ jQuery.extend(window.terkait, {
                 jQuery('<div id="terkait-container">')
                         .css({
                               "background-image" : "url(" + chrome.extension.getURL("icons/terkait_transparent.png") + ")"
-                        })/* TODO: for later
+                        })
                         .hover(
                             function() {
                                 jQuery(this).animate({ "left" : "0px" });
                             }
-                        ) */
+                        )
                         .append(description)
                         .append(loadIndicator)
                         .append(entities)
@@ -138,28 +138,28 @@ jQuery.extend(window.terkait, {
         });
         
         var doneCallback = function(entities) {
-        	console.log("service returned with " + entities.length + " entities", entities);
-            // filtering for the interesting entities
             window.terkait.updateActiveJobs(-1);
+            entities = (_.isArray(entities))? entities : [ entities ];
+        	console.log("service returned with " + entities.length + " entities", entities);
+            for (var e = 0; e < entities.length; e++) {
+                var entity = entities[e];
+                if (window.terkait._isEntityOfInterest(entity)) {
+                    //TODO: sort by relevance
+                    //TODO: filter dups window.terkait._filterDups(window.terkait.entitiesOfInterest, ["rdfs:seeAlso", "dbpedia:wikiPageRedirects"]);
+                    window.terkait.render(entity);
+                }
+            }
+            // filtering for the interesting entities
             window.terkait._dbpediaLoader(entities, 
 				function (ent) {
             		ent = (_.isArray(ent))? ent : [ ent ];
             		for (var e = 0; e < ent.length; e++) {
-            			window.terkait.entitiesOfInterest.push(ent[e]);
-            			//TODO: sort by relevance
-            			window.terkait.render(ent[e]);
+            			ent[e].trigger("rerender");
+                        console.log("rerendering ", ent[e].getSubject());
             		}
-	        		window.terkait._filterDups(window.terkait.entitiesOfInterest, ["rdfs:seeAlso", "dbpedia:wikiPageRedirects"]);
-					console.log("rendering " + window.terkait.entitiesOfInterest.length + " entities", window.terkait.entitiesOfInterest);
-				}, function (e) {
-					console.warn(e);
-				});
-            for (var e = 0; e < entities.length; e++) {
-            	var entity = entities[e];
-            	if (window.terkait._isEntityOfInterest(entity)) {
-	            	
-            	}
-            }
+    			}, function (e) {
+    				console.warn(e);
+			});
         };
         
         var servicesToUse = ["stanbol"/*, /*"zemanta"/*, "TODO: interpret response! opencalais"*/];

@@ -46,11 +46,23 @@ jQuery.extend(window.terkait, {
     
     _dbpediaLoader : function (entities, done, fail) {
     	entities = (_.isArray(entities))? entities : [ entities ];
-    	var max = 20;
+    	var max = 10;
     	
-    	if (entities.length > max) {
-    		var first = entities.slice(0, max);
-    		var rest = entities.slice(max);
+    	var queryEntities = [];
+        
+        for (var e = 0; e < entities.length; e++) {
+            var entity = entities[e];
+            //filter for dbpedia entities only!
+            if (entity && 
+                ((typeof entity === "string" && entity.indexOf("<http://dbpedia") === 0) || 
+                 (!entity.has("DBPediaServiceLoad") && entity.getSubject().indexOf("<http://dbpedia") === 0)))
+                queryEntities.push(entity);
+        }
+        
+    	
+    	if (queryEntities.length > max) {
+    		var first = queryEntities.slice(0, max);
+    		var rest = queryEntities.slice(max);
     		
     		var followUp = function (rest, done, fail, ret) {
     			window.terkait._dbpediaLoader(rest, function (retRest) {
@@ -74,14 +86,6 @@ jQuery.extend(window.terkait, {
     		return;
     	}
     	
-    	var queryEntities = [];
-    	
-    	for (var e = 0; e < entities.length; e++) {
-    		var entity = entities[e];
-    		//filter for dbpedia entities only!
-    		if (entity && ((typeof entity === "string" && entity.indexOf("<http://dbpedia") === 0) || (!entity.has("DBPediaServiceLoad") && entity.getSubject().indexOf("<http://dbpedia") === 0)))
-    			queryEntities.push(entity);
-    	}
     	if (queryEntities.length > 0) {
 	    	 window.terkait.updateActiveJobs(1);
 	    	 window.terkait.vie
@@ -211,22 +215,7 @@ jQuery.extend(window.terkait, {
     },
     
     _retrieveLatLongMap : function(latitude, longitude,areaKm, mapDiv) {
-    	
-    	if (!latitude && !longitude) {
-    		if (navigator.geolocation) {
-    	        navigator.geolocation.getCurrentPosition(function (position) {
-    	            var latitude = position.coords.latitude;
-    	            var longitude = position.coords.longitude;
-
-    	            window.terkait._retrieveMap(latitude, longitude, mapDiv);
-    	        });
-    	    } else {
-    	        error('not supported');
-    	    }
-	        return;
-    	}
-    	
-        var zoom = 8;
+    	var zoom = 8;
 		if(areaKm && areaKm != ""){ //adjusting the gmap's zoom level depending on the size of the place
 			switch(true){	
 				case(areaKm>10000000) : zoom = 2; break;
@@ -242,10 +231,10 @@ jQuery.extend(window.terkait, {
 				case(areaKm<200) : zoom = 12; break;
 			}
 		}
-		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + zoom + '&q=' + latitude + ',' + longitude + '&iwloc=A">');
+		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + latitude + ',' + longitude + '&iwloc=A">');
 		zoom = Math.floor(zoom/2);
 		var map = $('<div>');
-		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
+		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?zoom='+zoom+'&size=100x100&sensor=false&markers='+latitude+','+longitude;
         jQuery(map)
         .css({
             "background-image" : "url(" + img_src + ")"
@@ -257,11 +246,11 @@ jQuery.extend(window.terkait, {
     },
     
     _retrieveKeywordMap : function(kw, mapDiv) {
-    	
-		var a = $('<a target="_blank" href="http://maps.google.com/maps?&q=' + kw + '&iwloc=A">');
+    	var zoom = 8;
+        var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + (zoom+4) + '&q=' + kw + '&iwloc=A">');
 		
 		var map = $('<div>');
-		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?&size=100x100&sensor=false&markers='+ encodeURI(kw);
+		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?zoom='+zoom+'&size=100x100&sensor=false&markers='+ encodeURI(kw);
         jQuery(map)
         .css({
             "background-image" : "url(" + img_src + ")"

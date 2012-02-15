@@ -38,6 +38,7 @@ jQuery.extend(window.terkait, {
                 	$(this).find(".button").fadeOut(500);
                 });
                 
+                console.log("render", this.model);
                 /*TODO: back
                 .append(window.terkait._renderEntityEditor(this.model));
                 */
@@ -64,6 +65,8 @@ jQuery.extend(window.terkait, {
                 .click(function (view) {
                 	return function () {
                 		jQuery(view.el).css("-webkit-transform", "rotateY(-180deg)");
+                		$(this).parent().find(".button").hide();
+                		
 		            };
                 }(this));
                 
@@ -85,6 +88,7 @@ jQuery.extend(window.terkait, {
                 var $el = jQuery(this.el);
                 var renderer = window.terkait._selectRenderer(this.model);
                 if (renderer !== undefined) {
+                    console.log("rerededede", this.model);
                     // first clear the content
                     var labelElem = jQuery(".card-label", $el).empty();
                     var leftElem = jQuery(".recommended-content", $el).empty();
@@ -188,51 +192,6 @@ jQuery.extend(window.terkait, {
         }
         return undefined;
     },
-
-/*
-    renderPerson : function(entity, rightSideCard) {
-        var card = rightSideCard.parent().first();    
-        var res = this._getLabel(entity);
-        var orderInOffice = "";
-        rightSideCard.append("<p> Person  :" + res + "</p>");
-        if(entity.has('dbpedia:birthDate')) {
-            birthDate = entity.get('dbpedia:birthDate');
-            rightSideCard.append("<p>born: " + birthDate + "</p>");
-        }
-        if(entity.has('dbpedia:birthPlace')) {
-            rightSideCard.append(this.renderBirthPlace(entity,card));
-        }
-        if(entity.has('dbpedia:orderInOffice')) {
-		            rightSideCard.append(this.renderOffice(entity,card));
-        }
-
-        if (entity.has("foaf:page")) {              
-            rightSideCard.append(this.renderLinkWikiPage(entity));
-        }
-    },
-
-    renderOrganization : function(entity, rightSideCard) {            
-        var res = this._getLabel(entity);
-        rightSideCard.append("<p> Organization NAME : " + res + "</p>");
-        
-        if (entity.has("url")) {
-            var url = entity.get("url");
-            if (jQuery.isArray(url) && url.length > 0) {
-                for ( var i = 0; i < url.length; i++) {
-                    if (url[i].indexOf('@en') > -1) {
-                        url = url[i];
-                        break;
-                    }
-                }
-                if (jQuery.isArray(url))
-                    url = url[0]; // just take the first
-                rightSideCard.append("<p> Organization URL: " + url + "</p>");
-            }
-        }
-        if (entity.has("foaf:page")) {              
-            rightSideCard.append(this.renderLinkWikiPage(entity));
-        }
-    },*/
     
     renderPerson : function (entity, div) {
         div.addClass("person");
@@ -255,9 +214,7 @@ jQuery.extend(window.terkait, {
 	        capital = (capital.isCollection)? capital.at(0) : capital;
 	        window.terkait._dbpediaLoader(capital, 
 	        		function (e) {
-	        			if (_.isArray(e) && e.length === 0) 
-	        				return;
-	        			else
+	        			if (_.isArray(e) && e.length > 0 || e.isEntity)
 	        				entity.trigger("rerender");
 			        }, 
 			        function (e) {
@@ -312,10 +269,8 @@ jQuery.extend(window.terkait, {
         country = (country && country.isCollection)? country.at(0) : country;
         window.terkait._dbpediaLoader(country, 
         		function (e) {
-					if (_.isArray(e) && e.length === 0) 
-						return;
-					else
-						entity.trigger("rerender");
+                    if (_.isArray(e) && e.length > 0 || e.isEntity)
+                        entity.trigger("rerender");
 		        }, 
 		        function (e) {
 		        	console.warn(e);
@@ -340,10 +295,8 @@ jQuery.extend(window.terkait, {
         country = (country.isCollection)? country.at(0) : country;
         window.terkait._dbpediaLoader(country, 
         		function (e) {
-					if (_.isArray(e) && e.length === 0) 
-						return;
-					else
-						entity.trigger("rerender");
+        		    if (_.isArray(e) && e.length > 0 || e.isEntity)
+                        entity.trigger("rerender");
 		        }, 
 		        function (e) {
 		        	console.warn(e);
@@ -353,10 +306,8 @@ jQuery.extend(window.terkait, {
         capital = (capital.isCollection)? capital.at(0) : capital;
         window.terkait._dbpediaLoader(capital, 
         		function (e) {
-					if (_.isArray(e) && e.length === 0) 
-						return;
-					else
-	        			entity.trigger("rerender");
+                    if (_.isArray(e) && e.length > 0 || e.isEntity)
+                        entity.trigger("rerender");
 		        }, 
 		        function (e) {
 		        	console.warn(e);
@@ -368,10 +319,8 @@ jQuery.extend(window.terkait, {
 	        largestCity = (largestCity.isCollection)? largestCity.at(0) : largestCity;
 	        window.terkait._dbpediaLoader(largestCity, 
 	        		function (e) {
-						if (_.isArray(e) && e.length === 0) 
-							return;
-						else
-							entity.trigger("rerender");
+                        if (_.isArray(e) && e.length > 0 || e.isEntity)
+                            entity.trigger("rerender");
 			        }, 
 			        function (e) {
 			        	console.warn(e);
@@ -555,16 +504,20 @@ jQuery.extend(window.terkait, {
                     var container = jQuery('<div>').css('position', 'relative');
                     for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
                         var obj = objects[o];
-                        var border = jQuery('<div>')
+                        var img = 
+                        jQuery('<img src="' + obj.original + '" height="80px" width="auto"/>')
                         .css({
-                            'background-color': 'white'
-                        });
-                        //TODO: visualize in a grid with zoom functionality instead of slideshow
-                        var img = jQuery('<img src="' + obj.original + '" height="200px"/>')
-                            .error(function(){
+                            "display" : "inline",
+                            "margin-top" : "0px",
+                            "margin-left" : "0px",
+                            "margin-right" : "10px",
+                            "margin-bottom" : "10px",
+                            "box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
+                        })
+                        .error(function(){
                                 $(this).remove();
                             });
-                        container.append(border.append(img));
+                        container.append(img);
                     }
                     
                     // clear the container element
@@ -602,26 +555,68 @@ jQuery.extend(window.terkait, {
                 
               //rendering
                 var container = jQuery('<div>');
-                for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
-                    var obj = objects[o];
-                    var border = jQuery('<div>')
-                    .css({
-                        'background-color': 'white',
-                        'padding': '10px',
-                    });
-                    var vid = jQuery('<iframe>')
-                    .attr({
-                        "src": obj.original,
-                        "width": "300px",
-                        "height": "220px"
-                    });
-                    container.append(border.append(vid));
-                }
                 
-                container.cycle({
-                    fx: 'fade',
-                    pause: true
-                });
+              //render the first video large
+                var vid = jQuery('<object>')
+                .attr({
+                    "width":"218",
+                    "height":"180"})
+                .css({
+                    "display" : "inline",
+                    "margin-top" : "0px",
+                    "margin-left" : "0px",
+                    "margin-right" : "10px",
+                    "margin-bottom" : "10px"
+                })
+                .append(
+                    jQuery('<param>')
+                    .attr({
+                        "name":"movie",
+                        "value":objects[0].original.replace("/embed/", "/v/") + "&rel=0"
+                    }))
+                .append(
+                    jQuery('<embed>')
+                    .attr({
+                        "type":"application/x-shockwave-flash",
+                        "src":objects[0].original.replace("/embed/", "/v/") + "&rel=0",
+                        "width" : "218",
+                        "height" : "180"
+                    })
+                    .css({
+                        "box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
+                    }));
+                container.append(vid);
+                /*TODO: render all others as previews
+                for (var o = 1; o < objects.length && o < this.options.bin_size; o++) {
+                    var obj = objects[o];
+                    var vid = jQuery('<object>')
+                    .attr({
+                        "width":"218",
+                        "height":"180"})
+                    .css({
+                        "display" : "inline",
+                        "margin-top" : "0px",
+                        "margin-left" : "0px",
+                        "margin-right" : "10px",
+                        "margin-bottom" : "10px",
+                        "box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
+                    })
+                    .append(
+                        jQuery('<param>')
+                        .attr({
+                            "name":"movie",
+                            "value":obj.original.replace("/embed/", "/v/") + "&rel=0"
+                        }))
+                    .append(
+                        jQuery('<embed>')
+                        .attr({
+                            "type":"application/x-shockwave-flash",
+                            "src":obj.original.replace("/embed/", "/v/") + "&rel=0",
+                            "width" : "218",
+                            "height" : "180"
+                        }));
+                    container.append(vid);
+                }*/
                 
                 // clear the container element
                 self.element.empty();
