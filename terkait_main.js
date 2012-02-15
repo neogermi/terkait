@@ -52,7 +52,13 @@ jQuery.extend(window.terkait, {
         try {
             if (jQuery('#terkait-container').size() > 0) {
                 // clear former results!
-                jQuery('#terkait-container .entities').empty();
+                jQuery('#terkait-container .entities')
+                .empty();
+                jQuery('#terkait-container')
+                .animate({
+                    "opacity" : 1,
+                    "left" : "0px"
+                }, 250);
             } else {
                 var description = jQuery("<span class=\"description\">\"<b>terkait</b> analyzes semantic objects on a webpage and presents related content\"</span>");
                 var entities = jQuery('<div>')
@@ -74,11 +80,6 @@ jQuery.extend(window.terkait, {
                         .css({
                               "background-image" : "url(" + chrome.extension.getURL("icons/terkait_transparent.png") + ")"
                         })
-                        .hover(
-                            function() {
-                                jQuery(this).animate({ "left" : "0px" });
-                            }
-                        )
                         .append(description)
                         .append(loadIndicator)
                         .append(entities)
@@ -92,7 +93,10 @@ jQuery.extend(window.terkait, {
     },
 
     destroy : function() {
-        jQuery('#terkait-container').remove();
+        jQuery('#terkait-container').animate({
+            "opacity" : 0,
+            "left" : "300px"
+        }, 500);
         return true;
     },
 
