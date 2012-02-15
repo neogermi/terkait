@@ -393,9 +393,14 @@ jQuery.extend(window.terkait, {
 			areaKm = (areaLand+areaWater)/1000000;
 		}
 		if(!areaKm || areaKm == "" || isNaN(areaKm)){
-			areaKm = entity.get("<http://dbpedia.org/ontology/areaSqMi>");
+			areaKm = entity.get("dbprop:areaTotalSqMi");
 			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
 			areaKm = areaKm* 2.598;
+		}
+		if(!areaKm || areaKm == "" || isNaN(areaKm)){
+			areaKm = entity.get("dbprop:areaTotalKm");
+			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+			areaKm = areaKm;
 		}
 		if(areaKm && areaKm != ""){
 			switch(true){	
