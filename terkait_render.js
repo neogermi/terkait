@@ -338,7 +338,7 @@ jQuery.extend(window.terkait, {
         abs.append(map);
         abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a state in " +
         window.terkait._getLabel(country) + " with a total area of " + 
-        window.terkait._humanReadable(parseInt(area) / 1000) + " km&sup2;. It's capital is " +
+        window.terkait._humanReadable(parseInt(area) / 1000000) + " km&sup2;. It's capital is " +
         window.terkait._getLabel(capital) +
         capitalSent + "</div>"));
         
