@@ -623,12 +623,15 @@ jQuery.extend(window.terkait, {
                         "value":objects[0].original.replace("/embed/", "/v/") + "&rel=0"
                     }))
                 .append(
+            		jQuery('<param name="wmode" value="opaque" />'))
+                .append(
                     jQuery('<embed>')
                     .attr({
-                        "type":"application/x-shockwave-flash",
-                        "src":objects[0].original.replace("/embed/", "/v/") + "&rel=0",
-                        "width" : "218",
-                        "height" : "180"
+                        "type"   : "application/x-shockwave-flash",
+                        "src"    : objects[0].original.replace("/embed/", "/v/") + "&rel=0",
+                        "width"  : "218",
+                        "height" : "180",
+                        "wmode"  : "opaque"
                     })
                     .css({
                         "box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
