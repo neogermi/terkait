@@ -712,13 +712,14 @@ jQuery.extend(window.terkait, {
                         'padding': '10px',
                     });
                     var newsItem = jQuery('<div>');
+					var title = obj.title? obj.title: "untitled";
+					var url = obj.url? obj.url: "undefined";
+					if(url!="undefined"){
+						var a = jQuery('<a href="'+url+'" target="_blank">'+title+'</a>');
+						newsItem.append(a);
+					}
                     container.append(border.append(newsItem));
                 }
-                
-                container.cycle({
-                    fx: 'fade',
-                    pause: true
-                });
                 
                 // clear the container element
                 self.element.empty();
@@ -729,7 +730,7 @@ jQuery.extend(window.terkait, {
         
         setTimeout(function () {
             contentContainer
-            .vieVideoSearch({
+            .vieNewsSearch({
                 entity: entity
             });
         }, 1);
