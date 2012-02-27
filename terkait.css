@@ -1,8 +1,15 @@
 /* Text of interest */
-.terkait-toi:hover, .terkait-toi .active {
-	-webkit-transition: background 1s;
-	background-color: rgba(255, 255, 153, 0.7);
+@-webkit-keyframes blinker {  
+  from { background-color: rgba(255, 255, 153, 0.7); }
+  to { background-color: inherit; }
 }
+
+.terkait-toi {
+  -webkit-animation-name: blinker;  
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-duration: 5s; 
+}
+
 
 /* terkait GUI */
 #terkait-wrapper {

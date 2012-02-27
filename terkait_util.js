@@ -253,7 +253,17 @@ jQuery.extend(window.terkait, {
                     if (name.isCollection) {
                     	name.each(function (model) {
                     		var val = model.get("value");
-                    		if (val.indexOf('@' + window.terkait.settings.language) > -1) {
+                    		if (jQuery.isArray(val) && val.length > 0) {
+                                for ( var i = 0; i < val.length; i++) {
+                                    if (val[i].indexOf('@' + window.terkait.settings.language) > -1) {
+                                        name = val[i];
+                                        return true;
+                                    }
+                                }
+                                if (jQuery.isArray(val))
+                                    name = val[0]; // just take the first
+                    		}
+                            else if (val.indexOf('@' + window.terkait.settings.language) > -1) {
                                 name = val;
                                 return true;
                             }
@@ -272,7 +282,11 @@ jQuery.extend(window.terkait, {
                         if (jQuery.isArray(name))
                             name = name[0]; // just take the first
                     }
+                    try {
                     return (name) ? name.replace(/"/g, "").replace(/@[a-z]+/, '').trim() : name;
+                    } catch (err) {
+                    	debugger;
+                    }
                 }
             }
         }
