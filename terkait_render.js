@@ -703,20 +703,46 @@ jQuery.extend(window.terkait, {
                 var time = data.time;
                 
                 //rendering
-                var container = jQuery('<div>').css('position', 'relative');
+                var container = jQuery('<div>')
+				.css({
+					'position': 'relative',
+					'overflow-y': 'auto',
+					'overflow-x': 'hidden',
+					'height': '200px'
+				});
                 for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
                     var obj = objects[o];
                     var border = jQuery('<div>')
                     .css({
                         'background-color': 'white',
-                        'padding': '10px',
+                        'padding': '10px'
                     });
-                    var newsItem = jQuery('<div>');
+                    var newsItem = jQuery('<div>')
+					.css({
+						'font-size': '10px'
+					});
 					var title = obj.title? obj.title: "untitled";
 					var url = obj.url? obj.url: "undefined";
+					var content = obj.content? obj.content: "";
+					content = String(content).substring(0,100)+"...";
 					if(url!="undefined"){
-						var a = jQuery('<a href="'+url+'" target="_blank">'+title+'</a>');
+						var a = jQuery('<a href="'+url+'" target="_blank">'+title+'</a>')
+						.css({
+							'font-size'  : '13px',
+							'font-weight': 'bold',
+							'color'      : '#1F4F82'
+						});	
+						var source = jQuery('<a href="'+url+'" target="_blank">'+url+'</a>')
+						.css({
+							'font-size': '10px',
+							'font-weight': 'bold',
+							'color'      : '#25B14C'
+						});
 						newsItem.append(a);
+						newsItem.append('<br/>');
+						newsItem.append(content);
+						newsItem.append('<br/>');
+						newsItem.append(source);
 					}
                     container.append(border.append(newsItem));
                 }
