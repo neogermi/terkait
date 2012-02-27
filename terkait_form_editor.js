@@ -62,7 +62,7 @@ jQuery.extend(window.terkait.formEditor, {
 	                });
 	            }
 
-	            //this should generate a possibility to add a new type
+	            //this should generate a possibility to add a new values
 	            var elem = window.terkait.formEditor._renderMissingEntity(model, attr);
 	            bucket.append(elem);
 	            
