@@ -8,7 +8,7 @@ jQuery.extend(window.terkait.formEditor, {
 	EntityView : Backbone.View.extend({
 	
 	    tagName : "div",
-	    className : "entity",
+	    className : "entity-editor",
 	
 	    initialize : function() {
 	        this.model.bind("rerender", this.render, this);
@@ -46,20 +46,21 @@ jQuery.extend(window.terkait.formEditor, {
 	            var isSimpleType = window.terkait.vie.types.get(attrType).isof("DataType");
 	            var bucket = (isSimpleType) ? $("<div>").addClass("widget-holder") : $el;
 	            
-	            if (value && !value.isCollection) {
-        			var child = window.terkait.vie.types.get(attrType).instance({
-        				"value" : value
-        			});
-            		model.set(label, child, {silent: true});
-            		value = model.get(label);
-	            }
-	            
-            	if (value && value.size() > 0) {
-	                // iterate over collection
-	                value.each(function (attrValue) {
-	                    var elem = window.terkait.formEditor._renderEntity(model, attr, attrValue);
+	            if (value) {
+	            	if (value.isCollection) {
+	            		value.each(function (attrValue) {
+	            			var elem = window.terkait.formEditor._renderEntity(model, attr, attrValue);
+		                    bucket.append(elem);
+		                });
+	            	} else if (_.isArray(value)) {
+	            		for (var v = 0; v < value.length; v++) {
+	            			var elem = window.terkait.formEditor._renderEntity(model, attr, value[v]);
+		                    bucket.append(elem);
+	            		}
+	            	} else {
+	            		var elem = window.terkait.formEditor._renderEntity(model, attr, value);
 	                    bucket.append(elem);
-	                });
+	            	}
 	            }
 
 	            //this should generate a possibility to add a new values
@@ -85,16 +86,15 @@ jQuery.extend(window.terkait.formEditor, {
 	},
 
 	renderSimpleEntity : function(model, attr, value) {
-	    var val = value.get("value");
 	    if (attr.id === "<http://schema.org/html>") {
-	        val = (val) ? val : "";
-	        return $('<textarea  cols="50" rows="10">' + val + "</textarea>");
+	    	value = (value) ? value : "";
+	        return $('<textarea cols="50" rows="10">' + value + "</textarea>");
 	    } 
 	    else if (attr.id === "<http://schema.org/image>") {
 	        return $('<input type="file" />');
 	    } else {
-	        val = (val) ? val : "";
-	        return $("<input type=\"text\" size=\"30\">").val(val).bind("blur", function () {
+	    	value = (value) ? value : "";
+	        return $("<input type=\"text\" size=\"30\">").val(value).bind("blur", function () {
 	            var newValue = $(this).val();
 	            value.set("value", newValue);
 	            model.change();
@@ -107,10 +107,17 @@ jQuery.extend(window.terkait.formEditor, {
 	    return $('<input type="image" src="' + chrome.extension.getURL("icons/add-button.gif") + '">')
         .click(function () {
 	        var type = window.terkait.vie.types.get(attribute.range[0]);
-	        var newEntity = type.instance();
-	        model.setOrAdd(attribute.id, newEntity);
-	        var elem = window.terkait.formEditor._renderEntity(model, attribute, newEntity);
-	        $(this).before(elem);
+	        var isSimpleType = window.terkait.vie.types.get(type).isof("DataType");
+	        if (isSimpleType) {
+	        	var elem = window.terkait.formEditor._renderEntity(model, attribute, "");
+		        $(this).before(elem);
+	        } else {
+	        	var newEntity = type.instance();
+		        model.setOrAdd(attribute.id, newEntity);
+		        var elem = window.terkait.formEditor._renderEntity(model, attribute, newEntity);
+		        $(this).before(elem);
+	        }
+	        
 	    });
 	},
 

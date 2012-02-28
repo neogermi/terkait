@@ -10,7 +10,10 @@ jQuery.extend(window.terkait, {
     	try {
     		var v = new VIE();
     		v.loadSchema(chrome.extension.getURL(window.terkait.settings.schemaDefintion), {
-    			baseNS : window.terkait.settings.baseNamespace
+    			baseNS : window.terkait.settings.baseNamespace,
+    			success : function () {
+    				window.terkait.vie.types.addOrOverwrite('Person/Politician', []).inherit("Person");
+    			}
     		});
     		var stanbol = new v.StanbolService({
     			url : window.terkait.settings.stanbol.split(",")

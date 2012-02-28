@@ -243,56 +243,6 @@ jQuery.extend(window.terkait, {
 		.appendTo(mapDiv);
     },
     
-    _extractString : function(entity, attrs) {
-        if (entity && typeof entity !== "string") {
-            var possibleAttrs = (_.isArray(attrs))? attrs : [ attrs ];
-            for (var p = 0; p < possibleAttrs.length; p++) {
-                var attr = possibleAttrs[p];
-                if (entity.has(attr)) {
-                    var name = entity.get(attr);
-                    if (name.isCollection) {
-                    	name.each(function (model) {
-                    		var val = model.get("value");
-                    		if (jQuery.isArray(val) && val.length > 0) {
-                                for ( var i = 0; i < val.length; i++) {
-                                    if (val[i].indexOf('@' + window.terkait.settings.language) > -1) {
-                                        name = val[i];
-                                        return true;
-                                    }
-                                }
-                                if (jQuery.isArray(val))
-                                    name = val[0]; // just take the first
-                    		}
-                            else if (val.indexOf('@' + window.terkait.settings.language) > -1) {
-                                name = val;
-                                return true;
-                            }
-                    	});
-                    	if (name.isCollection) {
-                    		name = name.at(0).get("value");
-                    	}
-                    }
-                    else if (jQuery.isArray(name) && name.length > 0) {
-                        for ( var i = 0; i < name.length; i++) {
-                            if (name[i].indexOf('@' + window.terkait.settings.language) > -1) {
-                                name = name[i];
-                                break;
-                            }
-                        }
-                        if (jQuery.isArray(name))
-                            name = name[0]; // just take the first
-                    }
-                    try {
-                    return (name) ? name.replace(/"/g, "").replace(/@[a-z]+/, '').trim() : name;
-                    } catch (err) {
-                    	debugger;
-                    }
-                }
-            }
-        }
-        return undefined;
-    },
-    
     capitaliseFirstLetter : function(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }

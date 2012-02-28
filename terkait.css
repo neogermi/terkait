@@ -198,3 +198,20 @@ text-decoration:underline;
 
 #terkait-container .entity-details a {
 }
+
+
+#terkait-container .entity-editor label {
+	margin-left: 5px;
+	font-size: 12px;
+	margin-bottom: 10px;
+}
+
+#terkait-container .entity-editor input {
+	float:left;
+	margin-left: 5px;
+}
+
+#terkait-container .entity-editor input[type=image] {
+	background-color: red;
+	vertical-align: text-bottom;
+}

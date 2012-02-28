@@ -399,7 +399,6 @@ jQuery.extend(window.terkait, {
 		if(!areaKm || areaKm == "" || isNaN(areaKm)){
 			areaKm = entity.get("dbprop:areaTotalKm");
 			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
-			areaKm = areaKm;
 		}
 		if(areaKm && areaKm != ""){
 			switch(true){	
@@ -447,7 +446,7 @@ jQuery.extend(window.terkait, {
     },
     
     _getLabel : function (entity) {
-    	return window.terkait._extractString(entity, ["name", "rdfs:label"]);
+    	return VIE.Util.extractLanguageString(entity, ["name", "rdfs:label"], window.terkait.settings.language);
     },
     
     renderRecommendedContent: function (entity, panel) {
