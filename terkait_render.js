@@ -195,14 +195,72 @@ jQuery.extend(window.terkait, {
     renderPerson : function (entity, div) {
         div.addClass("person");
         var img = window.terkait._renderDepiction(entity);
+        var bdate = entity.get('dbpedia:birthDate');
+		bdate = (jQuery.isArray(bdate))? bdate[0] : bdate;
+		bdate = bdate? new Date(bdate) : bdate;
+		bdate = bdate? (bdate.getDate()+'.'+(bdate.getMonth()+1)+'.'+bdate.getYear()) : bdate;
+        var abs = jQuery('<div class="abstract">');
+        abs.append(img);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is a person!</div>"));
+        
+        div.append(abs);
+    },
+	
+	renderArtist : function (entity, div) {
+        div.addClass("artist");
+        var img = window.terkait._renderDepiction(entity);
         
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a person!</div>"));
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is an artist!</div>"));
+        
+        div.append(abs);
+    },
+
+	renderAthlete : function (entity, div) {
+        div.addClass("athlete");
+        var img = window.terkait._renderDepiction(entity);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.append(img);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is an athlete!</div>"));
         
         div.append(abs);
     },
     
+	renderPolitician : function (entity, div) {
+        div.addClass("politician");
+        var img = window.terkait._renderDepiction(entity);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.append(img);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a politician!</div>"));
+        
+        div.append(abs);
+    },
+	
+	renderScientist : function (entity, div) {
+        div.addClass("scientist");
+        var img = window.terkait._renderDepiction(entity);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.append(img);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a scientist!</div>"));
+        
+        div.append(abs);
+    },
+	
+	renderMilitaryPerson : function (entity, div) {
+        div.addClass("militaryPerson");
+        var img = window.terkait._renderDepiction(entity);
+        
+        var abs = jQuery('<div class="abstract">');
+        abs.append(img);
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a military person!</div>"));
+        
+        div.append(abs);
+    },
+	
     renderCountry : function (entity, div) {
         div.addClass("country");
         var map = window.terkait._renderMap(entity);
@@ -708,6 +766,7 @@ jQuery.extend(window.terkait, {
 					'overflow-x': 'hidden',
 					'height': '200px'
 				});
+				
                 for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
                     var obj = objects[o];
                     var border = jQuery('<div>')
@@ -715,27 +774,15 @@ jQuery.extend(window.terkait, {
                         'background-color': 'white',
                         'padding': '10px'
                     });
-                    var newsItem = jQuery('<div>')
-					.css({
-						'font-size': '10px'
-					});
-					var title = obj.title? obj.title: "untitled";
+                    var newsItem = jQuery('<div class="terkait-news-item">');
+					var title = obj.titleNoFormatting? obj.titleNoFormatting: "untitled";
 					var url = obj.url? obj.url: "undefined";
 					var content = obj.content? obj.content: "";
+					var publisher = obj.publisher? obj.publisher: "undefined";
 					content = String(content).substring(0,100)+"...";
 					if(url!="undefined"){
-						var a = jQuery('<a href="'+url+'" target="_blank">'+title+'</a>')
-						.css({
-							'font-size'  : '13px',
-							'font-weight': 'bold',
-							'color'      : '#1F4F82'
-						});	
-						var source = jQuery('<a href="'+url+'" target="_blank">'+url+'</a>')
-						.css({
-							'font-size': '10px',
-							'font-weight': 'bold',
-							'color'      : '#25B14C'
-						});
+						var a = jQuery('<a class="terkait-news-item-title" href="'+url+'" target="_blank">'+publisher+': '+title+'</a>');	
+						var source = jQuery('<a class="terkait-news-item-source" href="'+url+'" target="_blank">'+url+'</a>');
 						newsItem.append(a);
 						newsItem.append('<br/>');
 						newsItem.append(content);
@@ -854,6 +901,61 @@ jQuery.extend(window.terkait, {
             },
             right : function (entity, div) {
                 window.terkait.renderPerson(entity, div);
+            }
+        },
+        'Artist' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                window.terkait.renderArtist(entity, div);
+            }
+        },
+        'Athlete' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                window.terkait.renderAthlete(entity, div);
+            }
+        },
+        'Politician' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                window.terkait.renderPolitician(entity, div);
+            }
+        },
+        'Scientist' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                window.terkait.renderScientist(entity, div);
+            }
+        },
+        'MilitaryPerson' : {
+            label : function (entity, div) {
+                div.text(window.terkait._getLabel(entity));
+            },
+            left : function (entity, div) {
+                window.terkait.renderRecommendedContent(entity, div)
+            },
+            right : function (entity, div) {
+                window.terkait.renderMilitaryPerson(entity, div);
             }
         }/*,
         'Thing' : {

@@ -12,6 +12,10 @@ jQuery.extend(window.terkait, {
     		v.loadSchema(chrome.extension.getURL(window.terkait.settings.schemaDefintion), {
     			baseNS : window.terkait.settings.baseNamespace,
     			success : function () {
+					window.terkait.vie.types.addOrOverwrite('Person/Artist', []).inherit("Person");
+					window.terkait.vie.types.addOrOverwrite('Person/Athlete', []).inherit("Person");
+					window.terkait.vie.types.addOrOverwrite('Person/MilitaryPerson', []).inherit("Person");
+					window.terkait.vie.types.addOrOverwrite('Person/Scientist', []).inherit("Person");
     				window.terkait.vie.types.addOrOverwrite('Person/Politician', []).inherit("Person");
     			}
     		});

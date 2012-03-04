@@ -215,3 +215,22 @@ text-decoration:underline;
 	background-color: red;
 	vertical-align: text-bottom;
 }
+
+.terkait-news-item {
+	font-size: 10px;
+	line-height: normal;
+}
+
+.terkait-news-item-title {
+	font-size  : 13px;
+	font-weight: bold;
+	color      : #1F4F82;
+	line-height: normal;
+}
+
+.terkait-news-item-source {
+	font-size  : 10px;
+	font-weight: bold;
+	color      : #25B14C;
+	line-height: normal;
+}
