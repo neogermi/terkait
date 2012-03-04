@@ -198,7 +198,7 @@ jQuery.extend(window.terkait, {
         var bdate = entity.get('dbpedia:birthDate');
 		bdate = (jQuery.isArray(bdate))? bdate[0] : bdate;
 		bdate = bdate? new Date(bdate) : bdate;
-		bdate = bdate? (bdate.getDate()+'.'+(bdate.getMonth()+1)+'.'+bdate.getYear()) : bdate;
+		bdate = bdate? window.terkait._formatDate(bdate,'dd.mm.yyyy') : bdate;
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is a person!</div>"));
@@ -481,6 +481,7 @@ jQuery.extend(window.terkait, {
 		}
 		return zoom;
 	},
+	
 	
     //used in renderPerson       
     _renderDepiction : function(entity) {
