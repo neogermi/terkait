@@ -245,6 +245,56 @@ jQuery.extend(window.terkait, {
     
     capitaliseFirstLetter : function(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+    },
 	
+	_formatDate : function (date,f) {
+		if (!date.valueOf())
+			return ' ';
+		var gsMonthNames = new Array(
+			'January',
+			'February',
+			'March',
+			'April',
+			'May',
+			'June',
+			'July',
+			'August',
+			'September',
+			'October',
+			'November',
+			'December'
+		);
+		var gsDayNames = new Array(
+			'Sunday',
+			'Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+			'Saturday'
+		);
+		var d = date;
+		zf = function(s) { return  (s.toString().length==2)? s: ('0'+s); };
+
+		return f.replace(/(yyyy|mmmm|mmm|mm|dddd|ddd|dd|hh|nn|ss|a\/p)/gi,
+			function($1)
+			{
+				switch ($1.toLowerCase())
+				{
+				case 'yyyy': return d.getFullYear();
+				case 'yy':   return zf(d.getFullYear());
+				case 'mmmm': return gsMonthNames[d.getMonth()];
+				case 'mmm':  return gsMonthNames[d.getMonth()].substr(0, 3);
+				case 'mm':   return zf(d.getMonth() + 1);
+				case 'dddd': return gsDayNames[d.getDay()];
+				case 'ddd':  return gsDayNames[d.getDay()].substr(0, 3);
+				case 'dd':   return zf(d.getDate());
+				case 'hh':   return zf((h = d.getHours() % 12) ? h : 12);
+				case 'nn':   return zf(d.getMinutes());
+				case 'ss':   return zf(d.getSeconds());
+				case 'a/p':  return d.getHours() < 12 ? 'a' : 'p';
+				}
+			}
+		);
+	},
 });
