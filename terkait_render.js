@@ -209,7 +209,7 @@ jQuery.extend(window.terkait, {
         var bdate = this._renderBirthDate(entity);
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is an artist!</div>"));
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is an artist!</div>"));
         
         div.append(abs);
     },
@@ -220,7 +220,7 @@ jQuery.extend(window.terkait, {
         var bdate = this._renderBirthDate(entity);
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is an athlete!</div>"));
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is an athlete!</div>"));
         
         div.append(abs);
     },
