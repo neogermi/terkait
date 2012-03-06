@@ -47,7 +47,8 @@
 }
 
 #terkait-container .description {
-    font-size: 10px;
+	font-family: "Times New Roman", Arial;
+    font-size: 16px;
     font-style: italic;
     text-align:center;
 }

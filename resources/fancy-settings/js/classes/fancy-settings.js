@@ -153,5 +153,7 @@
         if (callback !== undefined) {
             callback(settings);
         }
+        
+        return this;
     };
 }());

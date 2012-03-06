@@ -2,6 +2,29 @@
  * This file holds all methods to communicate with the background.html page.
  */
 
+if (!window.terkait) {
+    window.terkait = {};
+}
+
+window.terkait.communication =  {};
+
+jQuery.extend(window.terkait.communication, {
+	sendReq : function  (req, opts) {
+		opts = (opts)? opts : {};
+		
+		if (req === "getOptions") {
+			chrome.extension.sendRequest({action: req}, function (theOptions) {
+				window.terkait.settings = theOptions;
+				if (typeof window.terkait.vie === "function")
+					window.terkait.vie = window.terkait.vie();
+				window.terkait.updateSettings();
+			});
+		} else if (req === "openUrl") {
+			chrome.extension.sendRequest({action: req, options: opts});
+		}
+	}
+});
+
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	if (request.action === "create") {
         var res = window.terkait.create();
@@ -35,7 +58,6 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     }
 });
 
-chrome.extension.sendRequest({action: 'gpmeGetOptions'}, function (theOptions) {
-	window.terkait.settings = theOptions;
-	window.terkait.vie = window.terkait.vie();
-});
+
+window.terkait.communication.sendReq("getOptions");
+setInterval(function () {window.terkait.communication.sendReq("getOptions");}, 10000);

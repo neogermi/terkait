@@ -2,7 +2,9 @@ if (!window.terkait) {
     window.terkait = {};
 }
 
-jQuery.extend(window.terkait, {
+window.terkait.rendering = {};
+
+jQuery.extend(window.terkait.rendering, {
     
     createContentView : function(entity, parentEl) {
         var ContentView = Backbone.View.extend({
@@ -39,9 +41,9 @@ jQuery.extend(window.terkait, {
                 });
                 
                 back
-                .append(window.terkait._renderEntityEditor(this.model));
+                .append(window.terkait.rendering._renderEntityEditor(this.model));
                 
-                var closeButton = window.terkait.createCloseButton();
+                var closeButton = window.terkait.rendering.createCloseButton();
                 closeButton
                 .hide()
                 .css({"position":"absolute", top: "0px", left: "0px"})
@@ -53,10 +55,11 @@ jQuery.extend(window.terkait, {
 			                view.remove();
 		                	jQuery(this).remove();
 		                });
+		                jQuery('.terkait-recommended-content-dialog').remove();
 		            };
                 }(this));
                 
-                var editButton = window.terkait.createEditButton();
+                var editButton = window.terkait.rendering.createEditButton();
                 editButton
                 .hide()
                 .css({"position":"absolute", top: "0px", right: "0px"})
@@ -69,7 +72,7 @@ jQuery.extend(window.terkait, {
 		            };
                 }(this));
                 
-                var finishEditButton = window.terkait.createFinishEditButton();
+                var finishEditButton = window.terkait.rendering.createFinishEditButton();
                 finishEditButton
                 .css({"position":"absolute", top: "0px", right: "0px"})
                 .appendTo(back)
@@ -85,7 +88,7 @@ jQuery.extend(window.terkait, {
 
             render : function() {
                 var $el = jQuery(this.el);
-                var renderer = window.terkait._selectRenderer(this.model);
+                var renderer = window.terkait.rendering.selectRenderer(this.model);
                 if (renderer !== undefined) {
                     console.log("rerededede", this.model);
                     // first clear the content
@@ -138,12 +141,14 @@ jQuery.extend(window.terkait, {
     	return jQuery(view.el);
     },
 
-    render : function(entity, selector) {
+    render : function(entity, opts) {
         
-        var accordionContainer;
+    	opts = (opts) ? opts : {};
+    	
+        var accordionContainer = undefined;
         // where to put it?
-        if (selector) {
-        	accordionContainer = jQuery(selector).parent('.accordion').first();
+        if (opts.selector) {
+        	accordionContainer = jQuery(opts.selector).parent('.accordion').first();
         } else {
         	var numEntitiesShown = jQuery("#terkait-container .entities .accordion").size();
         	if (numEntitiesShown < window.terkait.settings.maxEntities) {
@@ -151,19 +156,22 @@ jQuery.extend(window.terkait, {
 	            .addClass("accordion")
 	            .hide()
 	            .appendTo(jQuery('#terkait-container .entities'));
+                entity.set("terkaitRendered", true);
         	}
         }
         
-        // create the VIEW on that entity
-        this.createContentView(entity, accordionContainer);
+        if (accordionContainer) {
+	        // create the VIEW on that entity
+	        this.createContentView(entity, accordionContainer);
+        }
     },
     
-    _selectRenderer : function (entity) {
+    selectRenderer : function (entity) {
         var types = entity.get('@type');
         types = (jQuery.isArray(types))? types : [ types ];
         
         var tsKeys = [];
-        for (var q in window.terkait._renderer) {
+        for (var q in window.terkait.rendering._renderer) {
             tsKeys.push(q);
         }
         //sort the keys in ascending order!
@@ -183,7 +191,7 @@ jQuery.extend(window.terkait, {
 	                for (var q = 0, qlen = tsKeys.length; q < qlen; q++) {
 	                    var key = tsKeys[q];
 	                    if (type.isof(key)) {
-	                        return window.terkait._renderer[key];
+	                        return window.terkait.rendering._renderer[key];
 	                    }
 	                }
             	}
@@ -194,82 +202,82 @@ jQuery.extend(window.terkait, {
     
     renderPerson : function (entity, div) {
         div.addClass("person");
-        var img = window.terkait._renderDepiction(entity);
+        var img = window.terkait.rendering.renderDepiction(entity);
         var bdate = entity.get('dbpedia:birthDate');
 		bdate = (jQuery.isArray(bdate))? bdate[0] : bdate;
 		bdate = bdate? new Date(bdate) : bdate;
-		bdate = bdate? window.terkait._formatDate(bdate,'dd.mm.yyyy') : bdate;
+		bdate = bdate? window.terkait.util.formatDate(bdate,'dd.mm.yyyy') : bdate;
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is a person!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a person!</div>"));
         
         div.append(abs);
     },
 	
 	renderArtist : function (entity, div) {
         div.addClass("artist");
-        var img = window.terkait._renderDepiction(entity);
+        var img = window.terkait.rendering.renderDepiction(entity);
         
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is an artist!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is an artist!</div>"));
         
         div.append(abs);
     },
 
 	renderAthlete : function (entity, div) {
         div.addClass("athlete");
-        var img = window.terkait._renderDepiction(entity);
+        var img = window.terkait.rendering.renderDepiction(entity);
         
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is an athlete!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is an athlete!</div>"));
         
         div.append(abs);
     },
     
 	renderPolitician : function (entity, div) {
         div.addClass("politician");
-        var img = window.terkait._renderDepiction(entity);
+        var img = window.terkait.rendering.renderDepiction(entity);
         
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a politician!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a politician!</div>"));
         
         div.append(abs);
     },
 	
 	renderScientist : function (entity, div) {
         div.addClass("scientist");
-        var img = window.terkait._renderDepiction(entity);
+        var img = window.terkait.rendering.renderDepiction(entity);
         
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a scientist!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a scientist!</div>"));
         
         div.append(abs);
     },
 	
 	renderMilitaryPerson : function (entity, div) {
         div.addClass("militaryPerson");
-        var img = window.terkait._renderDepiction(entity);
+        var img = window.terkait.rendering.renderDepiction(entity);
         
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a military person!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a military person!</div>"));
         
         div.append(abs);
     },
 	
     renderCountry : function (entity, div) {
         div.addClass("country");
-        var map = window.terkait._renderMap(entity);
+        var map = window.terkait.rendering.renderMap(entity);
         
         var capital = entity.get("dbprop:capital");
         var capSentence = "";
         if (capital) {
 	        capital = (capital.isCollection)? capital.at(0) : capital;
-	        window.terkait._dbpediaLoader(capital, 
+	        window.terkait.util.dbpediaLoader(capital, 
 	        		function (e) {
 	        			if (_.isArray(e) && e.length > 0 || e.isEntity)
 	        				entity.trigger("rerender");
@@ -278,14 +286,14 @@ jQuery.extend(window.terkait, {
 			        	console.warn(e);
 			        });
 	        capSentence = " It's capital is <a href=\"" + capital.getSubject().replace(/[<>]/g, "") + "\">" + 
-	        			  window.terkait._getLabel(capital) + "</a>.";
+	        			  window.terkait.rendering.getLabel(capital) + "</a>.";
 	        
         }
         
         var abs = jQuery('<div class="abstract">');
         abs.append(map);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a country with a population of " + 
-        window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + 
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a country with a population of " + 
+        window.terkait.util.humanReadable(entity.get("dbpedia:populationTotal")) + 
         "." + capSentence + "</div>"));
         
         div.append(abs);
@@ -293,13 +301,13 @@ jQuery.extend(window.terkait, {
     
     renderContinent : function (entity, div) {
         div.addClass("continent");
-        var map = window.terkait._renderMap(entity);
+        var map = window.terkait.rendering.renderMap(entity);
         div.append(map);
         
         var abs = jQuery('<div class="abstract">');
-        abs.html(window.terkait._getLabel(entity) + " is a continent with an area of " + 
-        window.terkait._humanReadable(parseInt(entity.get("dbpedia:areaTotal")) / 1000000) + " km&sup2; and a population of " + 
-        window.terkait._humanReadable(entity.get("dbpedia:populationTotal")) + 
+        abs.html(window.terkait.rendering.getLabel(entity) + " is a continent with an area of " + 
+        window.terkait.util.humanReadable(parseInt(entity.get("dbpedia:areaTotal")) / 1000000) + " km&sup2; and a population of " + 
+        window.terkait.util.humanReadable(entity.get("dbpedia:populationTotal")) + 
         ". It comprises " + entity.get("dbprop:countries") + " countries.");
         
         div.append(abs);
@@ -307,18 +315,18 @@ jQuery.extend(window.terkait, {
     
     renderPlace : function (entity, div) {
     	div.addClass("place");
-        var map = window.terkait._renderMap(entity);
+        var map = window.terkait.rendering.renderMap(entity);
         
         var abs = jQuery('<div class="abstract">');
         abs.append(map);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a place.</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a place.</div>"));
         
         div.append(abs);
     },
     
     renderCity : function (entity, div) {
         div.addClass("city");
-        var map = window.terkait._renderMap(entity);
+        var map = window.terkait.rendering.renderMap(entity);
         div.append(map);
         
         //collect information from connected entities!
@@ -336,16 +344,16 @@ jQuery.extend(window.terkait, {
         var population = entity.get("dbpedia:populationTotal");
         
         var abs = jQuery('<div class="abstract">');
-        abs.html(window.terkait._getLabel(entity) + " is a city in " +
-        window.terkait._getLabel(country) + " with a population of " + 
-        window.terkait._humanReadable(population) + ".");
+        abs.html(window.terkait.rendering.getLabel(entity) + " is a city in " +
+        window.terkait.rendering.getLabel(country) + " with a population of " + 
+        window.terkait.util.humanReadable(population) + ".");
         
         div.append(abs);
     },
     
     renderState : function (entity, div) {
         div.addClass("state");
-        var map = window.terkait._renderMap(entity);
+        var map = window.terkait.rendering.renderMap(entity);
         
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
@@ -393,10 +401,10 @@ jQuery.extend(window.terkait, {
         
         var abs = jQuery('<div class="abstract">');
         abs.append(map);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " is a state in " +
-        window.terkait._getLabel(country) + " with a total area of " + 
-        window.terkait._humanReadable(parseInt(area) / 1000000) + " km&sup2;. It's capital is " +
-        window.terkait._getLabel(capital) +
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a state in " +
+        window.terkait.rendering.getLabel(country) + " with a total area of " + 
+        window.terkait.util.humanReadable(parseInt(area) / 1000000) + " km&sup2;. It's capital is " +
+        window.terkait.rendering.getLabel(capital) +
         capitalSent + "</div>"));
         
         div.append(abs);
@@ -414,77 +422,25 @@ jQuery.extend(window.terkait, {
         return prop;
     },
     
-  //used in renderPlace
-    _renderMap : function(entity) {
+    renderMap : function(entity) {
         var res = $('<div class="map_canvas"></div>');
         var latitude = entity.get("geo:lat");
         var longitude = entity.get("geo:long");
-        var label = this._getLabel(entity);
-		var zoom = this._getMapZoomFactor(entity);
+        var label = window.terkait.rendering.getLabel(entity);
+		var zoom = window.terkait.util.getMapZoomFactor(entity);
         if (latitude && longitude) {
         	latitude = (jQuery.isArray(latitude))? latitude[0] : latitude;
         	longitude = (jQuery.isArray(longitude))? longitude[0] : longitude;
-        	this._retrieveLatLongMap(latitude,longitude,zoom,res);
+        	window.terkait.util.retrieveLatLongMap(latitude,longitude,zoom,res);
         } else if (label) {
-        	this._retrieveKeywordMap(label, res);
+        	window.terkait.util.retrieveKeywordMap(label, res);
         } else {
-        	this._retrieveLatLongMap(undefined, undefined, res);
+        	window.terkait.util.retrieveLatLongMap(undefined, undefined, res);
         }
         return res;
     },
-    
-	_getMapZoomFactor : function (entity) {
-		var zoom = 12;
-        var areaKm = entity.get("dbprop:areaKm");
-		areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
-		if(!areaKm || areaKm == "" || isNaN(areaKm)){
-			areaKm = entity.get("dbpedia:areaTotal");
-			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
-			areaKm = areaKm/1000000;
-		}
-		if(!areaKm || areaKm == "" || isNaN(areaKm)){
-			var areaLand = entity.get("dbpedia:areaLand");
-			var areaWater = entity.get("dbpedia:areaWater");
-			areaLand = (jQuery.isArray(areaLand))? areaLand[0] : areaLand;
-			areaWater = (jQuery.isArray(areaWater))? areaWater[0] : areaWater;
-			areaKm = (areaLand+areaWater)/1000000;
-		}
-		if(!areaKm || areaKm == "" || isNaN(areaKm)){
-			areaKm = entity.get("dbprop:areaTotalSqMi");
-			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
-			areaKm = areaKm* 2.598;
-		}
-		if(!areaKm || areaKm == "" || isNaN(areaKm)){
-			areaKm = entity.get("dbprop:areaTotalKm");
-			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
-		}
-		if(areaKm && areaKm != ""){
-			switch(true){	
-				case(areaKm>10000000) : zoom = 2; break;
-				case(areaKm>9600000 && areaKm<10000000) : zoom = 3; break;
-				case(areaKm>2750000 && areaKm<9600000) : zoom = 4; break;
-				case(areaKm>1200000 && areaKm<2750000) : zoom = 5; break;
-				case(areaKm>150000 && areaKm<1200000) : zoom = 6; break;
-				case(areaKm>30000 && areaKm<150000) : zoom = 7; break;
-				case(areaKm>10000 && areaKm<30000) : zoom = 8; break;
-				case(areaKm>2000 && areaKm<10000) : zoom = 9; break;
-				case(areaKm>1000 && areaKm<2000) : zoom = 10; break;
-				case(areaKm>200 && areaKm<1000) : zoom = 11; break;
-				case(areaKm<200) : zoom = 12; break;
-			}
-		}
-		else{	
-			if(entity.isof("Continent")){zoom =  1;}
-			if(entity.isof("Country")){zoom =  3;}
-			if(entity.isof("State")){zoom =  5;}
-			if(entity.isof("City")){zoom =  11;}
-		}
-		return zoom;
-	},
-	
-	
-    //used in renderPerson       
-    _renderDepiction : function(entity) {
+	      
+    renderDepiction : function(entity) {
         var res = $('<img>');
         var depict = entity.get("dbpedia:thumbnail");
         if (depict) {
@@ -504,7 +460,7 @@ jQuery.extend(window.terkait, {
         return res;
     },
     
-    _getLabel : function (entity) {
+    getLabel : function (entity) {
     	return VIE.Util.extractLanguageString(entity, ["name", "rdfs:label"], window.terkait.settings.language);
     },
     
@@ -531,7 +487,7 @@ jQuery.extend(window.terkait, {
             var $this = $(this);
             var $parent = $this.parents('.accordion').first();
             
-            terkait.registerRecommendedContentDialog($this, $parent, terkait._renderImages, entity);
+            terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderImages, entity);
         });
         var videos = jQuery('<div class="recommended-icon">')
         .css({
@@ -554,7 +510,7 @@ jQuery.extend(window.terkait, {
             var $this = $(this);
             var $parent = $this.parents('.accordion').first();
             
-            terkait.registerRecommendedContentDialog($this, $parent, terkait._renderVideos, entity);
+            terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderVideos, entity);
         });
         var news = jQuery('<div class="recommended-icon">')
         .css({
@@ -577,7 +533,7 @@ jQuery.extend(window.terkait, {
             var $this = $(this);
             var $parent = $this.parents('.accordion').first();
             
-            terkait.registerRecommendedContentDialog($this, $parent, terkait._renderNews, entity);
+            terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderNews, entity);
         });
         
         panel
@@ -592,7 +548,7 @@ jQuery.extend(window.terkait, {
         contentContainer
             .vieImageSearch({
                 vie    : window.terkait.vie,
-                bin_size: 3,
+                bin_size: 8,
                 lang_id : "en",
                 services : {
                     gimage : {
@@ -609,20 +565,78 @@ jQuery.extend(window.terkait, {
                     var container = jQuery('<div>').css('position', 'relative');
                     for (var o = 0; o < objects.length && o < this.options.bin_size; o++) {
                         var obj = objects[o];
-                        var img = 
-                        jQuery('<img src="' + obj.original + '" height="80px" width="auto"/>')
+                        
+                        var id = "img_" + new Date().getTime();
+                        
+                        var thumb = 
+                        jQuery('<img src="' + obj.thumbnail + '" height="80px" width="auto"/>')
+                        .data("orig_image_url", obj.original)
+                        .data("orig_image_id", id)
+                        .data("context_url", obj.context)
                         .css({
                             "display" : "inline",
                             "margin-top" : "0px",
                             "margin-left" : "0px",
                             "margin-right" : "10px",
                             "margin-bottom" : "10px",
-                            "box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
+                            "box-shadow": "rgb(128, 128, 128) 5px 7px 6px",
+                            cursor: "pointer"
+                        })
+                        .mousemove(function(e){
+                        	var url = jQuery(this).data("orig_image_url");
+                        	var id = jQuery(this).data("orig_image_id");
+                        	
+                        	var img = jQuery("#" + id);
+                        	
+                        	if (img.size() === 0) {
+                        		window.terkait.util.updateActiveJobs(1);
+                        		img = jQuery('<img id="' + id + '" src="' + url + '" height="300px" width="auto"/>')
+                        		.appendTo("body")
+                        		.css({
+                        			"display": "none",
+	                            	"z-index" : 99999,
+	                            	"position" : "absolute"
+                        		})
+                        		.load(function () {
+                            		window.terkait.util.updateActiveJobs(-1);
+                        			var image = jQuery(this);
+                        			var height = image.height();
+                            		var width = image.width();
+
+                            		image
+                            		.css({
+    	                            	"display" : "block",
+		                                top: (e.pageY - (height / 2)) + "px",
+		                                left: (e.pageX - (width + 20)) + "px"
+		                            });
+                        		});
+                        	} else {
+                    			var height = img.height();
+                        		var width = img.width();
+                        		img.css({
+	                                top: (e.pageY - (height / 2)) + "px",
+	                                left: (e.pageX - (width + 20)) + "px"
+	                            });
+                        	}
+                        })
+                        .mouseout(function(e) {
+                    		window.terkait.util.updateActiveJobs(-1);
+                        	var id = jQuery(this).data("orig_image_id");
+                        	
+                        	jQuery("#" + id).remove();
+                        })
+                        .click(function (e) {
+                        	var url = jQuery(this).data("context_url");
+                        	
+                        	if (url) {
+                        		window.terkait.communication.sendReq("openUrl", {url : url});
+                        	}
                         })
                         .error(function(){
-                                $(this).remove();
-                            });
-                        container.append(img);
+                            $(this).remove();
+                        });
+                        
+                        container.append(thumb);
                     }
                     
                     // clear the container element
@@ -776,14 +790,15 @@ jQuery.extend(window.terkait, {
                         'padding': '10px'
                     });
                     var newsItem = jQuery('<div class="terkait-news-item">');
-					var title = obj.titleNoFormatting? obj.titleNoFormatting: "untitled";
-					var url = obj.url? obj.url: "undefined";
-					var content = obj.content? obj.content: "";
-					var publisher = obj.publisher? obj.publisher: "undefined";
+					var title = obj.titleNoFormatting? obj.titleNoFormatting: undefined;
+					var url = obj.url? obj.url: undefined;
+					var content = obj.content? obj.content: undefined;
+					var publisher = obj.publisher? obj.publisher: undefined;
 					content = String(content).substring(0,100)+"...";
-					if(url!="undefined"){
+					if (url && title && publisher && content) {
+						var shortUrl = (url.length < 50)? url : url.substr(0, 20) + " ... " + url.substr(-20);
 						var a = jQuery('<a class="terkait-news-item-title" href="'+url+'" target="_blank">'+publisher+': '+title+'</a>');	
-						var source = jQuery('<a class="terkait-news-item-source" href="'+url+'" target="_blank">'+url+'</a>');
+						var source = jQuery('<a class="terkait-news-item-source" href="'+url+'" target="_blank">'+shortUrl+'</a>');
 						newsItem.append(a);
 						newsItem.append('<br/>');
 						newsItem.append(content);
@@ -840,128 +855,128 @@ jQuery.extend(window.terkait, {
     _renderer : {
         'Continent' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderContinent(entity, div);
+                window.terkait.rendering.renderContinent(entity, div);
             }
         },
         'Country' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderCountry(entity, div);
+                window.terkait.rendering.renderCountry(entity, div);
             }
         },
         'State' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-            	window.terkait.renderState(entity, div);
+            	window.terkait.rendering.renderState(entity, div);
             }
         },
         'City' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderCity(entity, div);
+                window.terkait.rendering.renderCity(entity, div);
             }
         },
         'Place' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderPlace(entity, div);
+                window.terkait.rendering.renderPlace(entity, div);
             }
         },
         'Person' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderPerson(entity, div);
+                window.terkait.rendering.renderPerson(entity, div);
             }
         },
         'Artist' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderArtist(entity, div);
+                window.terkait.rendering.renderArtist(entity, div);
             }
         },
         'Athlete' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderAthlete(entity, div);
+                window.terkait.rendering.renderAthlete(entity, div);
             }
         },
         'Politician' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderPolitician(entity, div);
+                window.terkait.rendering.renderPolitician(entity, div);
             }
         },
         'Scientist' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderScientist(entity, div);
+                window.terkait.rendering.renderScientist(entity, div);
             }
         },
         'MilitaryPerson' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div)
             },
             right : function (entity, div) {
-                window.terkait.renderMilitaryPerson(entity, div);
+                window.terkait.rendering.renderMilitaryPerson(entity, div);
             }
         }/*,
         'Thing' : {
             label : function (entity, div) {
-                div.text(window.terkait._getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity));
             },
             left : function (entity, div) {
                 window.terkait.renderRecommendedContent(entity, div)

@@ -12,7 +12,7 @@ jQuery.extend(window.terkait.formEditor, {
 	
 	    initialize : function() {
 	        this.model.bind("rerender", this.render, this);
-	        this.model.bind("change", this.validate, this);
+	        //this.model.bind("change", this.validate, this);
 	        
 	        this.render();
 	    },
@@ -134,7 +134,7 @@ jQuery.extend(window.terkait.formEditor, {
 	            lbl = "URL";
 	            break;
 	    }
-	    return $("<label>").html(window.terkait.capitaliseFirstLetter(lbl)); //TODO i18n
+	    return $("<label>").html(window.terkait.util.capitaliseFirstLetter(lbl)); //TODO i18n
 	},
 
 /***************/

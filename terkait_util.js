@@ -1,15 +1,16 @@
 if (!window.terkait) {
     window.terkait = {};
 }
+window.terkait.util = {};
 
-jQuery.extend(window.terkait, {
+jQuery.extend(window.terkait.util, {
 
 	active_jobs : 0,
 	
 	updateActiveJobs : function (i) {
-		window.terkait.active_jobs += i;
-		if (window.terkait.active_jobs <= 0) {
-			window.terkait.active_jobs = 0;
+		window.terkait.util.active_jobs += i;
+		if (window.terkait.util.active_jobs <= 0) {
+			window.terkait.util.active_jobs = 0;
 			jQuery('#terkait-container .loader')
 	        .hide();
 		} else {
@@ -18,7 +19,39 @@ jQuery.extend(window.terkait, {
 		}
 	},
 	
-    _getRangeObject : function() {
+	selectCOI : function() {
+        var res = jQuery(
+                ':header,header,section,article,div,span,p,q,i,b,u,em,th,td,strong,font')
+                .filter(
+                        function() {
+                            var jQuerythis = jQuery(this);
+                            var text = jQuerythis.text() // get the text of element
+                            .replace(/\W/g, ' ') // remove non-letter symbols
+                            .replace(/\s+/g, ' ').trim(); // collapse multiple whitespaces
+
+                            var words = text.match(/\b\w{5,}\b/g); // a word contains at least 5 letters
+                            var children = jQuerythis.children();
+                            var emptyChildren = jQuerythis.children()
+                                    .filter(
+                                            function() {
+                                                return jQuery(this).children().size() === 0;
+                                            });
+                            var hasText = text.length > 0;
+                            var numWords = (words === null) ? 0
+                                    : words.length;
+                            var area = jQuerythis.height() * jQuerythis.width();
+                            var isShown = area > 0
+                                    && jQuerythis.css('display') !== "none"
+                                    && jQuerythis.css('visibility') !== "hidden";
+
+                            return (isShown && hasText && numWords > 5 && (children
+                                    .size() === emptyChildren.size()));
+                        })
+                    .not('#terkait-container *');
+        return res;
+    },
+	
+    getRangeObject : function() {
         try {
             var selectionObject;
             if (window.getSelection) {
@@ -44,7 +77,7 @@ jQuery.extend(window.terkait, {
         }
     },
     
-    _dbpediaLoader : function (entities, done, fail) {
+    dbpediaLoader : function (entities, done, fail) {
     	entities = (_.isArray(entities))? entities : [ entities ];
     	var max = 10;
     	
@@ -54,18 +87,17 @@ jQuery.extend(window.terkait, {
             var entity = entities[e];
             //filter for dbpedia entities only!
             if (entity && 
-                ((typeof entity === "string" && entity.indexOf("<http://dbpedia") === 0) || 
-                 (!entity.has("DBPediaServiceLoad") && entity.getSubject().indexOf("<http://dbpedia") === 0)))
+                ((typeof entity === "string" && entity.indexOf("http://dbpedia") >= 0) || 
+                 (!entity.has("DBPediaServiceLoad") && entity.getSubject().indexOf("http://dbpedia") >= 0)))
                 queryEntities.push(entity);
         }
-        
     	
     	if (queryEntities.length > max) {
     		var first = queryEntities.slice(0, max);
     		var rest = queryEntities.slice(max);
     		
     		var followUp = function (rest, done, fail, ret) {
-    			window.terkait._dbpediaLoader(rest, function (retRest) {
+    			window.terkait.util.dbpediaLoader(rest, function (retRest) {
 					retRest = (_.isArray(retRest))? retRest : [ retRest ];
 					var x = jQuery.merge([], ret);
 					jQuery.merge(x, retRest);
@@ -76,7 +108,7 @@ jQuery.extend(window.terkait, {
 				});
     		};
 
-    		window.terkait._dbpediaLoader(first, function (ret) {
+    		window.terkait.util.dbpediaLoader(first, function (ret) {
     			ret = (_.isArray(ret))? ret : [ ret ];
     			followUp(rest, done, fail, ret);
     		}, function (err) {
@@ -87,7 +119,7 @@ jQuery.extend(window.terkait, {
     	}
     	
     	if (queryEntities.length > 0) {
-	    	 window.terkait.updateActiveJobs(1);
+	    	 window.terkait.util.updateActiveJobs(1);
 	    	 window.terkait.vie
 	         .load({
 	             entities : queryEntities
@@ -95,12 +127,12 @@ jQuery.extend(window.terkait, {
 	         .using('dbpedia')
 	         .execute()
 	         .done(function(e) {
-	             window.terkait.updateActiveJobs(-1);
+	             window.terkait.util.updateActiveJobs(-1);
 	         	if (done) done(e);
 	         })
 	         .fail(
 	             function(e) {
-	                 window.terkait.updateActiveJobs(-1);
+	                 window.terkait.util.updateActiveJobs(-1);
 	             	if (fail) fail(e);
 	         });
     	} else {
@@ -108,7 +140,7 @@ jQuery.extend(window.terkait, {
     	}
     },
     
-    _isEntityOfInterest : function (entity) {
+    isEntityOfInterest : function (entity) {
     	var isEntityOfInterest = false;
 		for (var t = 0, len2 = window.terkait.settings.filterTypes.length; t < len2 && !isEntityOfInterest;  t++) {
 			isEntityOfInterest = isEntityOfInterest || entity.isof(window.terkait.settings.filterTypes[t]);
@@ -118,7 +150,7 @@ jQuery.extend(window.terkait, {
         return isEntityOfInterest;
     },
     
-    _filterDups: function (entities, properties) {
+    filterDups: function (entities, properties) {
     	properties = (_.isArray(properties))? properties : [ properties ];
     	
         for (var i = 0; i < entities.length; i++) {
@@ -163,7 +195,7 @@ jQuery.extend(window.terkait, {
                     if (containedIdx !== -1) {
                     	// that means that entities[i] has a property which points to entities[j]
                     	// unification!!!
-                    	window.terkait._unification(object, subject);
+                    	window.terkait.util.unification(object, subject);
                     	entities.splice(i, 1);
                     	i--;
                     	ids.splice(containedIdx, 1);
@@ -171,7 +203,7 @@ jQuery.extend(window.terkait, {
                 }
                 for (var x = 0; x < ids.length; x++) {
                 	var newEntity = new window.terkait.vie.Entity({"@subject" : ids[x]});
-                	window.terkait._unification(object, newEntity);
+                	window.terkait.util.unification(object, newEntity);
                 	entities.splice(i, 1, newEntity);
                 	console.log("replacing entity", object.getSubject(), "with", newEntity.getSubject());
                 }
@@ -179,7 +211,7 @@ jQuery.extend(window.terkait, {
         }
     },
     
-    _unification : function (source, target, properties) {
+    unification : function (source, target, properties) {
     	//TODO: filter for non-properties only!
     	for (var attribute in source.attributes) {
     		if (attribute.indexOf("@") !== 0) {
@@ -196,7 +228,56 @@ jQuery.extend(window.terkait, {
     	}
     },
     
-    _humanReadable : function (number) {
+    getMapZoomFactor : function (entity) {
+		var zoom = 12;
+        var areaKm = entity.get("dbprop:areaKm");
+		areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+		if(!areaKm || areaKm == "" || isNaN(areaKm)){
+			areaKm = entity.get("dbpedia:areaTotal");
+			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+			areaKm = areaKm/1000000;
+		}
+		if(!areaKm || areaKm == "" || isNaN(areaKm)){
+			var areaLand = entity.get("dbpedia:areaLand");
+			var areaWater = entity.get("dbpedia:areaWater");
+			areaLand = (jQuery.isArray(areaLand))? areaLand[0] : areaLand;
+			areaWater = (jQuery.isArray(areaWater))? areaWater[0] : areaWater;
+			areaKm = (areaLand+areaWater)/1000000;
+		}
+		if(!areaKm || areaKm == "" || isNaN(areaKm)){
+			areaKm = entity.get("dbprop:areaTotalSqMi");
+			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+			areaKm = areaKm* 2.598;
+		}
+		if(!areaKm || areaKm == "" || isNaN(areaKm)){
+			areaKm = entity.get("dbprop:areaTotalKm");
+			areaKm = (jQuery.isArray(areaKm))? areaKm[0] : areaKm;
+		}
+		if(areaKm && areaKm != ""){
+			switch(true){	
+				case(areaKm>10000000) : zoom = 2; break;
+				case(areaKm>9600000 && areaKm<10000000) : zoom = 3; break;
+				case(areaKm>2750000 && areaKm<9600000) : zoom = 4; break;
+				case(areaKm>1200000 && areaKm<2750000) : zoom = 5; break;
+				case(areaKm>150000 && areaKm<1200000) : zoom = 6; break;
+				case(areaKm>30000 && areaKm<150000) : zoom = 7; break;
+				case(areaKm>10000 && areaKm<30000) : zoom = 8; break;
+				case(areaKm>2000 && areaKm<10000) : zoom = 9; break;
+				case(areaKm>1000 && areaKm<2000) : zoom = 10; break;
+				case(areaKm>200 && areaKm<1000) : zoom = 11; break;
+				case(areaKm<200) : zoom = 12; break;
+			}
+		}
+		else{	
+			if(entity.isof("Continent")){zoom =  1;}
+			if(entity.isof("Country")){zoom =  3;}
+			if(entity.isof("State")){zoom =  5;}
+			if(entity.isof("City")){zoom =  11;}
+		}
+		return zoom;
+	},
+    
+    humanReadable : function (number) {
         number = (_.isArray(number))? number[0] : number;
         
         if (number > 1000000000) {
@@ -214,7 +295,7 @@ jQuery.extend(window.terkait, {
         return number;
     },
     
-    _retrieveLatLongMap : function(latitude, longitude,zoom, mapDiv) {
+    retrieveLatLongMap : function(latitude, longitude,zoom, mapDiv) {
 		var a = $('<a target="_blank" href="http://maps.google.com/maps?z=' + zoom + '&q=' + latitude + ',' + longitude + '&iwloc=A">');
 		zoom = Math.floor(zoom/2);
 		var map = $('<div>');
@@ -229,7 +310,7 @@ jQuery.extend(window.terkait, {
 		.appendTo(mapDiv);
     },
     
-    _retrieveKeywordMap : function(kw, mapDiv) {
+    retrieveKeywordMap : function(kw, mapDiv) {
         var a = $('<a target="_blank" href="http://maps.google.com/maps?q=' + kw + '&iwloc=A">');
 		var map = $('<div>');
 		var img_src = 'http://maps.googleapis.com/maps/api/staticmap?size=100x100&sensor=false&markers='+ encodeURI(kw);
@@ -246,8 +327,20 @@ jQuery.extend(window.terkait, {
     capitaliseFirstLetter : function(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     },
+    
+    rankEntity : function (entity) {
+    	var eRank = (entity.has("entityhub:entityRank"))? entity.get("entityhub:entityRank") : 1.0;
+    	//var score = (entity.has("entityhub2:score"))? entity.get("entityhub2:score") : 1.0;
+
+		var numTAnnots = entity.get("enhancer:hasTextAnnotation");
+		numTAnnots = (_.isArray(numTAnnots))? numTAnnots : [ numTAnnots ];
+		numTAnnots = numTAnnots.length;
+		
+		var total = numTAnnots * eRank;
+		return total;
+    },
 	
-	_formatDate : function (date,f) {
+	formatDate : function (date,f) {
 		if (!date.valueOf())
 			return ' ';
 		var gsMonthNames = new Array(
