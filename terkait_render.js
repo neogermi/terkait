@@ -203,11 +203,8 @@ jQuery.extend(window.terkait.rendering, {
     renderPerson : function (entity, div) {
         div.addClass("person");
         var img = window.terkait.rendering.renderDepiction(entity);
-        var bdate = entity.get('dbpedia:birthDate');
-		bdate = (jQuery.isArray(bdate))? bdate[0] : bdate;
-		bdate = bdate? new Date(bdate) : bdate;
-		bdate = bdate? window.terkait.util.formatDate(bdate,'dd.mm.yyyy') : bdate;
         var abs = jQuery('<div class="abstract">');
+		var bdate = window.terkait.rendering.renderBirthDate(entity);
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a person!</div>"));
         
@@ -216,11 +213,12 @@ jQuery.extend(window.terkait.rendering, {
 	
 	renderArtist : function (entity, div) {
         div.addClass("artist");
+
         var img = window.terkait.rendering.renderDepiction(entity);
-        
+        var bdate = window.terkait.rendering.renderBirthDate(entity);
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is an artist!</div>"));
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is an artist!</div>"));
         
         div.append(abs);
     },
@@ -228,10 +226,10 @@ jQuery.extend(window.terkait.rendering, {
 	renderAthlete : function (entity, div) {
         div.addClass("athlete");
         var img = window.terkait.rendering.renderDepiction(entity);
-        
+        var bdate = window.terkait.rendering.renderBirthDate(entity);
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is an athlete!</div>"));
+        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is an athlete!</div>"));
         
         div.append(abs);
     },
@@ -239,10 +237,10 @@ jQuery.extend(window.terkait.rendering, {
 	renderPolitician : function (entity, div) {
         div.addClass("politician");
         var img = window.terkait.rendering.renderDepiction(entity);
-        
+        var bdate = window.terkait.rendering.renderBirthDate(entity);
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a politician!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a politician!</div>"));
         
         div.append(abs);
     },
@@ -250,10 +248,10 @@ jQuery.extend(window.terkait.rendering, {
 	renderScientist : function (entity, div) {
         div.addClass("scientist");
         var img = window.terkait.rendering.renderDepiction(entity);
-        
+        var bdate = window.terkait.rendering.renderBirthDate(entity);
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a scientist!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a scientist!</div>"));
         
         div.append(abs);
     },
@@ -261,10 +259,10 @@ jQuery.extend(window.terkait.rendering, {
 	renderMilitaryPerson : function (entity, div) {
         div.addClass("militaryPerson");
         var img = window.terkait.rendering.renderDepiction(entity);
-        
+        var bdate = window.terkait.rendering.renderBirthDate(entity);
         var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a military person!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a military person!</div>"));
         
         div.append(abs);
     },
@@ -441,8 +439,9 @@ jQuery.extend(window.terkait.rendering, {
     },
 	      
     renderDepiction : function(entity) {
-        var res = $('<img>');
+        var res = jQuery('<img>');
         var depict = entity.get("dbpedia:thumbnail");
+        debugger;
         if (depict) {
         	depict = (jQuery.isArray(depict))? depict[0] : depict;
         	depict = depict.replace(/[<>]/g, "");
@@ -459,6 +458,14 @@ jQuery.extend(window.terkait.rendering, {
         }
         return res;
     },
+
+	renderBirthDate: function(entity){
+		var bdate = entity.get('dbpedia:birthDate');
+		bdate = (jQuery.isArray(bdate))? bdate[0] : bdate;
+		bdate = bdate? new Date(bdate) : bdate;
+		bdate = bdate? window.terkait.util.formatDate(bdate,'dd.mm.yyyy') : bdate;
+		return bdate;
+	},	
     
     getLabel : function (entity) {
     	return VIE.Util.extractLanguageString(entity, ["name", "rdfs:label"], window.terkait.settings.language);

@@ -12,7 +12,7 @@ jQuery.extend(window.terkait.formEditor, {
 	
 	    initialize : function() {
 	        this.model.bind("rerender", this.render, this);
-	        //this.model.bind("change", this.validate, this);
+	        //this.model.bind("change", this.validate, this); TODO: handel undefined objects 
 	        
 	        this.render();
 	    },

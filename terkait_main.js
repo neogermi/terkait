@@ -157,7 +157,7 @@ jQuery.extend(window.terkait, {
             			var entity = ent[e];
             			if (entity.has("terkaitRendered")) {
                 			console.log("rerender", entity);
-                			//entity.trigger("rerender");
+                			entity.trigger("rerender");
             			} else if (window.terkait.util.isEntityOfInterest(entity)) {
             				window.terkait.rendering.render(entity);
                             console.log("render", entity.getSubject());
