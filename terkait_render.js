@@ -59,6 +59,7 @@ jQuery.extend(window.terkait.rendering, {
 		            };
                 }(this));
                 
+                /* TODO: editing will be available in v1.1
                 var editButton = window.terkait.rendering.createEditButton();
                 editButton
                 .hide()
@@ -72,6 +73,7 @@ jQuery.extend(window.terkait.rendering, {
 		            };
                 }(this));
                 
+                
                 var finishEditButton = window.terkait.rendering.createFinishEditButton();
                 finishEditButton
                 .css({"position":"absolute", top: "0px", right: "0px"})
@@ -81,7 +83,7 @@ jQuery.extend(window.terkait.rendering, {
                 		jQuery(view.el).css("-webkit-transform", "rotateY(0deg)");
 		            };
                 }(this));
-                
+                */
                 
                 this.render();
             },
@@ -443,7 +445,7 @@ jQuery.extend(window.terkait.rendering, {
     renderDepiction : function(entity) {
         var res = jQuery('<img>');
         var depict = entity.get("dbpedia:thumbnail");
-        debugger;
+        
         if (depict) {
         	depict = (jQuery.isArray(depict))? depict[0] : depict;
         	depict = depict.replace(/[<>]/g, "");

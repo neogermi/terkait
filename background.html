@@ -32,7 +32,7 @@
         			jQuery.merge(sett.filterTypes, ["Product"]);
         		
         		sett.filterTypes = _.uniq(sett.filterTypes);
-        		sett.created = (sett.created)? true : false;
+        		sett.created = (window.terkait.settings.created)? true : false;
         		window.terkait.settings = sett;
         	},
         	
