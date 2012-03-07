@@ -141,8 +141,7 @@ jQuery.extend(window.terkait, {
         	for (var e = 0; e < entities.length; e++) {
         		var entity = entities[e];
         		if (entity.has("terkaitRendered")) {
-        			console.log("rerender", entity);
-        			//entity.trigger("rerender");
+        			entity.trigger("rerender");
     			} else if (window.terkait.util.isEntityOfInterest(entity)) {
     				window.terkait.rendering.render(entity);
                     console.log("render", entity.getSubject());
@@ -155,12 +154,15 @@ jQuery.extend(window.terkait, {
             		// filtering for the interesting entities
                     for (var e = 0; e < ent.length; e++) {
             			var entity = ent[e];
+            			try {
+            			console.log("returned from dbpedia", entity.getSubject());
             			if (entity.has("terkaitRendered")) {
-                			console.log("rerender", entity);
                 			entity.trigger("rerender");
             			} else if (window.terkait.util.isEntityOfInterest(entity)) {
             				window.terkait.rendering.render(entity);
-                            console.log("render", entity.getSubject());
+            			}
+            			} catch (e) {
+            				debugger;
             			}
             		}
     			}, function (e) {

@@ -41,7 +41,7 @@ jQuery.extend(window.terkait.rendering, {
                 });
                 
                 back
-                .append(window.terkait.rendering._renderEntityEditor(this.model));
+                ;//.append(window.terkait.rendering._renderEntityEditor(this.model));
                 
                 var closeButton = window.terkait.rendering.createCloseButton();
                 closeButton
@@ -330,7 +330,7 @@ jQuery.extend(window.terkait.rendering, {
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
         country = (country && country.isCollection)? country.at(0) : country;
-        window.terkait._dbpediaLoader(country, 
+        window.terkait.util.dbpediaLoader(country, 
         		function (e) {
                     if (_.isArray(e) && e.length > 0 || e.isEntity)
                         entity.trigger("rerender");
@@ -356,7 +356,8 @@ jQuery.extend(window.terkait.rendering, {
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
         country = (country.isCollection)? country.at(0) : country;
-        window.terkait._dbpediaLoader(country, 
+        country = (_.isArray(country))? country[0] : country;
+        window.terkait.util.dbpediaLoader(country, 
         		function (e) {
         		    if (_.isArray(e) && e.length > 0 || e.isEntity)
                         entity.trigger("rerender");
@@ -367,7 +368,8 @@ jQuery.extend(window.terkait.rendering, {
 
         var capital = entity.get("dbprop:capital");
         capital = (capital.isCollection)? capital.at(0) : capital;
-        window.terkait._dbpediaLoader(capital, 
+        capital = (_.isArray(capital))? capital[0] : capital;
+        window.terkait.util.dbpediaLoader(capital, 
         		function (e) {
                     if (_.isArray(e) && e.length > 0 || e.isEntity)
                         entity.trigger("rerender");
@@ -380,7 +382,7 @@ jQuery.extend(window.terkait.rendering, {
         var capitalSent = ".";
         if (largestCity) {
 	        largestCity = (largestCity.isCollection)? largestCity.at(0) : largestCity;
-	        window.terkait._dbpediaLoader(largestCity, 
+	        window.terkait.util.dbpediaLoader(largestCity, 
 	        		function (e) {
                         if (_.isArray(e) && e.length > 0 || e.isEntity)
                             entity.trigger("rerender");

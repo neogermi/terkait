@@ -112,6 +112,7 @@ jQuery.extend(window.terkait.util, {
     			ret = (_.isArray(ret))? ret : [ ret ];
     			followUp(rest, done, fail, ret);
     		}, function (err) {
+    			console.log("error", err);
     			followUp(rest, done, fail, []);
     			fail(err);
     		});
