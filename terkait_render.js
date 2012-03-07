@@ -41,7 +41,8 @@ jQuery.extend(window.terkait.rendering, {
                 });
                 
                 back
-                ;//.append(window.terkait.rendering._renderEntityEditor(this.model));
+                .css("display", "none")//.append(window.terkait.rendering._renderEntityEditor(this.model));
+                ;
                 
                 var closeButton = window.terkait.rendering.createCloseButton();
                 closeButton
@@ -92,7 +93,6 @@ jQuery.extend(window.terkait.rendering, {
                 var $el = jQuery(this.el);
                 var renderer = window.terkait.rendering.selectRenderer(this.model);
                 if (renderer !== undefined) {
-                    console.log("rerededede", this.model);
                     // first clear the content
                     var labelElem = jQuery(".card-label", $el).empty();
                     var leftElem = jQuery(".recommended-content", $el).empty();
@@ -570,7 +570,6 @@ jQuery.extend(window.terkait.rendering, {
                     var self = this;
     
                     var objects = self.options.objects;
-                    var time = data.time;
                     
                     //rendering
                     var container = jQuery('<div>').css('position', 'relative');
@@ -580,8 +579,9 @@ jQuery.extend(window.terkait.rendering, {
                         var id = "img_" + new Date().getTime();
                         
                         var thumb = 
-                        jQuery('<img src="' + obj.thumbnail + '" height="80px" width="auto"/>')
+                        jQuery('<img src="' + obj.thumbnail + '" height="60px" width="auto"/>')
                         .data("orig_image_url", obj.original)
+                        .data("thumb_image_url", obj.thumbnail)
                         .data("orig_image_id", id)
                         .data("context_url", obj.context)
                         .css({
@@ -593,7 +593,8 @@ jQuery.extend(window.terkait.rendering, {
                             "box-shadow": "rgb(128, 128, 128) 5px 7px 6px",
                             cursor: "pointer"
                         })
-                        .mousemove(function(e){
+                        .mousemove(function(e) {
+                        	var thumbUrl = jQuery(this).data("thumb_image_url");
                         	var url = jQuery(this).data("orig_image_url");
                         	var id = jQuery(this).data("orig_image_id");
                         	
@@ -620,7 +621,11 @@ jQuery.extend(window.terkait.rendering, {
 		                                top: (e.pageY - (height / 2)) + "px",
 		                                left: (e.pageX - (width + 20)) + "px"
 		                            });
-                        		});
+                        		})
+                                .error(function(){
+                                    $(this).attr("src", thumbUrl);
+                            		window.terkait.util.updateActiveJobs(-1);
+                                });
                         	} else {
                     			var height = img.height();
                         		var width = img.width();
@@ -681,7 +686,6 @@ jQuery.extend(window.terkait.rendering, {
                 var self = this;
 
                 var objects = self.options.objects;
-                var time = data.time;
                 
               //rendering
                 var container = jQuery('<div>');

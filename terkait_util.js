@@ -24,14 +24,14 @@ jQuery.extend(window.terkait.util, {
                 ':header,header,section,article,div,span,p,q,i,b,u,em,th,td,strong,font')
                 .filter(
                         function() {
-                            var jQuerythis = jQuery(this);
-                            var text = jQuerythis.text() // get the text of element
+                            var self = jQuery(this);
+                            var text = self.text() // get the text of element
                             .replace(/\W/g, ' ') // remove non-letter symbols
                             .replace(/\s+/g, ' ').trim(); // collapse multiple whitespaces
 
                             var words = text.match(/\b\w{5,}\b/g); // a word contains at least 5 letters
-                            var children = jQuerythis.children();
-                            var emptyChildren = jQuerythis.children()
+                            var children = self.children();
+                            var emptyChildren = self.children()
                                     .filter(
                                             function() {
                                                 return jQuery(this).children().size() === 0;
@@ -39,10 +39,10 @@ jQuery.extend(window.terkait.util, {
                             var hasText = text.length > 0;
                             var numWords = (words === null) ? 0
                                     : words.length;
-                            var area = jQuerythis.height() * jQuerythis.width();
+                            var area = self.height() * self.width();
                             var isShown = area > 0
-                                    && jQuerythis.css('display') !== "none"
-                                    && jQuerythis.css('visibility') !== "hidden";
+                                    && self.css('display') !== "none"
+                                    && self.css('visibility') !== "hidden";
 
                             return (isShown && hasText && numWords > 5 && (children
                                     .size() === emptyChildren.size()));

@@ -114,11 +114,16 @@ jQuery.extend(window.terkait, {
         .animate({
             "left" : "350px"
         }, 500);
+        window.terkait.vie.entities.each(function (e) {
+        	if (e.has("terkaitRendered"))
+    			e.unset("terkaitRendered");
+        });
         return true;
     },
 
     recommend : function() {
-        var elems = window.terkait.util.selectCOI();
+        var elems = jQuery(".terkait-toi");
+        elems = (elems.size > 0)? elems.removeClass("terkait-toi") : window.terkait.util.selectCOI();
         elems.addClass("terkait-toi");
         var meta = jQuery('<span>');
         elems.each(function() {
@@ -129,7 +134,6 @@ jQuery.extend(window.terkait, {
         var doneCallback = function(entities) {
             window.terkait.util.updateActiveJobs(-1);
             entities = (_.isArray(entities))? entities : [ entities ];
-        	console.log("service returned with " + entities.length + " entities", entities);
         	
         	entities.sort(function (a,b) {
         		var totalA = window.terkait.util.rankEntity(a);
@@ -144,7 +148,6 @@ jQuery.extend(window.terkait, {
         			entity.trigger("rerender");
     			} else if (window.terkait.util.isEntityOfInterest(entity)) {
     				window.terkait.rendering.render(entity);
-                    console.log("render", entity.getSubject());
     			}
         	}
         	
@@ -155,12 +158,11 @@ jQuery.extend(window.terkait, {
                     for (var e = 0; e < ent.length; e++) {
             			var entity = ent[e];
             			try {
-            			console.log("returned from dbpedia", entity.getSubject());
-            			if (entity.has("terkaitRendered")) {
-                			entity.trigger("rerender");
-            			} else if (window.terkait.util.isEntityOfInterest(entity)) {
-            				window.terkait.rendering.render(entity);
-            			}
+	            			if (entity.has("terkaitRendered")) {
+	                			entity.trigger("rerender");
+	            			} else if (window.terkait.util.isEntityOfInterest(entity)) {
+	            				window.terkait.rendering.render(entity);
+	            			}
             			} catch (e) {
             				debugger;
             			}
