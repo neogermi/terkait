@@ -676,7 +676,7 @@ jQuery.extend(window.terkait.rendering, {
         .vieVideoSearch({
             vie    : window.terkait.vie,
             lang_id : "en",
-            bin_size: 3,
+            bin_size: 4,
             services : {
                 gvideo : {
                     use: true
@@ -684,80 +684,72 @@ jQuery.extend(window.terkait.rendering, {
             },
             render: function(data) {
                 var self = this;
+                
+                var $elem = jQuery(self.element);
+                $elem.empty();
 
-                var objects = self.options.objects;
+                var original = data.original.responseData;
+                var objects = data.objects;
                 
-              //rendering
-                var container = jQuery('<div>');
-                
-              //render the first video large
+                //render the first video large
                 var vid = jQuery('<object>')
                 .attr({
-                    "width":"218",
-                    "height":"180"})
+                    "width":"213",
+                    "height":"160"})
                 .css({
                     "display" : "inline",
                     "margin-top" : "0px",
                     "margin-left" : "0px",
                     "margin-right" : "10px",
-                    "margin-bottom" : "10px"
+                    "margin-bottom" : "10px",
+                    "float" : "left"
                 })
-                .append(
-                    jQuery('<param>')
+                .append(jQuery('<param>')
                     .attr({
                         "name":"movie",
                         "value":objects[0].original.replace("/embed/", "/v/") + "&rel=0"
                     }))
-                .append(
-            		jQuery('<param name="wmode" value="opaque" />'))
-                .append(
-                    jQuery('<embed>')
+                .append(jQuery('<param name="wmode" value="opaque" />'))
+                .append(jQuery('<embed>')
                     .attr({
                         "type"   : "application/x-shockwave-flash",
                         "src"    : objects[0].original.replace("/embed/", "/v/") + "&rel=0",
-                        "width"  : "218",
-                        "height" : "180",
+                        "width"  : "213",
+                        "height" : "160",
                         "wmode"  : "opaque"
                     })
                     .css({
                         "box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
                     }));
-                container.append(vid);
-                /*TODO: render all others as previews
-                for (var o = 1; o < objects.length && o < this.options.bin_size; o++) {
-                    var obj = objects[o];
-                    var vid = jQuery('<object>')
-                    .attr({
-                        "width":"218",
-                        "height":"180"})
+                $elem.append(vid);
+                
+                
+                // render all others as previews
+                for (var o = 1; o < original.results.length; o++) {
+                    var obj = original.results[o];
+                    
+                    var thumb = jQuery("<img>")
+                    .attr("src", obj.tbUrl).attr("height", 55).attr("width", "auto")
                     .css({
-                        "display" : "inline",
-                        "margin-top" : "0px",
-                        "margin-left" : "0px",
-                        "margin-right" : "10px",
-                        "margin-bottom" : "10px",
-                        "box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
-                    })
-                    .append(
-                        jQuery('<param>')
-                        .attr({
-                            "name":"movie",
-                            "value":obj.original.replace("/embed/", "/v/") + "&rel=0"
-                        }))
-                    .append(
-                        jQuery('<embed>')
-                        .attr({
-                            "type":"application/x-shockwave-flash",
-                            "src":obj.original.replace("/embed/", "/v/") + "&rel=0",
-                            "width" : "218",
-                            "height" : "180"
-                        }));
-                    container.append(vid);
-                }*/
+                    	"float": "right",
+                    	"display" : "block",
+                    	"margin-bottom": "10px",
+                    	"box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
+                    });
+                    
+                    var anchor = jQuery("<a>")
+                    .attr("href", obj.url)
+                    .attr("target", "_blank")
+                    .attr("title", obj.titleNoFormatting);
+                    
+                    $elem.append(anchor.append(thumb));
+                }
+                
+                //add title of large video
+                var title = jQuery("<div>").css("max-width", "213px").css("float", "left").addClass("terkait-news-item-title").text(original.results[0].titleNoFormatting);
+                $elem.append(title);
                 
                 // clear the container element
-                self.element.empty();
-                container.appendTo(jQuery(self.element));
                 return this;
             }
         });
@@ -775,18 +767,17 @@ jQuery.extend(window.terkait.rendering, {
         contentContainer
         .vieNewsSearch({
             vie    : window.terkait.vie,
-            bin_size: 3,
+            bin_size: 5,
             services : {
                 gnews : {
                     use: true,
-                    ned: "de_at",
+                    ned: "us",
                     hl: "en"
                 }
             },
             render: function(data) {
                 var self = this;
                 var objects = self.options.objects;
-                var time = data.time;
                 
                 //rendering
                 var container = jQuery('<div>')
