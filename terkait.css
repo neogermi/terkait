@@ -1,12 +1,18 @@
 
 /* terkait GUI */
 #terkait-wrapper {
-	font-size: 10px;
 	position: fixed;
 	top: 0px;
 	right: 0px;
 	height: 100%;
 	z-index: 99999;
+}
+
+#terkait-wrapper *, .terkait-recommended-content-dialog * {
+	font-family: Verdana, Arial;
+	font-size: 12px;
+	color: #333;
+	line-height: normal;
 }
 
 #terkait-wrapper:before {
@@ -17,8 +23,6 @@
 }
 
 #terkait-container {
-	font-family: Verdana, Arial;
-	color: black;
 	display: inline-block;
 	vertical-align: middle;
 	padding: 30px 5px 40px 10px;
@@ -35,10 +39,10 @@
 }
 
 #terkait-container .description {
-	font-family: "Times New Roman", Arial;
-    font-size: 16px;
+    font-size: 14px;
     font-style: italic;
     text-align:center;
+    font-family: "Times New Roman";
 }
 
 #terkait-container .loader {
@@ -205,21 +209,28 @@ text-decoration:underline;
 	vertical-align: text-bottom;
 }
 
-.terkait-news-item {
-	font-size: 10px;
-	line-height: normal;
+.terkait-image-item {
+	display: inline;
+    margin-top : 0px;
+    margin-left : 0px;
+    margin-right : 10px;
+    margin-bottom : 10px;
+    box-shadow: rgb(128, 128, 128) 5px 7px 6px;
+    cursor: pointer;
 }
 
-.terkait-news-item-title {
+.terkait-news-item {
+	font-size: 10px;
+}
+
+.terkait-news-item-title, .terkait-news-item-title:visited, .terkait-news-item-title:active {
 	font-size  : 13px;
 	font-weight: bold;
 	color      : #1F4F82;
-	line-height: normal;
 }
 
-.terkait-news-item-source {
+.terkait-news-item-source, .terkait-news-item-source:visited, .terkait-news-item-source:active  {
 	font-size  : 10px;
 	font-weight: bold;
 	color      : #25B14C;
-	line-height: normal;
 }

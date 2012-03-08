@@ -92,6 +92,7 @@ jQuery.extend(window.terkait.rendering, {
             render : function() {
                 var $el = jQuery(this.el);
                 var renderer = window.terkait.rendering.selectRenderer(this.model);
+                
                 if (renderer !== undefined) {
                     // first clear the content
                     var labelElem = jQuery(".card-label", $el).empty();
@@ -471,8 +472,13 @@ jQuery.extend(window.terkait.rendering, {
 		return bdate;
 	},	
     
-    getLabel : function (entity) {
-    	return VIE.Util.extractLanguageString(entity, ["name", "rdfs:label"], window.terkait.settings.language);
+    getLabel : function (entity, shorten) {
+    	var str =  VIE.Util.extractLanguageString(entity, ["name", "rdfs:label"], window.terkait.settings.language);
+    	
+    	if (str.length > 21 && shorten) {
+    		str = str.substr(0,9) + "..." + str.substr(-9);
+    	}
+    	return str;
     },
     
     renderRecommendedContent: function (entity, panel) {
@@ -579,20 +585,12 @@ jQuery.extend(window.terkait.rendering, {
                         var id = "img_" + new Date().getTime();
                         
                         var thumb = 
-                        jQuery('<img src="' + obj.thumbnail + '" height="60px" width="auto"/>')
+                        jQuery('<img src="' + obj.thumbnail + '" height="56px" width="auto"/>')
                         .data("orig_image_url", obj.original)
                         .data("thumb_image_url", obj.thumbnail)
                         .data("orig_image_id", id)
                         .data("context_url", obj.context)
-                        .css({
-                            "display" : "inline",
-                            "margin-top" : "0px",
-                            "margin-left" : "0px",
-                            "margin-right" : "10px",
-                            "margin-bottom" : "10px",
-                            "box-shadow": "rgb(128, 128, 128) 5px 7px 6px",
-                            cursor: "pointer"
-                        })
+                        .addClass("terkait-image-item")
                         .mousemove(function(e) {
                         	var thumbUrl = jQuery(this).data("thumb_image_url");
                         	var url = jQuery(this).data("orig_image_url");
@@ -861,10 +859,10 @@ jQuery.extend(window.terkait.rendering, {
     _renderer : {
         'Continent' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderContinent(entity, div);
@@ -872,10 +870,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'Country' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderCountry(entity, div);
@@ -883,10 +881,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'State' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
             	window.terkait.rendering.renderState(entity, div);
@@ -894,10 +892,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'City' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderCity(entity, div);
@@ -905,10 +903,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'Place' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderPlace(entity, div);
@@ -916,10 +914,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'Person' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderPerson(entity, div);
@@ -927,10 +925,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'Artist' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderArtist(entity, div);
@@ -938,10 +936,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'Athlete' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderAthlete(entity, div);
@@ -949,10 +947,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'Politician' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderPolitician(entity, div);
@@ -960,10 +958,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'Scientist' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderScientist(entity, div);
@@ -971,10 +969,10 @@ jQuery.extend(window.terkait.rendering, {
         },
         'MilitaryPerson' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.rendering.renderRecommendedContent(entity, div)
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderMilitaryPerson(entity, div);
@@ -982,10 +980,10 @@ jQuery.extend(window.terkait.rendering, {
         }/*,
         'Thing' : {
             label : function (entity, div) {
-                div.text(window.terkait.rendering.getLabel(entity));
+                div.text(window.terkait.rendering.getLabel(entity, true));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div)
+                window.terkait.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
                 div.text("Thing");
