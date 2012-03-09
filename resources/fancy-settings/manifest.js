@@ -9,9 +9,9 @@ this.manifest = {
             "type": "radioButtons",
             "label": i18n.get("mode-label"),
             "options": [
-                        ["normal", "Normal"],
+                        ["normal", "Normal"]/*,
                         ["poweruser", "Power User"],
-                        ["annotate", "Annotate.js"]
+                        ["annotate", "Annotate.js"]*/
                     ]
         },
         {
@@ -23,7 +23,7 @@ this.manifest = {
             "text": "http://some-stanbol-url.org",
             "masked": false
         },
-        {
+        /*{
             "tab": i18n.get("information"),
             "group": i18n.get("services"),
             "name": "opencalais",
@@ -40,7 +40,7 @@ this.manifest = {
             "label": i18n.get("zemanta-key-label"),
             "text": "0123456789abcdefghijklmn",
             "masked": false
-        },
+        },*/
         {
             "tab": i18n.get("information"),
             "group": i18n.get("filter"),
@@ -55,7 +55,7 @@ this.manifest = {
             "type": "checkbox",
             "label": "Person"
         },
-        {
+        /*{
             "tab": i18n.get("information"),
             "group": i18n.get("filter"),
             "name": "filterCheckboxOrganization",
@@ -68,23 +68,24 @@ this.manifest = {
             "name": "filterCheckboxProduct",
             "type": "checkbox",
             "label": "Product"
-        },
+        },*/
         {
             "tab": i18n.get("information"),
             "group": i18n.get("max-entities"),
             "name": "maxEntities",
             "type": "slider",
             "min"  : 1,
-            "max"  : 10,
+            "max"  : 20,
             "step" : 1,
             "display" : true
         }
     ],
     "alignment": [
           [
-              "stanbol",
+              "stanbol"
+              /*,
               "opencalais",
-              "zemanta"
+              "zemanta"*/
           ]
       ]
 };

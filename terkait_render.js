@@ -37,7 +37,11 @@ jQuery.extend(window.terkait.rendering, {
                 .append(leftElem)
                 .append(rightElem);
                 
-                front.hover(function () {
+
+            	window.terkait.util.highlightEntityOccurrences(this.model);
+                
+                front
+                .hover(function () {
                 	$(this).find(".button").fadeIn(500);
                 }, function () {
                 	$(this).find(".button").fadeOut(500);
@@ -1040,18 +1044,35 @@ jQuery.extend(window.terkait.rendering, {
             });
         } else {
             $('.terkait-recommended-content-dialog').remove(); //remove old dialog
-            var $div = $('<div>');
             var $container = $('<div>').addClass("terkait-recommended-content-dialog")
-            .append($div).appendTo($('body')).hide();
+            .appendTo($('body')).hide();
             
-            renderer(entity, $div);
+            renderer(entity, $container);
             $container.css({
-                top: parent.offset().top,
+                top: parent.offset().top - jQuery('body').scrollTop(),
                 left: parent.offset().left
             }).animate({
                 left: (parent.offset().left - 330),
                 opacity: 'show'
             }, 'slow');
+            
+            //prevent document.body from scrolling when reaching end of container
+            $container.bind('mousewheel DOMMouseScroll', function(e) {
+                var scrollTo = null;
+
+                if (e.type == 'mousewheel') {
+                    scrollTo = (e.originalEvent.wheelDelta * -1);
+                }
+                else if (e.type == 'DOMMouseScroll') {
+                    scrollTo = 40 * e.originalEvent.detail;
+                }
+
+                if (scrollTo) {
+                    e.preventDefault();
+                    var current = $(this).children().first().scrollTop();
+                    $(this).children().first().scrollTop(scrollTo + current);
+                }
+            });
         }
         button.data('activated', !activated);
     },

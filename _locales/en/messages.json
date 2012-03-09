@@ -1,0 +1,11 @@
+{
+  "extDesc" : {
+    "message" : "terkait analyzes semantic objects on a webpage and presents related content."
+  },
+  "browserActDesc" : {
+    "message" : "Click to show/hide terkait."
+  },
+  "browserActDescDisabled" : {
+    "message" : "Sorry, this extension is not available for this type of webpage! Please try news pages."
+  }
+}

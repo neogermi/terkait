@@ -1,10 +1,10 @@
 <html>
-    
-<script type="text/javascript" src="resources/fancy-settings/lib/store.js"></script>
+  <head>  
+<script type="text/javascript" src="./resources/fancy-settings/lib/store.js"></script>
 <script type="text/javascript" src="./lib/vie-ALL-2.0.0_20120305122733.debug.js"></script>
 <script type="text/javascript" src="./lib/jquery.rdfquery.js"></script>
 
-<script>
+<script type="text/javascript">
 
 	var defaults = {
 		commonTypes : [ "Person", "Organization", "Product", "Place" ],
@@ -13,11 +13,21 @@
 		language : "en",
 		baseNamespace : "http://schema.org/",
 		schemaDefintion: "lib/schemaOrg/all.json",
-		stanbol: "http://dev.iks-project.eu/stanbolfull,http://dev.iks-project.eu:8081",
-		created: false
+		stanbol: "http://dev.iks-project.eu/stanbolfull,http://dev.iks-project.eu:8081"
 	};
 
     window.terkait = {
+    		
+    		checkForValidUrl : function (url) {
+    			var badWords = ["facebook", "twitter", "mail"]
+    			for (var b = 0; b < badWords.length; b++) {
+    				if (url.indexOf(badWords[n]) > -1)
+    					return false;
+    			}
+   			    return true;
+   			},
+    		
+    		created: false,
     		  
     		updateSettings : function () {
         		var sett = new Store("settings", defaults).toObject();
@@ -32,7 +42,6 @@
         			jQuery.merge(sett.filterTypes, ["Product"]);
         		
         		sett.filterTypes = _.uniq(sett.filterTypes);
-        		sett.created = (window.terkait.settings.created)? true : false;
         		window.terkait.settings = sett;
         	},
         	
@@ -48,7 +57,8 @@
               v.loadSchema(window.terkait.settings.schemaDefintion, {
                 baseNS : window.terkait.settings.baseNamespace,
                 success : function () {
-                    // assemble context menue
+                   /* TODO: version 1.1
+                   // assemble context menue
                     chrome.contextMenus.create({
                         type : "normal",
                         title : "Annotate as...",
@@ -73,6 +83,7 @@
                                 window.terkait.settings.commonTypes[i]).hierarchy();
                         window.terkait.appendType(null, type.id, type.subtypes);
                     }
+                	*/
                 }
               });
               return v;
@@ -106,29 +117,46 @@
         }
     });
 
+	chrome.tabs.onActiveChanged.addListener(function (tabId, changeInfo) {
+		chrome.tabs.get(tabId, function (tab) {
+			var isValid = window.terkait.checkForValidUrl(tab.url);
+			window.terkait.active = isValid;
+			if (!isValid) {
+				chrome.browserAction.setIcon({path: "icons/icon18_disabled.png"})
+				chrome.browserAction.setTitle(chrome.i18n.getMessage("browserActDescDisabled"));
+			} else {
+				chrome.browserAction.setIcon({path: "icons/icon18.png"})
+				chrome.browserAction.setTitle(chrome.i18n.getMessage("browserActDesc"));
+			}
+		});
+	});
+
     //React when a browser action's icon is clicked.
     chrome.browserAction.onClicked.addListener(function(tab) {
         chrome.tabs.getSelected(null, function(tab) {
-        	var destroy = window.terkait.settings.created;
+        	var active = window.terkait.active;
+        	var destroy = window.terkait.created;
         	
-            chrome.tabs.sendRequest(tab.id, {
-                action : (destroy)? "destroy" : "create"
-            }, function (response) {
-                if (!destroy && response.success) {
-                	window.terkait.settings.created = true;
-                    chrome.tabs.sendRequest(tab.id, {
-                        action : "recommend"
-                    }, function(response) {
-                        if (response.error) {
-                            console.log(response.error)
-                        }
-                    });
-                } else if (destroy) {
-                	window.terkait.settings.created = false;
-                } else if (response.error) {
-                    console.log(response.error)
-                }
-            });
+        	if (active) {
+            	chrome.tabs.sendRequest(tab.id, {
+	                action : (destroy)? "destroy" : "create"
+	            }, function (response) {
+	                if (!destroy && response.success) {
+	                	window.terkait.created = true;
+	                    chrome.tabs.sendRequest(tab.id, {
+	                        action : "recommend"
+	                    }, function(response) {
+	                        if (response.error) {
+	                            console.log(response.error)
+	                        }
+	                    });
+	                } else if (destroy) {
+	                	window.terkait.created = false;
+	                } else if (response.error) {
+	                    console.log(response.error)
+	                }
+	            });
+        	}
         });
     });
     
@@ -144,4 +172,6 @@
    	});
     
 </script>
+</head>
+<body></body>
 </html>

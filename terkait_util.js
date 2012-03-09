@@ -405,5 +405,9 @@ jQuery.extend(window.terkait.util, {
 		for (var e = 0; e < elems.length; e++) {
 			Hyphenator.hyphenate(elems[e], 'en');
 		}
+	},
+	
+	highlightEntityOccurrences: function (entity) {
+		
 	}
 });
