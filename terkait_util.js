@@ -336,6 +336,17 @@ jQuery.extend(window.terkait.util, {
 		return ((str.substring(0,1).search(/[aeiou]/i) == 0)? 'an ': 'a ') + str.charAt(0).toLowerCase() + str.slice(1);
 	},
 	
+	maxLenArr : function (arrs) {
+		var max = Number.MIN_VALUE;
+		for (var a = 0; a < arrs.length; a++) {
+			var len = arrs[a].length;
+			if (len > max) {
+				max = len;
+			}
+		}
+		return max;
+	},
+	
     rankEntity : function (entity) {
     	var eRank = (entity.has("entityhub:entityRank"))? entity.get("entityhub:entityRank") : 1.0;
     	//var score = (entity.has("entityhub2:score"))? entity.get("entityhub2:score") : 1.0;
@@ -345,6 +356,10 @@ jQuery.extend(window.terkait.util, {
 		numTAnnots = numTAnnots.length;
 		
 		var total = numTAnnots * eRank;
+		
+		if (entity.isof("Person"))
+			total *=  1.5;
+		
 		return total;
     },
 	

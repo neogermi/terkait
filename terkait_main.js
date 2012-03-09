@@ -101,8 +101,8 @@ jQuery.extend(window.terkait, {
 
                     if (scrollTo) {
                         e.preventDefault();
-                        var current = $(this).scrollTop();
-                        $(this).scrollTop(scrollTo + current);
+                        var current = jQuery(this).scrollTop();
+                        jQuery(this).scrollTop(scrollTo + current);
                     }
                 });
                 
@@ -159,17 +159,19 @@ jQuery.extend(window.terkait, {
     	}
         var doneCallback = function(entities) {
             window.terkait.util.updateActiveJobs(-1);
+            
             entities = (_.isArray(entities))? entities : [ entities ];
-        	
-        	entities.sort(function (a,b) {
+            
+            var sorted = entities;
+            sorted.sort(function (a,b) {
         		var totalA = window.terkait.util.rankEntity(a);
         		var totalB = window.terkait.util.rankEntity(b);
         		
         		return totalB - totalA;
     		});
-        	
-        	for (var e = 0; e < entities.length; e++) {
-        		var entity = entities[e];
+            
+        	for (var e = 0; e < sorted.length; e++) {
+        		var entity = sorted[e];
         		if (entity.has("terkaitRendered")) {
         			entity.trigger("rerender");
     			} else if (window.terkait.util.isEntityOfInterest(entity)) {
