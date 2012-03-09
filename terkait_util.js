@@ -399,4 +399,11 @@ jQuery.extend(window.terkait.util, {
 			}
 		);
 	},
+	
+	hyphenateElem : function (elem) {
+		var elems = jQuery(elem).get();
+		for (var e = 0; e < elems.length; e++) {
+			Hyphenator.hyphenate(elems[e], 'en');
+		}
+	}
 });

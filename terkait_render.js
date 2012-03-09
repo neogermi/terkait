@@ -6,12 +6,15 @@ window.terkait.rendering = {};
 
 jQuery.extend(window.terkait.rendering, {
     
-    createContentView : function(entity, parentEl) {
+    createContentView : function(entity, parentEl, unfold) {
         var ContentView = Backbone.View.extend({
+        	
+        	folded: true,
 
             className : "card-content",
 
             initialize : function() {
+            	this.folded = !unfold;
                 // bind the entitie's "rerender" event to a rerendering of the VIEW
                 this.model.bind("rerender", this.render, this);
 
@@ -60,6 +63,37 @@ jQuery.extend(window.terkait.rendering, {
 		            };
                 }(this));
                 
+                var foldButton = window.terkait.rendering.createFoldButton();
+                var $accord = $el.parents('.accordion').first();
+            	if (this.folded) {
+                	foldButton.css("-webkit-transform", "rotate(90deg)");
+                	$accord.css("height", "26px");
+                } else {
+                	foldButton.css("-webkit-transform", "rotate(270deg)");
+                	$accord.css("height", "222px");
+                }
+                foldButton
+                .hide()
+                .css({"position":"absolute", top: "0px", right: "0px"})
+                .appendTo(front)
+                .click(function (view) {
+                	return function () {
+                		var foldButton = jQuery(this);
+                		var $accord = jQuery(view.el).parents('.accordion').first();
+                		if (view.folded) {
+            				foldButton.css("-webkit-transform", "rotate(270deg)");
+                			$accord.animate({"height" : "222px"}, 500, function () {
+                        		view.folded = !view.folded;
+                    		});
+                		} else {
+            				foldButton.css("-webkit-transform", "rotate(90deg)");
+                			$accord.animate ({"height" : "26px"}, 500, function () {
+                        		view.folded = !view.folded;
+                    		});
+                		}
+		            };
+                }(this));
+                
                 /* TODO: editing will be available in v1.1
                 var editButton = window.terkait.rendering.createEditButton();
                 editButton
@@ -102,6 +136,7 @@ jQuery.extend(window.terkait.rendering, {
                     renderer["label"](this.model, labelElem);
                     renderer["left"](this.model, leftElem);
                     renderer["right"](this.model, rightElem);
+                    window.terkait.util.hyphenateElem(rightElem.find(".abstract"));
                     $el.parent().show();
                 } else {
                     console.log("no renderer found for entity", this.model);
@@ -122,6 +157,14 @@ jQuery.extend(window.terkait.rendering, {
 	          "background-image" : "url(" + chrome.extension.getURL("icons/check-false.png") + ")"
 	      });
 	  },
+	  
+	  createFoldButton : function () {
+		    return jQuery('<div>')
+		      .addClass('button')
+		      .css({
+		          "background-image" : "url(" + chrome.extension.getURL("icons/icon_play.png") + ")"
+		      });
+		  },
 	  
     createEditButton : function () {
       return jQuery('<div>')
@@ -149,11 +192,12 @@ jQuery.extend(window.terkait.rendering, {
     	opts = (opts) ? opts : {};
     	
         var accordionContainer = undefined;
+        var numEntitiesShown = 10000;
         // where to put it?
         if (opts.selector) {
         	accordionContainer = jQuery(opts.selector).parent('.accordion').first();
         } else {
-        	var numEntitiesShown = jQuery("#terkait-container .entities .accordion").size();
+        	numEntitiesShown = jQuery("#terkait-container .entities .accordion").size();
         	if (numEntitiesShown < window.terkait.settings.maxEntities) {
 	            accordionContainer = jQuery('<div>')
 	            .addClass("accordion")
@@ -165,7 +209,7 @@ jQuery.extend(window.terkait.rendering, {
         
         if (accordionContainer) {
 	        // create the VIEW on that entity
-	        this.createContentView(entity, accordionContainer);
+	        this.createContentView(entity, accordionContainer, (numEntitiesShown < 2));
         }
     },
     
