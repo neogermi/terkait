@@ -329,6 +329,14 @@ jQuery.extend(window.terkait.util, {
         return str.charAt(0).toUpperCase() + str.slice(1);
     },
     
+	decapitaliseFirstLetter : function(str) {
+        return str.charAt(0).toLowerCase() + str.slice(1);
+    },
+	
+	addIndefiniteArticle : function(str) {
+		return ((str.substring(0,1).search(/[aeiou]/i) == 0)? 'an ': 'a ') + str.charAt(0).toLowerCase() + str.slice(1);
+	},
+	
     rankEntity : function (entity) {
     	var eRank = (entity.has("entityhub:entityRank"))? entity.get("entityhub:entityRank") : 1.0;
     	//var score = (entity.has("entityhub2:score"))? entity.get("entityhub2:score") : 1.0;

@@ -207,54 +207,168 @@ jQuery.extend(window.terkait.rendering, {
         div.addClass("person");
         var img = window.terkait.rendering.renderDepiction(entity);
         var abs = jQuery('<div class="abstract">');
-		var bdate = window.terkait.rendering.renderBirthDate(entity);
+		var age = window.terkait.rendering.renderAge(entity);
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a person!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + " is a person.</div>"));
         
         div.append(abs);
     },
 	
 	renderArtist : function (entity, div) {
         div.addClass("artist");
-
+		var label = window.terkait.rendering.getLabel(entity);
         var img = window.terkait.rendering.renderDepiction(entity);
-        var bdate = window.terkait.rendering.renderBirthDate(entity);
-        var abs = jQuery('<div class="abstract">');
-        abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is an artist!</div>"));
+		var age = window.terkait.rendering.renderAge(entity);
+		var isLiving = !entity.has('dbpedia:deathDate');
+		var nat = VIE.Util.extractLanguageString(entity, ["dbprop:nationality"], window.terkait.settings.language);
+		var occupation = VIE.Util.extractLanguageString(entity, ["dbpedia:background","dbprop:occupation"], window.terkait.settings.language);
+		
+		if(occupation){
+			occupation = occupation.replace(/_/g, " ");
+			occupation = window.terkait.util.decapitaliseFirstLetter(occupation);
+		}
         
+		if(nat){
+			nat = window.terkait.util.addIndefiniteArticle(nat);
+		}
+		else{
+			nat = '';
+			occupation = occupation? window.terkait.util.addIndefiniteArticle(occupation): ' an artist';
+		}
+		
+		var genre = entity.get("dbprop:genre");
+		if(genre){
+			genre = jQuery.isArray(genre)? genre: [genre];
+			for(var i = 0; i < genre.length; i++){
+				var g = genre[i];
+				g = (VIE.Util.isUri(g))? g.substring(g.lastIndexOf("/")+1,g.length-1): g.replace(/["]/g, "").replace(/@[a-z]+/, '').trim();
+				g = g.replace(/_/gi, " ");
+				g = window.terkait.util.decapitaliseFirstLetter(g);
+				genre[i] = g;
+			}
+			genre = (genre.length>1)? genre.join(", "): genre[0];
+			genre = ', ' + (isLiving? 'working': 'worked') +' in genre: ' + genre;
+			
+		}
+		else{
+			genre = '';
+		}
+
+		var abs = jQuery('<div class="abstract">');
+        abs.append(img);
+		abs.append(jQuery("<div>" + label + " " + age + (isLiving? " is ": " was ") + nat + " " + occupation + genre + ".</div>"));
         div.append(abs);
     },
 
 	renderAthlete : function (entity, div) {
         div.addClass("athlete");
         var img = window.terkait.rendering.renderDepiction(entity);
-        var bdate = window.terkait.rendering.renderBirthDate(entity);
-        var abs = jQuery('<div class="abstract">');
+        var age = window.terkait.rendering.renderAge(entity);
+		var isLiving = !entity.has('dbpedia:deathDate');
+        var weight = entity.get('dbpedia:weight');
+		weight = (jQuery.isArray(weight))? weight[0]: weight;
+		var height = entity.get('dbpedia:height');
+		height = (jQuery.isArray(height))? height[0]: height;
+		var nat = VIE.Util.extractLanguageString(entity, ["dbprop:nationality"], window.terkait.settings.language);
+		var occupation = VIE.Util.extractLanguageString(entity, ["dbprop:occupation"], window.terkait.settings.language);
+		if(nat){
+			nat = window.terkait.util.addIndefiniteArticle(nat);
+		}
+		else{
+			nat = '';
+			occupation = occupation? window.terkait.util.addIndefiniteArticle(occupation): ' an athlete';
+		}
+
+		var country = entity.get('dbpedia:country');
+		country = (jQuery.isArray(country))? country[0]: country;
+		var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait._getLabel(entity) + " (born " + bdate + ") is an athlete!</div>"));
-        
-        div.append(abs);
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + (isLiving? " is ": " was ") + nat + occupation + ".</div>"));
+		div.append(abs);
+		if(weight){
+			div.append('Weight: ' + weight / 1000 + 'kg<br/>');
+		};
+		if(height){
+			div.append('Height: ' + height + 'm');
+		};
+		if(country && VIE.Util.isUri(country)){
+			window.terkait.util.dbpediaLoader(country, 
+        		function (e) {
+                    if (_.isArray(e) && e.length > 0 || e.isEntity)
+                        entity.trigger("rerender");
+		        }, 
+		        function (e) {
+		        	console.warn(e);
+		        });
+				div.append('Country: ' + jQuery('<span class="country">' + window.terkait.rendering.getLabel(country) + '</span>'));
+		};
     },
     
 	renderPolitician : function (entity, div) {
         div.addClass("politician");
         var img = window.terkait.rendering.renderDepiction(entity);
-        var bdate = window.terkait.rendering.renderBirthDate(entity);
-        var abs = jQuery('<div class="abstract">');
+        var age = window.terkait.rendering.renderAge(entity);
+		var isLiving = !entity.has('dbpedia:deathDate');
+		var nat = VIE.Util.extractLanguageString(entity, ["dbprop:nationality"], window.terkait.settings.language);
+		var occupation = VIE.Util.extractLanguageString(entity, ["dbprop:occupation"], window.terkait.settings.language);
+		if(occupation){
+			occupation = occupation.replace(/_/g, " ");
+			occupation = window.terkait.util.decapitaliseFirstLetter(occupation);
+		}
+		
+ 		if(nat){
+			nat = window.terkait.util.addIndefiniteArticle(nat);
+			occupation = occupation? (' ' + occupation): ' polititian';
+		}
+		else{
+			nat = '';
+			occupation = occupation? (' ' + window.terkait.util.addIndefiniteArticle(occupation)): ' a politician';
+		}
+
+        var party = entity.get('dbpedia:party');
+		party = (jQuery.isArray(party))? party[0]: party;
+		if(party){
+			window.terkait.util.dbpediaLoader(party, 
+        		function (e) {
+                    if (_.isArray(e) && e.length > 0 || e.isEntity)
+                        entity.trigger("rerender");
+		        }, 
+		        function (e) {
+		        	console.warn(e);
+		        });
+			party = ', affiliated with the <span class="party">' + window.terkait.rendering.getLabel(party) + '</span>';
+		}
+		else{
+			party = '';
+		};
+		var dpt = VIE.Util.extractLanguageString(entity, ["dbprop:department"], window.terkait.settings.language);
+		dpt = (jQuery.isArray(dpt))? (', working at ' + dpt[0].replace(/_/g, " ")): '';
+		var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a politician!</div>"));
-        
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + (isLiving? " is ": " was ") + nat + occupation + dpt + party + ".</div>"));
         div.append(abs);
     },
 	
 	renderScientist : function (entity, div) {
         div.addClass("scientist");
         var img = window.terkait.rendering.renderDepiction(entity);
-        var bdate = window.terkait.rendering.renderBirthDate(entity);
-        var abs = jQuery('<div class="abstract">');
+		var age = window.terkait.rendering.renderAge(entity);
+        var isLiving = !entity.has('dbpedia:deathDate');
+		var nat = VIE.Util.extractLanguageString(entity, ["dbprop:nationality"], window.terkait.settings.language);
+		var occupation = VIE.Util.extractLanguageString(entity, ["dbprop:occupation"], window.terkait.settings.language);
+		if(nat){
+			nat = window.terkait.util.addIndefiniteArticle(nat);
+			occupation = occupation? (' ' + occupation): ' scientist';
+		}
+		else{
+			nat = '';
+			occupation = occupation? (' ' + window.terkait.util.addIndefiniteArticle(occupation)): ' a scientist';
+		}
+		var institution = VIE.Util.extractLanguageString(entity, ["dbprop:workIntitutions","dbprop:workplaces"], window.terkait.settings.language);
+		institution = institution? (', ' + isLiving? 'working': 'worked' + 'at <span class = "institution">' + institution + "</span>"): '';
+		var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a scientist!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + (isLiving? " is ": " was ") + nat + occupation + institution + ".</div>"));
         
         div.append(abs);
     },
@@ -262,10 +376,36 @@ jQuery.extend(window.terkait.rendering, {
 	renderMilitaryPerson : function (entity, div) {
         div.addClass("militaryPerson");
         var img = window.terkait.rendering.renderDepiction(entity);
-        var bdate = window.terkait.rendering.renderBirthDate(entity);
-        var abs = jQuery('<div class="abstract">');
+        var age = window.terkait.rendering.renderAge(entity);
+        var isLiving = !entity.has('dbpedia:deathDate');
+		var nat = VIE.Util.extractLanguageString(entity, ["dbprop:nationality"], window.terkait.settings.language);
+		var occupation = VIE.Util.extractLanguageString(entity, ["dbprop:occupation"], window.terkait.settings.language);
+		if(nat){
+			nat = window.terkait.util.addIndefiniteArticle(nat);
+			occupation = occupation? (' ' + occupation): ' military person';
+		}
+		else{
+			nat = '';
+			occupation = occupation? (' ' + window.terkait.util.addIndefiniteArticle(occupation)): ' a military person';
+		}
+		var branch = entity.get('dbprop:branch');
+		if(branch){
+			branch = jQuery.isArray(branch)? branch: [branch];
+			for(var i = 0; i < branch.length; i++){
+				var bra = branch[i];
+				bra = (VIE.Util.isUri(bra))? bra.substring(bra.lastIndexOf("/")+1,bra.length-1): bra.replace(/["]/g, "").replace(/@[a-z]+/, '').trim();
+				bra = bra.replace(/_/gi, " ");
+				branch[i] = bra;
+			}
+			branch = (branch.length>1)? branch.join(", "): branch[0];
+			branch = ', staffed by ' + branch;
+		}
+		else{
+			branch = '';
+		}
+		var abs = jQuery('<div class="abstract">');
         abs.append(img);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " (born " + bdate + ") is a military person!</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + (isLiving? " is ": " was ") + nat + occupation + branch + ".</div>"));
         
         div.append(abs);
     },
@@ -464,12 +604,29 @@ jQuery.extend(window.terkait.rendering, {
         return res;
     },
 
-	renderBirthDate: function(entity){
+	renderAge: function(entity){
+		var res = '';
 		var bdate = entity.get('dbpedia:birthDate');
 		bdate = (jQuery.isArray(bdate))? bdate[0] : bdate;
 		bdate = bdate? new Date(bdate) : bdate;
+		var ddate = entity.get('dbpedia:deathDate');
+		ddate = (jQuery.isArray(ddate))? ddate[0] : ddate;
+		ddate = ddate? new Date(ddate) : ddate;
+		var age = (bdate && ddate)? 
+					Math.floor((ddate.getTime()-bdate.getTime())/1000/24/60/60/365) 
+					:(bdate? Math.floor(((new Date()).getTime()-bdate.getTime())/1000/24/60/60/365):'-');
 		bdate = bdate? window.terkait.util.formatDate(bdate,'dd.mm.yyyy') : bdate;
-		return bdate;
+		ddate = ddate? window.terkait.util.formatDate(ddate,'dd.mm.yyyy') : ddate;
+		if(bdate && ddate){
+			res = '('+bdate+'-'+ddate+', aged '+age+')';
+		}
+		else if(bdate){
+			res = '(born '+bdate+', age '+age+')';
+		}
+		else {
+			res = '-';
+		}
+		return res;
 	},	
     
     getLabel : function (entity, shorten) {
