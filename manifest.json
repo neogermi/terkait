@@ -27,7 +27,7 @@
       "matches": ["http://*/*", "https://*/*"],
       "css": ["terkait.css"],
       "js": [
-      	"lib/vie-ALL-2.0.0_20120305122733.debug.js",
+      	"lib/vie-ALL-2.0.0_20120309144600.js",
         "lib/jquery.rdfquery.js",
         "lib/jquery-ui-1.8.16.js",
       	"lib/vie.widget.image_search.js",

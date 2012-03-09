@@ -1,7 +1,7 @@
 <html>
   <head>  
 <script type="text/javascript" src="./resources/fancy-settings/lib/store.js"></script>
-<script type="text/javascript" src="./lib/vie-ALL-2.0.0_20120305122733.debug.js"></script>
+<script type="text/javascript" src="./lib/vie-ALL-2.0.0_20120309144600.js"></script>
 <script type="text/javascript" src="./lib/jquery.rdfquery.js"></script>
 
 <script type="text/javascript">
@@ -19,15 +19,16 @@
     window.terkait = {
     		
     		checkForValidUrl : function (url) {
-    			var badWords = ["facebook", "twitter", "mail"]
+    			var badWords = ["https", "facebook", "twitter", "mail"]
     			for (var b = 0; b < badWords.length; b++) {
-    				if (url.indexOf(badWords[n]) > -1)
+    				if (url.indexOf(badWords[b]) > -1)
     					return false;
     			}
    			    return true;
    			},
     		
     		created: false,
+    		active: true,
     		  
     		updateSettings : function () {
         		var sett = new Store("settings", defaults).toObject();
@@ -116,6 +117,21 @@
             }
         }
     });
+    
+    chrome.contextMenus.create({
+        type : "normal",
+        title : chrome.i18n.getMessage("analyzeMsg"),
+        contexts : [ "selection" ],
+        onclick : function(data, window) {
+            chrome.tabs.getSelected(null, function(tab) {
+                chrome.tabs.sendRequest(tab.id, {
+                    action : "analyzeSelection"
+                }, function (response) {
+                	terkait.created = true;
+	            });
+            });
+        }
+    });
 
 	chrome.tabs.onActiveChanged.addListener(function (tabId, changeInfo) {
 		chrome.tabs.get(tabId, function (tab) {
@@ -123,10 +139,10 @@
 			window.terkait.active = isValid;
 			if (!isValid) {
 				chrome.browserAction.setIcon({path: "icons/icon18_disabled.png"})
-				chrome.browserAction.setTitle(chrome.i18n.getMessage("browserActDescDisabled"));
+				chrome.browserAction.setTitle({title : chrome.i18n.getMessage("browserActDescDisabled")});
 			} else {
 				chrome.browserAction.setIcon({path: "icons/icon18.png"})
-				chrome.browserAction.setTitle(chrome.i18n.getMessage("browserActDesc"));
+				chrome.browserAction.setTitle({title : chrome.i18n.getMessage("browserActDesc")});
 			}
 		});
 	});
@@ -136,6 +152,7 @@
         chrome.tabs.getSelected(null, function(tab) {
         	var active = window.terkait.active;
         	var destroy = window.terkait.created;
+        	console.log("created", terkait.created, "active", terkait.active);
         	
         	if (active) {
             	chrome.tabs.sendRequest(tab.id, {

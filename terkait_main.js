@@ -67,6 +67,10 @@ jQuery.extend(window.terkait, {
 
     create : function() {
         try {
+        	window.terkait.vie.entities.each(function (e) {
+            	if (e.has("terkaitRendered"))
+        			e.unset("terkaitRendered");
+            });
             if (jQuery('#terkait-container').size() > 0) {
                 // clear former results!
                 jQuery('#terkait-container .entities')
@@ -140,16 +144,19 @@ jQuery.extend(window.terkait, {
         return true;
     },
 
-    recommend : function() {
-        var elems = jQuery(".terkait-toi");
-        elems = (elems.size > 0)? elems.removeClass("terkait-toi") : window.terkait.util.selectCOI();
-        elems.addClass("terkait-toi");
+    recommend : function(preselectedText) {
         var meta = jQuery('<span>');
-        elems.each(function() {
-            var text = jQuery(this).text();
-            meta.text(meta.text() + " " + text.replace(/"/g, '\\"'));
-        });
-        
+    	if (preselectedText) {
+    		meta.text(preselectedText);
+    	} else {
+	        var elems = jQuery(".terkait-toi");
+	        elems = (elems.size > 0)? elems.removeClass("terkait-toi") : window.terkait.util.selectCOI();
+	        elems.addClass("terkait-toi");
+	        elems.each(function() {
+	            var text = jQuery(this).text();
+	            meta.text(meta.text() + " " + text.replace(/"/g, '\\"'));
+	        });
+    	}
         var doneCallback = function(entities) {
             window.terkait.util.updateActiveJobs(-1);
             entities = (_.isArray(entities))? entities : [ entities ];
@@ -205,9 +212,7 @@ jQuery.extend(window.terkait, {
 	        });
         }
         
-        return {
-            foundElems : elems.size() > 0
-        };
+        return true;
     },
     
     

@@ -48,6 +48,20 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
                 error : e
             });
         }
+    } else if (request.action === "analyzeSelection") {
+    	var res = window.terkait.create();
+    	
+    	var rng = window.terkait.util.getRangeObject();
+        if (rng) {
+            rng.expand("word"); // expands to word boundaries
+            var text = rng.toString();
+            res &= window.terkait.recommend(text);
+        } else {
+        	res = false;
+        }
+    	sendResponse({
+            success : res
+        });
     } else if (request.action === "annotateSelectionAs") {
         var res = window.terkait.annotate(request["args"]["id"], sendResponse);
     } else {
