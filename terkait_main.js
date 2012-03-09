@@ -110,7 +110,7 @@ jQuery.extend(window.terkait, {
                 
                 var loadIndicator = jQuery('<div>')
                 .addClass("loader")
-                .attr("title", "There's some hardcore semantic analysis going on...")
+                .attr("title", chrome.i18n.getMessage("loaderMsg"))
                 .css({
                       "background-image" : "url(" + chrome.extension.getURL("icons/ajax-loader.gif") + ")"
                 })
@@ -213,11 +213,12 @@ jQuery.extend(window.terkait, {
         }
         
         return true;
-    },
+    }
+    /* TODO,
     
     
     ////////////////////////////////////////////////////////
-    /* TODO
+    
     instantiate : function(elem){
         jQuery(elem).annotate({
             vie: window.terkait.vie,
@@ -241,7 +242,7 @@ jQuery.extend(window.terkait, {
                 console.info('error event', event, ui);
             }
         });
-    },*/
+    },
     
     annotate : function(type, sendResponse) {
         var rng = window.terkait.util.getRangeObject();
@@ -290,6 +291,6 @@ jQuery.extend(window.terkait, {
             return false;
         }
 
-    }
+    }*/
     
 });

@@ -12,9 +12,6 @@ this.i18n = {
         "en": "No matches were found.",
         "de": "Keine Übereinstimmungen gefunden."
     },
-    
-    
-    
     "information": {
         "en": "Information",
         "de": "Information"

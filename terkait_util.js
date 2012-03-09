@@ -206,7 +206,6 @@ jQuery.extend(window.terkait.util, {
                 	var newEntity = new window.terkait.vie.Entity({"@subject" : ids[x]});
                 	window.terkait.util.unification(object, newEntity);
                 	entities.splice(i, 1, newEntity);
-                	console.log("replacing entity", object.getSubject(), "with", newEntity.getSubject());
                 }
             }
         }
@@ -282,7 +281,7 @@ jQuery.extend(window.terkait.util, {
         number = (_.isArray(number))? number[0] : number;
         
         if (number > 1000000000) {
-            return Math.floor(number / 1000000000) + " billion";
+            return Math.floor(number / 1000000000) + " billion"; // chrome.i18n.getMessage("billionUnit");
         }
         if (number > 1000000) {
             return Math.floor(number / 1000000) + " million";
@@ -405,9 +404,5 @@ jQuery.extend(window.terkait.util, {
 		for (var e = 0; e < elems.length; e++) {
 			Hyphenator.hyphenate(elems[e], 'en');
 		}
-	},
-	
-	highlightEntityOccurrences: function (entity) {
-		
 	}
 });

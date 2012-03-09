@@ -37,9 +37,6 @@ jQuery.extend(window.terkait.rendering, {
                 .append(leftElem)
                 .append(rightElem);
                 
-
-            	window.terkait.util.highlightEntityOccurrences(this.model);
-                
                 front
                 .hover(function () {
                 	$(this).find(".button").fadeIn(500);
@@ -159,7 +156,8 @@ jQuery.extend(window.terkait.rendering, {
 	      .addClass('button')
 	      .css({
 	          "background-image" : "url(" + chrome.extension.getURL("icons/check-false.png") + ")"
-	      });
+	      })
+	      .attr("title", chrome.i18n.getMessage("closeButtonMsg"));
 	  },
 	  
 	  createFoldButton : function () {
@@ -167,7 +165,8 @@ jQuery.extend(window.terkait.rendering, {
 		      .addClass('button')
 		      .css({
 		          "background-image" : "url(" + chrome.extension.getURL("icons/icon_play.png") + ")"
-		      });
+		      })
+		      .attr("title", chrome.i18n.getMessage("foldButtonMsg"));
 		  },
 	  
     createEditButton : function () {
@@ -692,6 +691,7 @@ jQuery.extend(window.terkait.rendering, {
         .css({
               "background-image" : "url(" + chrome.extension.getURL("icons/icon_images_sw.png") + ")"
         })
+        .attr("title", chrome.i18n.getMessage("imagesButtonMsg"))
         .hover(function () {
             var $this = $(this);
             $this
@@ -715,6 +715,7 @@ jQuery.extend(window.terkait.rendering, {
         .css({
               "background-image" : "url(" + chrome.extension.getURL("icons/icon_videos_sw.png") + ")"
         })
+        .attr("title", chrome.i18n.getMessage("videosButtonMsg"))
         .hover(function () {
             var $this = $(this);
             $this
@@ -738,6 +739,7 @@ jQuery.extend(window.terkait.rendering, {
         .css({
               "background-image" : "url(" + chrome.extension.getURL("icons/icon_news_sw.png") + ")"
         })
+        .attr("title", chrome.i18n.getMessage("newsButtonMsg"))
         .hover(function () {
             var $this = $(this);
             $this
@@ -970,7 +972,7 @@ jQuery.extend(window.terkait.rendering, {
         contentContainer
         .vieNewsSearch({
             vie    : window.terkait.vie,
-            bin_size: 5,
+            bin_size: 8,
             services : {
                 gnews : {
                     use: true,

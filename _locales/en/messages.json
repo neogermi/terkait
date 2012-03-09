@@ -10,5 +10,35 @@
   },
   "analyzeMsg" :  {
   	"message" : "Analyze..."
+  },
+  "loaderMsg" :  {
+  	"message" : "There's some hardcore semantic analysis going on..."
+  },
+  "closeButtonMsg" : {
+  	"message" : "Click to hide this card."
+  },
+  "foldButtonMsg" : {
+  	"message" : "Click to (un)fold this card."
+  },
+  "imagesButtonMsg" : {
+  	"message" : "Click to browse related images."
+  },
+  "videosButtonMsg" : {
+  	"message" : "Click to browse related videos."
+  },
+  "newsButtonMsg" : {
+  	"message" : "Click to browse related news articles."
+  },
+  "hundredUnit" : {
+  	"message" : "hundred"
+  },
+  "thousandUnit" : {
+  	"message" : "thousand"
+  },
+  "millionUnit" : {
+  	"message" : "million"
+  },
+  "billionUnit" : {
+  	"message" : "billion"
   }
 }

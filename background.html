@@ -19,7 +19,7 @@
     window.terkait = {
     		
     		checkForValidUrl : function (url) {
-    			var badWords = ["https", "facebook", "twitter", "mail"]
+    			var badWords = ["chrome://", "https", "facebook", "twitter", "mail"]
     			for (var b = 0; b < badWords.length; b++) {
     				if (url.indexOf(badWords[b]) > -1)
     					return false;
