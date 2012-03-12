@@ -36,7 +36,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     	window.terkait.create();
     	var rng = window.terkait.util.getRangeObject();
         if (rng) {
-            rng.expand("word"); // expands to word boundaries
+            rng.expand("sentence"); // expands to sentence boundaries
             var text = rng.toString();
             var res = window.terkait.recommend(text);
             sendResponse(res);

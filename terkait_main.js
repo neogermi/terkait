@@ -87,8 +87,10 @@ jQuery.extend(window.terkait, {
         .animate({
             "left" : "350px"
         }, 500, function () {
+        	jQuery('.terkait-recommended-content-dialog').remove();
         	jQuery('#terkait-wrapper').remove();
         });
+		return true;
 	},
 	
     create : function() {
@@ -97,12 +99,14 @@ jQuery.extend(window.terkait, {
     			e.unset("terkaitRendered");
         });
     	if (jQuery('#terkait-container').size() > 0) {
-    		jQuery('#terkait-container').empty();
+    		jQuery('.terkait-recommended-content-dialog').remove();
+    		jQuery('#terkait-container .terkait-entities').empty();
+    		return;
     	}
-	    var description = jQuery("<div class=\"description\">")
+	    var description = jQuery("<div class=\"terkait-description\">")
 	    	.html(chrome.i18n.getMessage("extDesc"));
         var entities = jQuery('<div>')
-            .addClass("entities")
+            .addClass("terkait-entities")
             .scroll(function () {
             	// remove content dialog when scrolling through entities
                 jQuery('.terkait-recommended-content-dialog').remove();
@@ -129,7 +133,7 @@ jQuery.extend(window.terkait, {
         var wrapper = jQuery('<div id="terkait-wrapper">').appendTo(jQuery('body'));
         
         var loadIndicator = jQuery('<div>')
-        .addClass("loader")
+        .addClass("terkait-loader")
         .attr("title", chrome.i18n.getMessage("loaderMsg"))
         .css({
               "background-image" : "url(" + chrome.extension.getURL("icons/ajax-loader.gif") + ")"
@@ -150,8 +154,11 @@ jQuery.extend(window.terkait, {
         var meta = jQuery('<span>');
     	if (preselectedText) {
     		preselectedText = preselectedText.trim();
-    		if (preselectedText.length === 0)
+    		if (preselectedText.length === 0) {
     			return { error: "empty text selection"};
+    		}
+			if (preselectedText.match(/\W$/) == null)
+				preselectedText += ".";
     		meta.text(preselectedText);
     	} else {
 	        var elems = jQuery(".terkait-toi");

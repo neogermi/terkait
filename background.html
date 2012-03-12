@@ -34,6 +34,7 @@
     		updateSettings : function () {
         		var sett = new Store("settings", defaults).toObject();
         		
+        		sett.filterTypes = [];
         		if (sett.filterCheckboxPlace)
         			jQuery.merge(sett.filterTypes, ["Place"]);
         		if (sett.filterCheckboxPerson)

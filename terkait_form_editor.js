@@ -8,7 +8,7 @@ jQuery.extend(window.terkait.formEditor, {
 	EntityView : Backbone.View.extend({
 	
 	    tagName : "div",
-	    className : "entity-editor",
+	    className : "terkait-entity-editor",
 	
 	    initialize : function() {
 	        this.model.bind("rerender", this.render, this);
@@ -44,7 +44,7 @@ jQuery.extend(window.terkait.formEditor, {
 	            //render the value
 	            var value = model.get(label); // this is one of: [collection,undefined,value,array]
 	            var isSimpleType = window.terkait.vie.types.get(attrType).isof("DataType");
-	            var bucket = (isSimpleType) ? $("<div>").addClass("widget-holder") : $el;
+	            var bucket = (isSimpleType) ? $("<div>").addClass("terkait-widget-holder") : $el;
 	            
 	            if (value) {
 	            	if (value.isCollection) {

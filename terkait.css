@@ -39,14 +39,14 @@
 	background-size: 100px;
 }
 
-#terkait-container .description {
+#terkait-container .terkait-description {
     font-size: 14px;
     font-style: italic;
     text-align:center;
     font-family: "Times New Roman";
 }
 
-#terkait-container .loader {
+#terkait-container .terkait-loader {
     width : 33px;
     height: 33px;
     position:absolute;
@@ -55,7 +55,7 @@
     right: 0px;
 }
 
-#terkait-container .entities {
+#terkait-container .terkait-entities {
 	background-color: transparent;
 	overflow-y: auto;
 	overflow-x: visible;
@@ -63,7 +63,7 @@
 	width:100%;
 }
 
-#terkait-container .accordion {
+#terkait-container .terkait-accordion {
     position:relative;
 	margin-top:10px;
 	-webkit-perspective: 1000;
@@ -74,7 +74,7 @@
 	border-radius: 10px;
 }
 
-#terkait-container .button {
+#terkait-container .terkait-button {
 	width: 24px;
 	height: 24px;
 	cursor:pointer;
@@ -84,18 +84,18 @@
 	z-index: 9999;
 }
 
-#terkait-container .card-label {
+#terkait-container .terkait-card-label {
 	height:28px;
 }
 
-#terkait-container .card-label .lbl {
+#terkait-container .terkait-card-label .terkait-lbl {
 	font-size:20px;
 	text-align:center;
 	overflow: hidden;
 	height:28px;
 }
 
-#terkait-container .card-content {
+#terkait-container .terkait-card-content {
 	height:100%;
 	clear: both;
 	overflow: hidden;
@@ -104,7 +104,7 @@
     -webkit-transition: -webkit-transform 1s;
 }
 
-#terkait-container .front {
+#terkait-container .terkait-front {
 	width: 100%;
 	height: 100%;
 	-webkit-backface-visibility: hidden;
@@ -112,7 +112,7 @@
 	overflow:hidden;
 }
 
-#terkait-container .back {
+#terkait-container .terkait-back {
 	display: block;
 	-webkit-transform: rotateY(180deg);
 	-webkit-box-sizing: border-box;
@@ -124,14 +124,14 @@
 	overflow-y:scroll;
 }
 
-#terkait-container .recommended-content {
+#terkait-container .terkait-recommended-content {
 	height: 194px;
 	width: 74px;
 	float: left;
 	overflow: hidden;
 }
 
-#terkait-container .recommended-icon {
+#terkait-container .terkait-recommended-icon {
     height: 64px;
     width: 64px;
     margin:0px;
@@ -151,7 +151,7 @@
 	overflow: hidden;
 }
 
-#terkait-container .entity-details {
+#terkait-container .terkait-entity-details {
 	height: 197px;
 	width: 206px;
 	display: block;
@@ -159,19 +159,19 @@
 	overflow:hidden;
 }
 
-#terkait-container .entity-details .abstract {
+#terkait-container .terkait-entity-details .terkait-abstract {
 	width: 100%;
 	font-style: italic;
 	font-size: 13px;
 }
 
-#terkait-container .entity-details .abstract a {
+#terkait-container .terkait-entity-details .terkait-abstract a {
 	font-style: italic;
 	font-size: 13px;
 	text-shadow: 1px 1px lightblue;
 }
 
-#terkait-container .entity-details .map_canvas {
+#terkait-container .terkait-entity-details .terkait-map_canvas {
 	height: 100px;
 	width: 100px;
 	float:right;
@@ -181,33 +181,33 @@
 	margin-right: 10px;
 }
 
-#terkait-container .entity-details .map_canvas a div {
+#terkait-container .terkait-entity-details .terkait-map_canvas a div {
 	height: 100px;
 	width: 100px;
 	border-radius: 5px 5px;
 }
 
-#terkait-container .link-to-slide {
+#terkait-container .terkait-link-to-slide {
 font:15px;
 text-decoration:underline;
 }
 
-#terkait-container .entity-details a {
+#terkait-container .terkait-entity-details a {
 }
 
 
-#terkait-container .entity-editor label {
+#terkait-container .terkait-entity-editor label {
 	margin-left: 5px;
 	font-size: 12px;
 	margin-bottom: 10px;
 }
 
-#terkait-container .entity-editor input {
+#terkait-container .terkait-entity-editor input {
 	float:left;
 	margin-left: 5px;
 }
 
-#terkait-container .entity-editor input[type=image] {
+#terkait-container .terkait-entity-editor input[type=image] {
 	background-color: red;
 	vertical-align: text-bottom;
 }

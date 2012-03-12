@@ -11,26 +11,22 @@ jQuery.extend(window.terkait.rendering, {
         	
         	folded: true,
 
-            className : "card-content",
-
+            className : "terkait-card-content",
+            
             initialize : function() {
             	this.folded = !unfold;
             	
             	this.foldAction = function (view) {
                 	return function () {
-                		var foldButton = jQuery(this);
-                		var $accord = jQuery(view.el).parents('.accordion').first();
+                		var foldButton = jQuery(view.el).find(".terkait-button.terkait-fold").first();
+                		var $accord = jQuery(view.el).parents('.terkait-accordion').first();
                 		if (view.folded) {
-                			if (foldButton.hasClass("button")) {
-                				foldButton.css("-webkit-transform", "rotate(270deg)");
-                			}
+                			foldButton.css("-webkit-transform", "rotate(270deg)");
                 			$accord.animate({"height" : "222px"}, 500, function () {
                         		view.folded = !view.folded;
                     		});
                 		} else {
-                			if (foldButton.hasClass("button")) {
-                    			foldButton.css("-webkit-transform", "rotate(90deg)");
-                			}
+                			foldButton.css("-webkit-transform", "rotate(90deg)");
                 			$accord.animate ({"height" : "26px"}, 500, function () {
                         		view.folded = !view.folded;
                     		});
@@ -41,14 +37,14 @@ jQuery.extend(window.terkait.rendering, {
                 // bind the entitie's "rerender" event to a rerendering of the VIEW
                 this.model.bind("rerender", this.render, this);
 
-                var front = jQuery("<div>").addClass("front");
-                var back = jQuery("<div>").addClass("back");
+                var front = jQuery("<div>").addClass("terkait-front");
+                var back = jQuery("<div>").addClass("terkait-back");
                 
-                var labelElem = jQuery("<div>").addClass("card-label")
+                var labelElem = jQuery("<div>").addClass("terkait-card-label")
                 .css({"cursor" : "pointer"})
                 .click(this.foldAction);
-                var leftElem = jQuery("<div>").addClass("recommended-content");
-                var rightElem = jQuery("<div>").addClass("entity-details");
+                var leftElem = jQuery("<div>").addClass("terkait-recommended-content");
+                var rightElem = jQuery("<div>").addClass("terkait-entity-details");
                 
                 var $el = jQuery(this.el);
                 
@@ -64,9 +60,9 @@ jQuery.extend(window.terkait.rendering, {
                 
                 front
                 .hover(function () {
-                	jQuery(this).find(".button").fadeIn(500);
+                	jQuery(this).find(".terkait-button").fadeIn(500);
                 }, function () {
-                	jQuery(this).find(".button").fadeOut(500);
+                	jQuery(this).find(".terkait-button").fadeOut(500);
                 });
                 
                 back
@@ -80,7 +76,7 @@ jQuery.extend(window.terkait.rendering, {
                 .appendTo(front)
                 .click(function (view) {
                 	return function () {
-                		var $accord = jQuery(view.el).parents('.accordion').first();
+                		var $accord = jQuery(view.el).parents('.terkait-accordion').first();
 		                $accord.slideUp(500, function () {
 			                view.remove();
 		                	jQuery(this).remove();
@@ -90,7 +86,7 @@ jQuery.extend(window.terkait.rendering, {
                 }(this));
                 
                 var foldButton = window.terkait.rendering.createFoldButton();
-                var $accord = $el.parents('.accordion').first();
+                var $accord = $el.parents('.terkait-accordion').first();
             	if (this.folded) {
                 	foldButton.css("-webkit-transform", "rotate(90deg)");
                 	$accord.css("height", "26px");
@@ -114,7 +110,7 @@ jQuery.extend(window.terkait.rendering, {
                 .click(function (view) {
                 	return function () {
                 		jQuery(view.el).css("-webkit-transform", "rotateY(-180deg)");
-                		jQuery(this).parent().find(".button").hide();
+                		jQuery(this).parent().find(".terkait-button").hide();
                 		
 		            };
                 }(this));
@@ -140,15 +136,19 @@ jQuery.extend(window.terkait.rendering, {
                 
                 if (renderer !== undefined) {
                     // first clear the content
-                    var labelElem = jQuery(".card-label", $el).empty();
-                    var leftElem = jQuery(".recommended-content", $el).empty();
-                    var rightElem = jQuery(".entity-details", $el).empty();
-                    
+                    var labelElem = jQuery(".terkait-card-label", $el).empty();
+                    var leftElem = jQuery(".terkait-recommended-content", $el).empty();
+                    var rightElem = jQuery(".terkait-entity-details", $el).empty();
+                    try {
                     renderer["label"](this.model, labelElem);
                     renderer["left"](this.model, leftElem);
                     renderer["right"](this.model, rightElem);
-                    window.terkait.util.hyphenateElem(rightElem.find(".abstract"));
+                    window.terkait.util.hyphenateElem(rightElem.find(".terkait-abstract"));
                     $el.parent().show();
+                    } catch (e) {
+                    	console.warn("Error during rendering", this.model);
+                        $el.parent().hide();
+                    }
                 } else {
                     console.log("no renderer found for entity", this.model);
                     $el.parent().hide();
@@ -163,7 +163,7 @@ jQuery.extend(window.terkait.rendering, {
 
     createCloseButton : function () {
 	    return jQuery('<div>')
-	      .addClass('button')
+	      .addClass('terkait-button')
 	      .css({
 	          "background-image" : "url(" + chrome.extension.getURL("icons/check-false.png") + ")"
 	      })
@@ -172,7 +172,8 @@ jQuery.extend(window.terkait.rendering, {
 	  
 	  createFoldButton : function () {
 		    return jQuery('<div>')
-		      .addClass('button')
+		      .addClass('terkait-button')
+		      .addClass('terkait-fold')
 		      .css({
 		          "background-image" : "url(" + chrome.extension.getURL("icons/icon_play.png") + ")"
 		      })
@@ -181,7 +182,7 @@ jQuery.extend(window.terkait.rendering, {
 	  
     createEditButton : function () {
       return jQuery('<div>')
-      .addClass('button')
+      .addClass('terkait-button')
         .css({
             "background-image" : "url(" + chrome.extension.getURL("icons/info.png") + ")"
         });
@@ -189,7 +190,7 @@ jQuery.extend(window.terkait.rendering, {
 	    
     createFinishEditButton : function () {
       return jQuery('<div>')
-      .addClass('button')
+      .addClass('terkait-button')
         .css({
             "background-image" : "url(" + chrome.extension.getURL("icons/check-true.png") + ")"
         });
@@ -208,14 +209,20 @@ jQuery.extend(window.terkait.rendering, {
         var numEntitiesShown = 10000;
         // where to put it?
         if (opts.selector) {
-        	accordionContainer = jQuery(opts.selector).parent('.accordion').first();
+        	accordionContainer = jQuery(opts.selector).parent('.terkait-accordion').first();
         } else {
-        	numEntitiesShown = jQuery("#terkait-container .entities .accordion").size();
+        	numEntitiesShown = jQuery("#terkait-container .terkait-entities .terkait-accordion")
+        	.filter(function () {
+        		var w = jQuery(this).width();
+        		var h = jQuery(this).height();
+        		var isHidden = jQuery(this).css("display") === "none";
+        		return w * h > 0 && !isHidden;
+        	}).size();
         	if (numEntitiesShown < window.terkait.settings.maxEntities) {
 	            accordionContainer = jQuery('<div>')
-	            .addClass("accordion")
+	            .addClass("terkait-accordion")
 	            .hide()
-	            .appendTo(jQuery('#terkait-container .entities'));
+	            .appendTo(jQuery('#terkait-container .terkait-entities'));
                 entity.set("terkaitRendered", true);
         	}
         }
@@ -261,9 +268,9 @@ jQuery.extend(window.terkait.rendering, {
     },
     
     renderPerson : function (entity, div) {
-        div.addClass("person");
+        div.addClass("terkait-person");
         var img = window.terkait.rendering.renderDepiction(entity);
-        var abs = jQuery('<div class="abstract">');
+        var abs = jQuery('<div class="terkait-abstract">');
 		var age = window.terkait.rendering.renderAge(entity);
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + " is a person.</div>"));
@@ -273,7 +280,7 @@ jQuery.extend(window.terkait.rendering, {
     },
 	
 	renderArtist : function (entity, div) {
-        div.addClass("artist");
+        div.addClass("terkait-artist");
 		var label = window.terkait.rendering.getLabel(entity);
         var img = window.terkait.rendering.renderDepiction(entity);
 		var age = window.terkait.rendering.renderAge(entity);
@@ -296,6 +303,7 @@ jQuery.extend(window.terkait.rendering, {
 		
 		var genre = entity.get("dbprop:genre");
 		if(genre){
+			genre = (genre.isCollection)? genre.at(0): genre;
 			genre = jQuery.isArray(genre)? genre: [genre];
 			for(var i = 0; i < genre.length; i++){
 				var g = genre[i];
@@ -312,21 +320,19 @@ jQuery.extend(window.terkait.rendering, {
 			genre = '';
 		}
 
-		var abs = jQuery('<div class="abstract">');
+		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
 		abs.append(jQuery("<div>" + label + " " + age + (isLiving? " is ": " was ") + nat + " " + occupation + genre + ".</div>"));
         div.append(abs);
     },
 
 	renderAthlete : function (entity, div) {
-        div.addClass("athlete");
+        div.addClass("terkait-athlete");
         var img = window.terkait.rendering.renderDepiction(entity);
         var age = window.terkait.rendering.renderAge(entity);
 		var isLiving = !entity.has('dbpedia:deathDate');
         var weight = entity.get('dbpedia:weight');
-		weight = (jQuery.isArray(weight))? weight[0]: weight;
 		var height = entity.get('dbpedia:height');
-		height = (jQuery.isArray(height))? height[0]: height;
 		var nat = VIE.Util.extractLanguageString(entity, ["dbprop:nationality"], window.terkait.settings.language);
 		var occupation = VIE.Util.extractLanguageString(entity, ["dbprop:occupation"], window.terkait.settings.language);
 		if(nat){
@@ -338,18 +344,23 @@ jQuery.extend(window.terkait.rendering, {
 		}
 
 		var country = entity.get('dbpedia:country');
-		country = (jQuery.isArray(country))? country[0]: country;
-		var abs = jQuery('<div class="abstract">');
+		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + (isLiving? " is ": " was ") + nat + occupation + ".</div>"));
 		div.append(abs);
 		if(weight){
-			div.append('Weight: ' + weight / 1000 + 'kg<br/>');
+	        weight = (weight.isCollection)? weight.at(0): weight;
+			weight = (jQuery.isArray(weight))? weight[0]: weight;
+			div.append('Weight: ' + weight / 1000 + ' kg<br/>');
 		};
 		if(height){
-			div.append('Height: ' + height + 'm');
+			height = (height.isCollection)? height.at(0): height;
+			height = (jQuery.isArray(height))? height[0]: height;
+			div.append('Height: ' + height + ' m');
 		};
-		if(country && VIE.Util.isUri(country)){
+		if(country){
+			country = (country.isCollection)? country.at(0): country;
+			country = (jQuery.isArray(country))? country[0]: country;
 			window.terkait.util.dbpediaLoader(country, 
         		function (e) {
                     if (_.isArray(e) && e.length > 0 || e.isEntity)
@@ -358,12 +369,12 @@ jQuery.extend(window.terkait.rendering, {
 		        function (e) {
 		        	console.warn(e);
 		        });
-				div.append('Country: ' + jQuery('<span class="country">' + window.terkait.rendering.getLabel(country) + '</span>'));
+				div.append('Country: ' + jQuery('<span class="terkait-country">' + window.terkait.rendering.getLabel(country) + '</span>'));
 		};
     },
     
 	renderPolitician : function (entity, div) {
-        div.addClass("politician");
+        div.addClass("terkait-politician");
         var img = window.terkait.rendering.renderDepiction(entity);
         var age = window.terkait.rendering.renderAge(entity);
 		var isLiving = !entity.has('dbpedia:deathDate');
@@ -384,8 +395,9 @@ jQuery.extend(window.terkait.rendering, {
 		}
 
         var party = entity.get('dbpedia:party');
-		party = (jQuery.isArray(party))? party[0]: party;
 		if(party){
+			party = (party.isCollection)? party.at(0): party;
+			party = (jQuery.isArray(party))? party[0]: party;
 			window.terkait.util.dbpediaLoader(party, 
         		function (e) {
                     if (_.isArray(e) && e.length > 0 || e.isEntity)
@@ -394,21 +406,21 @@ jQuery.extend(window.terkait.rendering, {
 		        function (e) {
 		        	console.warn(e);
 		        });
-			party = ', affiliated with the <span class="party">' + window.terkait.rendering.getLabel(party) + '</span>';
+			party = ', affiliated with the <span class="terkait-party">' + window.terkait.rendering.getLabel(party) + '</span>';
 		}
 		else{
 			party = '';
 		};
 		var dpt = VIE.Util.extractLanguageString(entity, ["dbprop:department"], window.terkait.settings.language);
 		dpt = (jQuery.isArray(dpt))? (', working at ' + dpt[0].replace(/_/g, " ")): '';
-		var abs = jQuery('<div class="abstract">');
+		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + (isLiving? " is ": " was ") + nat + occupation + dpt + party + ".</div>"));
         div.append(abs);
     },
 	
 	renderScientist : function (entity, div) {
-        div.addClass("scientist");
+        div.addClass("terkait-scientist");
         var img = window.terkait.rendering.renderDepiction(entity);
 		var age = window.terkait.rendering.renderAge(entity);
         var isLiving = !entity.has('dbpedia:deathDate');
@@ -423,8 +435,8 @@ jQuery.extend(window.terkait.rendering, {
 			occupation = occupation? (' ' + window.terkait.util.addIndefiniteArticle(occupation)): ' a scientist';
 		}
 		var institution = VIE.Util.extractLanguageString(entity, ["dbprop:workIntitutions","dbprop:workplaces"], window.terkait.settings.language);
-		institution = institution? (', ' + isLiving? 'working': 'worked' + 'at <span class = "institution">' + institution + "</span>"): '';
-		var abs = jQuery('<div class="abstract">');
+		institution = institution? (', ' + isLiving? 'working': 'worked' + 'at <span class = "terkait-institution">' + institution + "</span>"): '';
+		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + (isLiving? " is ": " was ") + nat + occupation + institution + ".</div>"));
         
@@ -432,7 +444,7 @@ jQuery.extend(window.terkait.rendering, {
     },
 	
 	renderMilitaryPerson : function (entity, div) {
-        div.addClass("militaryPerson");
+        div.addClass("terkait-militaryPerson");
         var img = window.terkait.rendering.renderDepiction(entity);
         var age = window.terkait.rendering.renderAge(entity);
         var isLiving = !entity.has('dbpedia:deathDate');
@@ -448,6 +460,7 @@ jQuery.extend(window.terkait.rendering, {
 		}
 		var branch = entity.get('dbprop:branch');
 		if(branch){
+			branch = (branch.isCollection)? branch.at(0): branch;
 			branch = jQuery.isArray(branch)? branch: [branch];
 			for(var i = 0; i < branch.length; i++){
 				var bra = branch[i];
@@ -461,7 +474,7 @@ jQuery.extend(window.terkait.rendering, {
 		else{
 			branch = '';
 		}
-		var abs = jQuery('<div class="abstract">');
+		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + (isLiving? " is ": " was ") + nat + occupation + branch + ".</div>"));
         
@@ -469,7 +482,7 @@ jQuery.extend(window.terkait.rendering, {
     },
 	
     renderCountry : function (entity, div) {
-        div.addClass("country");
+        div.addClass("terkait-country");
         var map = window.terkait.rendering.renderMap(entity);
         
         var capital = entity.get("dbprop:capital");
@@ -504,7 +517,7 @@ jQuery.extend(window.terkait.rendering, {
         	areaSentence = " and a total area of " + (window.terkait.util.humanReadable(area, 1000000)) + " km&sup2;";
         }
         
-        var abs = jQuery('<div class="abstract">');
+        var abs = jQuery('<div class="terkait-abstract">');
         abs.append(map);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + popSentence + areaSentence + "." + capSentence + "</div>"));
 
@@ -516,7 +529,7 @@ jQuery.extend(window.terkait.rendering, {
     },
     
     renderContinent : function (entity, div) {
-        div.addClass("continent");
+        div.addClass("terkait-continent");
         var map = window.terkait.rendering.renderMap(entity);
         
         var pop = entity.get("dbpedia:populationTotal");
@@ -537,7 +550,7 @@ jQuery.extend(window.terkait.rendering, {
         	countrSentence = " It comprises " + window.terkait.util.humanReadable(countr) + " countries.";
         }
         
-        var abs = jQuery('<div class="abstract">');
+        var abs = jQuery('<div class="terkait-abstract">');
         abs.append(map);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + popSentence + areaSentence + "." + countrSentence + "</div>"));
         
@@ -549,10 +562,10 @@ jQuery.extend(window.terkait.rendering, {
     },
     
     renderPlace : function (entity, div) {
-    	div.addClass("place");
+    	div.addClass("terkait-place");
         var map = window.terkait.rendering.renderMap(entity);
         
-        var abs = jQuery('<div class="abstract">');
+        var abs = jQuery('<div class="terkait-abstract">');
         abs.append(map);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a place.</div>"));
         abs.append(jQuery("<i> We don't know much about this place yet - but are currently querying semantic services to get more information.</i>"));
@@ -561,7 +574,7 @@ jQuery.extend(window.terkait.rendering, {
     },
     
     renderCity : function (entity, div) {
-        div.addClass("city");
+        div.addClass("terkait-city");
         var map = window.terkait.rendering.renderMap(entity);
         div.append(map);
         
@@ -592,7 +605,7 @@ jQuery.extend(window.terkait.rendering, {
         	popSentence = " with a population of " + window.terkait.util.humanReadable(pop);
         }
         
-        var abs = jQuery('<div class="abstract">');
+        var abs = jQuery('<div class="terkait-abstract">');
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a city" + countrySentence + popSentence + ".</div>"));
 
         if (!country && !pop) {
@@ -603,7 +616,7 @@ jQuery.extend(window.terkait.rendering, {
     },
     
     renderState : function (entity, div) {
-        div.addClass("state");
+        div.addClass("terkait-state");
         var map = window.terkait.rendering.renderMap(entity);
         
         var capital = entity.get("dbprop:capital");
@@ -674,7 +687,7 @@ jQuery.extend(window.terkait.rendering, {
         	areaSentence = " and a total area of " + (window.terkait.util.humanReadable(area, 1000000)) + " km&sup2;";
         }
         
-        var abs = jQuery('<div class="abstract">');
+        var abs = jQuery('<div class="terkait-abstract">');
         abs.append(map);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a state" + countrySentence + areaSentence + "." + capSentence + largestCitySentence + ".</div>"));
         
@@ -686,7 +699,7 @@ jQuery.extend(window.terkait.rendering, {
     },
         
     renderMap : function(entity) {
-        var res = jQuery('<div class="map_canvas"></div>');
+        var res = jQuery('<div class="terkait-map_canvas"></div>');
         var latitude = entity.get("geo:lat");
         var longitude = entity.get("geo:long");
         var label = window.terkait.rendering.getLabel(entity);
@@ -711,9 +724,26 @@ jQuery.extend(window.terkait.rendering, {
         	depict = (jQuery.isArray(depict))? depict[0] : depict;
         	depict = depict.replace(/[<>]/g, "");
         	res.attr("src", depict);
+        	res.attr("width", "100px");
+        	res.attr("height", "auto");
         	res.css({
         		"width" : "100px",
         		"height": "auto",
+        		"float" : "right",
+        		"box-shadow": "5px 7px 6px grey",
+        		"margin-left": "10px",
+        		"margin-bottom": "10px",
+        		"margin-right": "10px"
+        	})
+        	.error(function () {
+        		jQuery(this).removeAttr("src");
+        	});
+        } else {
+        	res.attr("width", "100px");
+        	res.attr("height", "150px");
+        	res.css({
+        		"width" : "100px",
+        		"height": "150px",
         		"float" : "right",
         		"box-shadow": "5px 7px 6px grey",
         		"margin-left": "10px",
@@ -760,7 +790,7 @@ jQuery.extend(window.terkait.rendering, {
     
     renderRecommendedContent: function (entity, panel) {
         
-        var images = jQuery('<div class="recommended-icon">')
+        var images = jQuery('<div class="terkait-recommended-icon">')
         .css({
               "background-image" : "url(" + chrome.extension.getURL("icons/icon_images_sw.png") + ")"
         })
@@ -780,11 +810,11 @@ jQuery.extend(window.terkait.rendering, {
         })
         .click(function () {
             var $this = jQuery(this);
-            var $parent = $this.parents('.accordion').first();
+            var $parent = $this.parents('.terkait-accordion').first();
             
             terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderImages, entity);
         });
-        var videos = jQuery('<div class="recommended-icon">')
+        var videos = jQuery('<div class="terkait-recommended-icon">')
         .css({
               "background-image" : "url(" + chrome.extension.getURL("icons/icon_videos_sw.png") + ")"
         })
@@ -804,11 +834,11 @@ jQuery.extend(window.terkait.rendering, {
         })
         .click(function () {
             var $this = jQuery(this);
-            var $parent = $this.parents('.accordion').first();
+            var $parent = $this.parents('.terkait-accordion').first();
             
             terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderVideos, entity);
         });
-        var news = jQuery('<div class="recommended-icon">')
+        var news = jQuery('<div class="terkait-recommended-icon">')
         .css({
               "background-image" : "url(" + chrome.extension.getURL("icons/icon_news_sw.png") + ")"
         })
@@ -828,7 +858,7 @@ jQuery.extend(window.terkait.rendering, {
         })
         .click(function () {
             var $this = jQuery(this);
-            var $parent = $this.parents('.accordion').first();
+            var $parent = $this.parents('.terkait-accordion').first();
             
             terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderNews, entity);
         });
@@ -956,7 +986,7 @@ jQuery.extend(window.terkait.rendering, {
             lang_id : "en",
             bin_size: 4,
             services : {
-                gvideo : {
+                youtube : {
                     use: true
                 }
             },
@@ -966,66 +996,59 @@ jQuery.extend(window.terkait.rendering, {
                 var $elem = jQuery(self.element);
                 $elem.empty();
 
-                var original = data.original.responseData;
                 var objects = data.objects;
+                if (objects.length > 0) {
+	                //render the first video large
+	                console.log(objects[0].original);
+	                var vid = jQuery('<iframe>')
+	                .attr({
+	                    "width":"213",
+	                    "height":"160",
+	                    "frameborder" : 0,
+	                    "wmode" : "opaque",
+	                    "src" : "http://www.youtube.com/embed/" + objects[0].id + "?wmode=transparent"})
+	                .css({
+	                    "display" : "inline",
+	                    "margin-top" : "0px",
+	                    "margin-left" : "0px",
+	                    "margin-right" : "10px",
+	                    "margin-bottom" : "10px",
+	                    "float" : "left"
+	                });
+	                $elem.append(vid);
                 
-                //render the first video large
-                var vid = jQuery('<object>')
-                .attr({
-                    "width":"213",
-                    "height":"160"})
-                .css({
-                    "display" : "inline",
-                    "margin-top" : "0px",
-                    "margin-left" : "0px",
-                    "margin-right" : "10px",
-                    "margin-bottom" : "10px",
-                    "float" : "left"
-                })
-                .append(jQuery('<param>')
-                    .attr({
-                        "name":"movie",
-                        "value":objects[0].original.replace("/embed/", "/v/") + "&rel=0"
-                    }))
-                .append(jQuery('<param name="wmode" value="opaque" />'))
-                .append(jQuery('<embed>')
-                    .attr({
-                        "type"   : "application/x-shockwave-flash",
-                        "src"    : objects[0].original.replace("/embed/", "/v/") + "&rel=0",
-                        "width"  : "213",
-                        "height" : "160",
-                        "wmode"  : "opaque"
-                    })
-                    .css({
-                        "box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
-                    }));
-                $elem.append(vid);
-                
-                
-                // render all others as previews
-                for (var o = 1; o < original.results.length; o++) {
-                    var obj = original.results[o];
-                    
-                    var thumb = jQuery("<img>")
-                    .attr("src", obj.tbUrl).attr("height", 55).attr("width", "auto")
-                    .css({
-                    	"float": "right",
-                    	"display" : "block",
-                    	"margin-bottom": "10px",
-                    	"box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
-                    });
-                    
-                    var anchor = jQuery("<a>")
-                    .attr("href", obj.url)
-                    .attr("target", "_blank")
-                    .attr("title", obj.titleNoFormatting);
-                    
-                    $elem.append(anchor.append(thumb));
+	                // render all others as previews
+	                for (var o = 1; o < objects.length; o++) {
+	                    var obj = objects[o];
+	                    
+	                    var thumb = jQuery("<img>")
+	                    .attr("src", obj.thumbnail).attr("height", 55).attr("width", "auto")
+	                    .css({
+	                    	"float": "right",
+	                    	"display" : "block",
+	                    	"margin-bottom": "10px",
+	                    	"box-shadow": "rgb(128, 128, 128) 5px 7px 6px"
+	                    });
+	                    
+	                    var anchor = jQuery("<a>")
+	                    .attr("href", obj.original)
+	                    .attr("target", "_blank")
+	                    .attr("title", obj.title);
+	                    
+	                    $elem.append(anchor.append(thumb));
+	                }
+	                
+	                //add title of large video
+	                var title = jQuery("<div>")
+	                .css("max-width", "213px")
+	                .css("float", "left")
+	                .addClass("terkait-news-item-title")
+	                .text(objects[0].title);
+	                $elem.append(title);
+                } else {
+                	var name = VIE.Util.extractLanguageString(entity, ["rdfs:label", "name"], ["en"]);
+                    $elem.append("Sorry, no videos have been found that were related" + ((name)? (" to " + name) : "") + ".");
                 }
-                
-                //add title of large video
-                var title = jQuery("<div>").css("max-width", "213px").css("float", "left").addClass("terkait-news-item-title").text(original.results[0].titleNoFormatting);
-                $elem.append(title);
                 
                 // clear the container element
                 return this;
@@ -1165,7 +1188,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1183,9 +1206,9 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "position": "absolute",
 		          		    "left": "24px",
 		          		    "top": "5px",
-          		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
+          		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_country.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1205,7 +1228,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1225,7 +1248,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1245,7 +1268,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1265,7 +1288,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1285,7 +1308,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1305,7 +1328,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1323,9 +1346,9 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "position": "absolute",
 		          		    "left": "24px",
 		          		    "top": "5px",
-          		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
+          		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_politics.gif") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1345,7 +1368,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
@@ -1365,7 +1388,7 @@ jQuery.extend(window.terkait.rendering, {
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+                div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
