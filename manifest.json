@@ -20,7 +20,6 @@
 
   "background_page": "background.html",
   
-  //TODO: "content_security_policy": "default-src 'self' ",
   "content_scripts": [
     {
       "run_at" : "document_start",
@@ -49,7 +48,7 @@
   "permissions": [
     "contextMenus", "tabs", "http://*/*", "https://*/*"
   ],
-  "homepage_url": "http://github.com/neogermi/terkait",
+  "homepage_url": "https://chrome.google.com/webstore/detail/jdfdjaijjmmidgflabhapjfhcgdiijpb",
   "minimum_chrome_version": "15.0",
   "offline_enabled": false
 }
