@@ -26,49 +26,32 @@ jQuery.extend(window.terkait.communication, {
 });
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-	if (request.action === "create") {
-        var res = window.terkait.create();
-        sendResponse({
-            success : res
-        });
-    } else if (request.action === "destroy") {
-        var res = window.terkait.destroy();
-        sendResponse({
-            success : res
-        });
+	if (request.action === "createOrDestroy") {
+        var res = window.terkait.createOrDestroy();
+        sendResponse(res);
     } else if (request.action === "recommend") {
-        try {
-            var res = window.terkait.recommend();
-            sendResponse({
-                result : res,
-                success : true
-            });
-        } catch (e) {
-            sendResponse({
-                error : e
-            });
-        }
+        var res = window.terkait.recommend();
+        sendResponse(res);
     } else if (request.action === "analyzeSelection") {
-    	var res = window.terkait.create();
-    	
+    	window.terkait.create();
     	var rng = window.terkait.util.getRangeObject();
         if (rng) {
             rng.expand("word"); // expands to word boundaries
             var text = rng.toString();
-            res &= window.terkait.recommend(text);
+            var res = window.terkait.recommend(text);
+            sendResponse(res);
         } else {
-        	res = false;
+        	sendResponse({
+                error : "No Range could be found!"
+            });
         }
-    	sendResponse({
-            success : res
-        });
     } else if (request.action === "annotateSelectionAs") {
         var res = window.terkait.annotate(request["args"]["id"], sendResponse);
+        sendResponse(res);
     } else {
         sendResponse({
             error : "unknown request!" + request
         });
-        console.log("unknown request", request);
     }
 });
 

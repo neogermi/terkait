@@ -20,7 +20,7 @@ this.manifest = {
             "name": "stanbol",
             "type": "text",
             "label": "Apache Stanbol URL(s)",
-            "text": "http://some-stanbol-url.org",
+            "text": "http://dev.iks-project.eu/stanbolfull",
             "masked": false
         },
         /*{
@@ -46,23 +46,23 @@ this.manifest = {
             "group": i18n.get("filter"),
             "name": "filterCheckboxPlace",
             "type": "checkbox",
-            "label": "Place"
+            "label": i18n.get("places")
         },
         {
             "tab": i18n.get("information"),
             "group": i18n.get("filter"),
             "name": "filterCheckboxPerson",
             "type": "checkbox",
-            "label": "Person"
+            "label": i18n.get("persons")
         },
-        /*{
+        {
             "tab": i18n.get("information"),
             "group": i18n.get("filter"),
             "name": "filterCheckboxOrganization",
             "type": "checkbox",
             "label": "Organziation"
         },
-        {
+        /*{
             "tab": i18n.get("information"),
             "group": i18n.get("filter"),
             "name": "filterCheckboxProduct",
@@ -78,6 +78,13 @@ this.manifest = {
             "max"  : 20,
             "step" : 1,
             "display" : true
+        },
+        {
+            "tab": i18n.get("security"),
+            "group": i18n.get("allowOnHttps"),
+            "name": "allowOnHttps",
+            "type": "checkbox",
+            "label": i18n.get("allow")
         }
     ],
     "alignment": [

@@ -15,13 +15,38 @@ jQuery.extend(window.terkait.rendering, {
 
             initialize : function() {
             	this.folded = !unfold;
+            	
+            	this.foldAction = function (view) {
+                	return function () {
+                		var foldButton = jQuery(this);
+                		var $accord = jQuery(view.el).parents('.accordion').first();
+                		if (view.folded) {
+                			if (foldButton.hasClass("button")) {
+                				foldButton.css("-webkit-transform", "rotate(270deg)");
+                			}
+                			$accord.animate({"height" : "222px"}, 500, function () {
+                        		view.folded = !view.folded;
+                    		});
+                		} else {
+                			if (foldButton.hasClass("button")) {
+                    			foldButton.css("-webkit-transform", "rotate(90deg)");
+                			}
+                			$accord.animate ({"height" : "26px"}, 500, function () {
+                        		view.folded = !view.folded;
+                    		});
+                		}
+		            };
+                }(this);
+            	
                 // bind the entitie's "rerender" event to a rerendering of the VIEW
                 this.model.bind("rerender", this.render, this);
 
                 var front = jQuery("<div>").addClass("front");
                 var back = jQuery("<div>").addClass("back");
                 
-                var labelElem = jQuery("<div>").addClass("card-label");
+                var labelElem = jQuery("<div>").addClass("card-label")
+                .css({"cursor" : "pointer"})
+                .click(this.foldAction);
                 var leftElem = jQuery("<div>").addClass("recommended-content");
                 var rightElem = jQuery("<div>").addClass("entity-details");
                 
@@ -73,27 +98,12 @@ jQuery.extend(window.terkait.rendering, {
                 	foldButton.css("-webkit-transform", "rotate(270deg)");
                 	$accord.css("height", "222px");
                 }
+            	            	
                 foldButton
                 .hide()
                 .css({"position":"absolute", top: "0px", right: "0px"})
                 .appendTo(front)
-                .click(function (view) {
-                	return function () {
-                		var foldButton = jQuery(this);
-                		var $accord = jQuery(view.el).parents('.accordion').first();
-                		if (view.folded) {
-            				foldButton.css("-webkit-transform", "rotate(270deg)");
-                			$accord.animate({"height" : "222px"}, 500, function () {
-                        		view.folded = !view.folded;
-                    		});
-                		} else {
-            				foldButton.css("-webkit-transform", "rotate(90deg)");
-                			$accord.animate ({"height" : "26px"}, 500, function () {
-                        		view.folded = !view.folded;
-                    		});
-                		}
-		            };
-                }(this));
+                .click(this.foldAction);
                 
                 /* TODO: editing will be available in v1.1
                 var editButton = window.terkait.rendering.createEditButton();
@@ -139,7 +149,6 @@ jQuery.extend(window.terkait.rendering, {
                     renderer["right"](this.model, rightElem);
                     window.terkait.util.hyphenateElem(rightElem.find(".abstract"));
                     $el.parent().show();
-            		console.log(this.model.getSubject(), window.terkait.util.rankEntity(this.model));
                 } else {
                     console.log("no renderer found for entity", this.model);
                     $el.parent().hide();
@@ -213,7 +222,7 @@ jQuery.extend(window.terkait.rendering, {
         
         if (accordionContainer) {
 	        // create the VIEW on that entity
-	        this.createContentView(entity, accordionContainer, (numEntitiesShown < 2));
+	        this.createContentView(entity, accordionContainer, (numEntitiesShown < 1));
         }
     },
     
@@ -258,6 +267,7 @@ jQuery.extend(window.terkait.rendering, {
 		var age = window.terkait.rendering.renderAge(entity);
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " " + age + " is a person.</div>"));
+        abs.append(jQuery("<i> We don't know much about this person yet - but are currently querying semantic services to get more information.</i>"));
         
         div.append(abs);
     },
@@ -466,6 +476,7 @@ jQuery.extend(window.terkait.rendering, {
         var capSentence = "";
         if (capital) {
 	        capital = (capital.isCollection)? capital.at(0) : capital;
+	        capital = (_.isArray(capital))? capital[0] : capital;
 	        window.terkait.util.dbpediaLoader(capital, 
 	        		function (e) {
 	        			if (_.isArray(e) && e.length > 0 || e.isEntity)
@@ -474,16 +485,32 @@ jQuery.extend(window.terkait.rendering, {
 			        function (e) {
 			        	console.warn(e);
 			        });
-	        capSentence = " It's capital is <a href=\"" + capital.getSubject().replace(/[<>]/g, "") + "\">" + 
-	        			  window.terkait.rendering.getLabel(capital) + "</a>.";
 	        
+	        var lbl = window.terkait.rendering.getLabel(capital);
+	        if (lbl) {
+	        	capSentence = " It's capital is " + lbl + ".";
+	        }
+        }
+        
+        var pop = entity.get("dbpedia:populationTotal");
+        var popSentence = " is a country";
+        if (pop) {
+        	popSentence = " with a population of " + window.terkait.util.humanReadable(pop);
+        }
+        
+        var area = entity.get("dbpedia:areaTotal");
+        var areaSentence = "";
+        if (area) {
+        	areaSentence = " and a total area of " + (window.terkait.util.humanReadable(area, 1000000)) + " km&sup2;";
         }
         
         var abs = jQuery('<div class="abstract">');
         abs.append(map);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a country with a population of " + 
-        window.terkait.util.humanReadable(entity.get("dbpedia:populationTotal")) + 
-        "." + capSentence + "</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + popSentence + areaSentence + "." + capSentence + "</div>"));
+
+        if (!pop && !area && !capital) {
+        	abs.append(jQuery("<i> We don't know much about this country yet - but are currently querying semantic services to get more information.</i>"));
+    	}
         
         div.append(abs);
     },
@@ -491,14 +518,33 @@ jQuery.extend(window.terkait.rendering, {
     renderContinent : function (entity, div) {
         div.addClass("continent");
         var map = window.terkait.rendering.renderMap(entity);
-        div.append(map);
+        
+        var pop = entity.get("dbpedia:populationTotal");
+        var popSentence = " is a continent";
+        if (pop) {
+        	popSentence = " with a population of " + window.terkait.util.humanReadable(pop);
+        }
+        
+        var area = entity.get("dbpedia:areaTotal");
+        var areaSentence = "";
+        if (area) {
+        	areaSentence = " and a total area of " + (window.terkait.util.humanReadable(area, 1000000)) + " km&sup2;";
+        }
+        
+        var countr = entity.get("dbprop:countries");
+        var countrSentence = "";
+        if (countr) {
+        	countrSentence = " It comprises " + window.terkait.util.humanReadable(countr) + " countries.";
+        }
         
         var abs = jQuery('<div class="abstract">');
-        abs.html(window.terkait.rendering.getLabel(entity) + " is a continent with an area of " + 
-        window.terkait.util.humanReadable(parseInt(entity.get("dbpedia:areaTotal")) / 1000000) + " km&sup2; and a population of " + 
-        window.terkait.util.humanReadable(entity.get("dbpedia:populationTotal")) + 
-        ". It comprises " + entity.get("dbprop:countries") + " countries.");
+        abs.append(map);
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + popSentence + areaSentence + "." + countrSentence + "</div>"));
         
+        if (!pop && !area && !countr) {
+        	abs.append(jQuery("<i> We don't know much about this continent yet - but are currently querying semantic services to get more information.</i>"));
+    	}
+                
         div.append(abs);
     },
     
@@ -509,6 +555,7 @@ jQuery.extend(window.terkait.rendering, {
         var abs = jQuery('<div class="abstract">');
         abs.append(map);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a place.</div>"));
+        abs.append(jQuery("<i> We don't know much about this place yet - but are currently querying semantic services to get more information.</i>"));
         
         div.append(abs);
     },
@@ -520,23 +567,38 @@ jQuery.extend(window.terkait.rendering, {
         
         //collect information from connected entities!
         var country = entity.get("dbpedia:country");
-        country = (country && country.isCollection)? country.at(0) : country;
-        window.terkait.util.dbpediaLoader(country, 
-        		function (e) {
-                    if (_.isArray(e) && e.length > 0 || e.isEntity)
-                        entity.trigger("rerender");
-		        }, 
-		        function (e) {
-		        	console.warn(e);
-		        });
+        var countrySentence = "";
+        if (country) {
+            country = (country.isCollection)? country.at(0) : country;
+            country = (_.isArray(country))? country[0] : country;
+            window.terkait.util.dbpediaLoader(country, 
+            		function (e) {
+                        if (_.isArray(e) && e.length > 0 || e.isEntity)
+                            entity.trigger("rerender");
+    		        }, 
+    		        function (e) {
+    		        	console.warn(e);
+    		        });
+            
+            var lbl = window.terkait.rendering.getLabel(country);
+            if (lbl) {            
+            	countrySentence = " in " + lbl;
+            }
+        }
         
-        var population = entity.get("dbpedia:populationTotal");
+        var pop = entity.get("dbpedia:populationTotal");
+        var popSentence = "";
+        if (pop) {
+        	popSentence = " with a population of " + window.terkait.util.humanReadable(pop);
+        }
         
         var abs = jQuery('<div class="abstract">');
-        abs.html(window.terkait.rendering.getLabel(entity) + " is a city in " +
-        window.terkait.rendering.getLabel(country) + " with a population of " + 
-        window.terkait.util.humanReadable(population) + ".");
-        
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a city" + countrySentence + popSentence + ".</div>"));
+
+        if (!country && !pop) {
+        	abs.append(jQuery("<i> We don't know much about this city yet - but are currently querying semantic services to get more information.</i>"));
+    	}
+                
         div.append(abs);
     },
     
@@ -544,75 +606,85 @@ jQuery.extend(window.terkait.rendering, {
         div.addClass("state");
         var map = window.terkait.rendering.renderMap(entity);
         
-        //collect information from connected entities!
-        var country = entity.get("dbpedia:country");
-        country = (country.isCollection)? country.at(0) : country;
-        country = (_.isArray(country))? country[0] : country;
-        window.terkait.util.dbpediaLoader(country, 
-        		function (e) {
-        		    if (_.isArray(e) && e.length > 0 || e.isEntity)
-                        entity.trigger("rerender");
-		        }, 
-		        function (e) {
-		        	console.warn(e);
-		        });
-
         var capital = entity.get("dbprop:capital");
-        capital = (capital.isCollection)? capital.at(0) : capital;
-        capital = (_.isArray(capital))? capital[0] : capital;
-        window.terkait.util.dbpediaLoader(capital, 
-        		function (e) {
-                    if (_.isArray(e) && e.length > 0 || e.isEntity)
-                        entity.trigger("rerender");
-		        }, 
-		        function (e) {
-		        	console.warn(e);
-		        });
-        
-        var largestCity = entity.get("dbpedia:largestCity");
-        var capitalSent = ".";
-        if (largestCity) {
-	        largestCity = (largestCity.isCollection)? largestCity.at(0) : largestCity;
-	        window.terkait.util.dbpediaLoader(largestCity, 
+        var capSentence = "";
+        if (capital) {
+	        capital = (capital.isCollection)? capital.at(0) : capital;
+	        capital = (_.isArray(capital))? capital[0] : capital;
+	        window.terkait.util.dbpediaLoader(capital, 
 	        		function (e) {
-                        if (_.isArray(e) && e.length > 0 || e.isEntity)
-                            entity.trigger("rerender");
+	        			if (_.isArray(e) && e.length > 0 || e.isEntity)
+	        				entity.trigger("rerender");
 			        }, 
 			        function (e) {
 			        	console.warn(e);
 			        });
-	        if (largestCity.getSubject() === capital.getSubject()) {
-	        	capitalSent = " which is also the largest city.";
-	        } else {
-	        	capitalSent = " which is <b>not</b> the largest city.";
-        	}
+	        
+	        var lbl = window.terkait.rendering.getLabel(capital);
+	        if (lbl) {
+	        	capSentence = " It's capital is " + lbl;
+	        }
         }
-
+        
+          var largestCity = entity.get("dbpedia:largestCity");
+	      var largestCitySentence = "";
+	      if (largestCity) {
+		        largestCity = (largestCity.isCollection)? largestCity.at(0) : largestCity;
+		        largestCity = (_.isArray(largestCity))? largestCity[0] : largestCity;
+		        window.terkait.util.dbpediaLoader(largestCity, 
+		        		function (e) {
+	                      if (_.isArray(e) && e.length > 0 || e.isEntity)
+	                          entity.trigger("rerender");
+				        }, 
+				        function (e) {
+				        	console.warn(e);
+				        });
+		        if (largestCity.isEntity && capital.isEntity) {
+		        	if (largestCity.getSubject() === capital.getSubject()) {
+		        		capitalSent = " which is also the largest city";
+		        	} else {
+			        	capitalSent = " which is <b>not</b> the largest city";
+		        	}
+		        }
+	      }
+        
+        var country = entity.get("dbpedia:country");
+        var countrySentence = "";
+        if (country) {
+            country = (country.isCollection)? country.at(0) : country;
+            country = (_.isArray(country))? country[0] : country;
+            window.terkait.util.dbpediaLoader(country, 
+            		function (e) {
+                        if (_.isArray(e) && e.length > 0 || e.isEntity)
+                            entity.trigger("rerender");
+    		        }, 
+    		        function (e) {
+    		        	console.warn(e);
+    		        });
+            
+            var lbl = window.terkait.rendering.getLabel(country);
+            if (lbl) {            
+            	countrySentence = " in " + lbl;
+            }
+        }
+        
         var area = entity.get("dbpedia:areaTotal");
+        var areaSentence = "";
+        if (area) {
+        	areaSentence = " and a total area of " + (window.terkait.util.humanReadable(area, 1000000)) + " km&sup2;";
+        }
         
         var abs = jQuery('<div class="abstract">');
         abs.append(map);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a state in " +
-        window.terkait.rendering.getLabel(country) + " with a total area of " + 
-        window.terkait.util.humanReadable(parseInt(area) / 1000000) + " km&sup2;. It's capital is " +
-        window.terkait.rendering.getLabel(capital) +
-        capitalSent + "</div>"));
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is a state" + countrySentence + areaSentence + "." + capSentence + largestCitySentence + ".</div>"));
+        
+        if (!country && !area && !capital) {
+        	abs.append(jQuery("<i> We don't know much about this state yet - but are currently querying semantic services to get more information.</i>"));
+    	}
         
         div.append(abs);
     },
-          
-    _renderLinkWikiPage: function(entity) {
-        var range = entity.get("foaf:page");
-        if($.isArray(range)){
-        range = range[0];
-        }
-        var rangeSt = new String(range.id);
-        rangeSt = rangeSt.replace(/</i,'').replace(/>/i,'');    
-        var prop = jQuery('<p>find out <a target="_blank" href="'+rangeSt+'">MORE</a><br>in Wikipedia</p>');
-    
-        return prop;
-    },
-    
+        
     renderMap : function(entity) {
         var res = jQuery('<div class="map_canvas"></div>');
         var latitude = entity.get("geo:lat");
@@ -680,7 +752,7 @@ jQuery.extend(window.terkait.rendering, {
     getLabel : function (entity, shorten) {
     	var str =  VIE.Util.extractLanguageString(entity, ["name", "rdfs:label"], window.terkait.settings.language);
     	
-    	if (shorten && str.length > shorten) {
+    	if (str && shorten && str.length > shorten) {
     		str = str.substr(0,(shorten/2 - 1)) + "..." + str.substr((shorten/2 - 1) * -1);
     	}
     	return str;

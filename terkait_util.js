@@ -88,7 +88,7 @@ jQuery.extend(window.terkait.util, {
             //filter for dbpedia entities only!
             if (entity && 
                 ((typeof entity === "string" && entity.indexOf("http://dbpedia") >= 0) || 
-                 (!entity.has("DBPediaServiceLoad") && entity.getSubject().indexOf("http://dbpedia") >= 0)))
+                 (entity.isEntity && !entity.has("DBPediaServiceLoad") && entity.getSubject().indexOf("http://dbpedia") >= 0)))
                 queryEntities.push(entity);
         }
     	
@@ -277,8 +277,15 @@ jQuery.extend(window.terkait.util, {
 		return zoom;
 	},
     
-    humanReadable : function (number) {
+    humanReadable : function (number, divider) {
+        number = (number.isCollection)? number.at(0) : number;
         number = (_.isArray(number))? number[0] : number;
+        
+        number = parseInt(number);
+        
+        divider = (divider)? divider : 1;
+        
+        number = number / divider;
         
         if (number > 1000000000) {
             return Math.floor(number / 1000000000) + " billion"; // chrome.i18n.getMessage("billionUnit");

@@ -43,5 +43,21 @@ this.i18n = {
     "max-entities": {
         "en": "Max no. of entities to show",
         "de": "Maximale Anzahl Entitäten"
+    },
+    "places": {
+        "en": "Places",
+        "de": "Plätze"
+    },
+    "persons": {
+        "en": "Persons",
+        "de": "Personen"
+    },
+    "allowOnHttps": {
+        "en": "allow terkait to work on pages with HTTPS connection",
+        "de": "terkait erlauben auf verschlüsselten Verbindungen zu arbeiten"
+    },
+    "allow": {
+        "en": "allow",
+        "de": "erlauben"
     }
 };

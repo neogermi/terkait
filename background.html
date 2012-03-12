@@ -9,6 +9,7 @@
 	var defaults = {
 		commonTypes : [ "Person", "Organization", "Product", "Place" ],
 		filterTypes : [],
+		allowOnHttps : false,
 		maxEntities : 5,
 		language : "en",
 		baseNamespace : "http://schema.org/",
@@ -19,17 +20,17 @@
     window.terkait = {
     		
     		checkForValidUrl : function (url) {
-    			var badWords = ["chrome://", "https", "facebook", "twitter", "mail"]
+    			var badWords = ["chrome://"]
     			for (var b = 0; b < badWords.length; b++) {
     				if (url.indexOf(badWords[b]) > -1)
     					return false;
     			}
+    			if (!window.terkait.settings.allowOnHttps) {
+    				return url.indexOf("https") === -1;
+    			}
    			    return true;
    			},
-    		
-    		created: false,
-    		active: true,
-    		  
+
     		updateSettings : function () {
         		var sett = new Store("settings", defaults).toObject();
         		
@@ -102,6 +103,12 @@
                             chrome.tabs.sendRequest(tab.id, {
                                 action : "annotateSelectionAs",
                                 args : { id : id }
+                            }, function (response) {
+                            	if (response.success) {
+                            		
+                            	} else if (response.error) {
+            	                    console.log(response.error)
+            	                }
                             });
                         });
                     };
@@ -127,52 +134,41 @@
                 chrome.tabs.sendRequest(tab.id, {
                     action : "analyzeSelection"
                 }, function (response) {
-                	terkait.created = true;
+                	if (response.success) {
+                		
+                	} else if (response.error) {
+	                    console.log(response.error);
+	                }
 	            });
             });
         }
     });
 
-	chrome.tabs.onActiveChanged.addListener(function (tabId, changeInfo) {
-		chrome.tabs.get(tabId, function (tab) {
-			var isValid = window.terkait.checkForValidUrl(tab.url);
-			window.terkait.active = isValid;
-			if (!isValid) {
-				chrome.browserAction.setIcon({path: "icons/icon18_disabled.png"})
-				chrome.browserAction.setTitle({title : chrome.i18n.getMessage("browserActDescDisabled")});
-			} else {
-				chrome.browserAction.setIcon({path: "icons/icon18.png"})
-				chrome.browserAction.setTitle({title : chrome.i18n.getMessage("browserActDesc")});
-			}
-		});
-	});
-
     //React when a browser action's icon is clicked.
     chrome.browserAction.onClicked.addListener(function(tab) {
         chrome.tabs.getSelected(null, function(tab) {
-        	var active = window.terkait.active;
-        	var destroy = window.terkait.created;
-        	console.log("created", terkait.created, "active", terkait.active);
         	
-        	if (active) {
+        	if (window.terkait.checkForValidUrl(tab.url)) {
             	chrome.tabs.sendRequest(tab.id, {
-	                action : (destroy)? "destroy" : "create"
+	                action : "createOrDestroy"
 	            }, function (response) {
-	                if (!destroy && response.success) {
-	                	window.terkait.created = true;
+	                if (response.success === "created") {
 	                    chrome.tabs.sendRequest(tab.id, {
 	                        action : "recommend"
 	                    }, function(response) {
-	                        if (response.error) {
-	                            console.log(response.error)
+	                    	if (response.success) {
+	                    		
+	                    	} else if (response.error) {
+	                            console.log(response.error);
 	                        }
 	                    });
-	                } else if (destroy) {
-	                	window.terkait.created = false;
 	                } else if (response.error) {
-	                    console.log(response.error)
+	                    console.log(response.error);
 	                }
 	            });
+        	} else {
+        		//TODO show popup!
+        		console.log(tab.url);
         	}
         });
     });

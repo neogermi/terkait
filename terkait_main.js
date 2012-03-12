@@ -65,88 +65,93 @@ jQuery.extend(window.terkait, {
     	}
 	},
 
-    create : function() {
-        try {
-        	window.terkait.vie.entities.each(function (e) {
-            	if (e.has("terkaitRendered"))
-        			e.unset("terkaitRendered");
-            });
-            if (jQuery('#terkait-container').size() > 0) {
-                // clear former results!
-                jQuery('#terkait-container .entities')
-                .empty();
-                jQuery('#terkait-container')
-                .animate({
-                    "left" : "0px"
-                }, 250);
-            } else {
-                var description = jQuery("<div class=\"description\">\"" + chrome.i18n.getMessage("extDesc") + "\"</div>");
-                var entities = jQuery('<div>')
-                    .addClass("entities")
-                    .scroll(function () {
-                    	// remove content dialog when scrolling through entities
-                        jQuery('.terkait-recommended-content-dialog').remove();
-                    });
-                
-                //prevent document.body from scrolling when reaching end of container
-                entities.bind('mousewheel DOMMouseScroll', function(e) {
-                    var scrollTo = null;
-
-                    if (e.type == 'mousewheel') {
-                        scrollTo = (e.originalEvent.wheelDelta * -1);
-                    }
-                    else if (e.type == 'DOMMouseScroll') {
-                        scrollTo = 40 * e.originalEvent.detail;
-                    }
-
-                    if (scrollTo) {
-                        e.preventDefault();
-                        var current = jQuery(this).scrollTop();
-                        jQuery(this).scrollTop(scrollTo + current);
-                    }
-                });
-                
-                var wrapper = jQuery('<div id="terkait-wrapper">').appendTo(jQuery('body'));
-                
-                var loadIndicator = jQuery('<div>')
-                .addClass("loader")
-                .attr("title", chrome.i18n.getMessage("loaderMsg"))
-                .css({
-                      "background-image" : "url(" + chrome.extension.getURL("icons/ajax-loader.gif") + ")"
-                })
-                .hide();
-                
-                jQuery('<div id="terkait-container">')
-                .css({
-                      "background-image" : "url(" + chrome.extension.getURL("icons/terkait_transparent.png") + ")"
-                })
-                .append(description)
-                .append(loadIndicator)
-                .append(entities)
-                .appendTo(wrapper);
-            }
-        } catch (e) {
-        	console.error(e);
-            return false;
-        }
-        return true;
-    },
-
-    destroy : function() {
-        jQuery('#terkait-container')
+	createOrDestroy : function () {
+		
+		if (jQuery('#terkait-container').size() > 0) {
+			if (window.terkait.destroy()) {
+				return {success : "destroyed"};
+			} else 
+				return {error: "could not be destroyed!"};
+		} else {
+			try {
+				window.terkait.create();
+				return {success : "created"};
+	        } catch (e) {
+	        	return {error: e.toString()};
+	        }
+		}
+	},
+	
+	destroy : function () {
+		jQuery('#terkait-container')
         .animate({
             "left" : "350px"
-        }, 500);
-        window.terkait.vie.entities.each(function (e) {
+        }, 500, function () {
+        	jQuery('#terkait-wrapper').remove();
+        });
+	},
+	
+    create : function() {
+    	window.terkait.vie.entities.each(function (e) {
         	if (e.has("terkaitRendered"))
     			e.unset("terkaitRendered");
         });
-        return true;
+    	if (jQuery('#terkait-container').size() > 0) {
+    		jQuery('#terkait-container').empty();
+    	}
+	    var description = jQuery("<div class=\"description\">")
+	    	.html(chrome.i18n.getMessage("extDesc"));
+        var entities = jQuery('<div>')
+            .addClass("entities")
+            .scroll(function () {
+            	// remove content dialog when scrolling through entities
+                jQuery('.terkait-recommended-content-dialog').remove();
+            });
+        
+        //prevent document.body from scrolling when reaching end of container
+        entities.bind('mousewheel DOMMouseScroll', function(e) {
+            var scrollTo = null;
+
+            if (e.type == 'mousewheel') {
+                scrollTo = (e.originalEvent.wheelDelta * -1);
+            }
+            else if (e.type == 'DOMMouseScroll') {
+                scrollTo = 40 * e.originalEvent.detail;
+            }
+
+            if (scrollTo) {
+                e.preventDefault();
+                var current = jQuery(this).scrollTop();
+                jQuery(this).scrollTop(scrollTo + current);
+            }
+        });
+        
+        var wrapper = jQuery('<div id="terkait-wrapper">').appendTo(jQuery('body'));
+        
+        var loadIndicator = jQuery('<div>')
+        .addClass("loader")
+        .attr("title", chrome.i18n.getMessage("loaderMsg"))
+        .css({
+              "background-image" : "url(" + chrome.extension.getURL("icons/ajax-loader.gif") + ")"
+        })
+        .hide();
+        
+        jQuery('<div id="terkait-container">')
+        .css({
+              "background-image" : "url(" + chrome.extension.getURL("icons/terkait_transparent.png") + ")"
+        })
+        .append(description)
+        .append(loadIndicator)
+        .append(entities)
+        .appendTo(wrapper);
     },
 
     recommend : function(preselectedText) {
         var meta = jQuery('<span>');
     	if (preselectedText) {
+    		preselectedText = preselectedText.trim();
+    		if (preselectedText.length === 0)
+    			return { error: "empty text selection"};
     		meta.text(preselectedText);
     	} else {
 	        var elems = jQuery(".terkait-toi");
@@ -214,7 +219,7 @@ jQuery.extend(window.terkait, {
 	        });
         }
         
-        return true;
+        return {success : "recommended"};
     }
     /* TODO,
     
