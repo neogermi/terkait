@@ -11,10 +11,10 @@ jQuery.extend(window.terkait.util, {
 		window.terkait.util.active_jobs += i;
 		if (window.terkait.util.active_jobs <= 0) {
 			window.terkait.util.active_jobs = 0;
-			jQuery('#terkait-container .loader')
+			jQuery('#terkait-container .terkait-loader')
 	        .hide();
 		} else {
-			jQuery('#terkait-container .loader')
+			jQuery('#terkait-container .terkait-loader')
 	        .show();
 		}
 	},

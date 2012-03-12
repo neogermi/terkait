@@ -9,12 +9,15 @@
 	var defaults = {
 		commonTypes : [ "Person", "Organization", "Product", "Place" ],
 		filterTypes : [],
+		filterCheckboxPlace : true,
+		filterCheckboxPerson : true,
 		allowOnHttps : false,
 		maxEntities : 5,
+		modeRadioButtons : "normal",
 		language : "en",
 		baseNamespace : "http://schema.org/",
 		schemaDefintion: "lib/schemaOrg/all.json",
-		stanbol: "http://dev.iks-project.eu/stanbolfull,http://dev.iks-project.eu:8081"
+		stanbol: "http://dev.iks-project.eu/stanbolfull"
 	};
 
     window.terkait = {
@@ -33,7 +36,8 @@
 
     		updateSettings : function () {
         		var sett = new Store("settings", defaults).toObject();
-        		
+
+        		sett.filterTypes = [];
         		if (sett.filterCheckboxPlace)
         			jQuery.merge(sett.filterTypes, ["Place"]);
         		if (sett.filterCheckboxPerson)
