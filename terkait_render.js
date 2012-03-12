@@ -684,7 +684,73 @@ jQuery.extend(window.terkait.rendering, {
         
         div.append(abs);
     },
+    
+	renderOrganization : function (entity, div) {
+    	div.addClass("organization");
+        //var map = window.terkait.rendering.renderMap(entity);
+		var img = window.terkait.rendering.renderDepiction(entity);
+		var orgType = entity.get("dbpedia:type");
+		var orgTypeSentence = '';
+		if (orgType) {
+            orgType = (orgType.isCollection)? orgType.at(0) : orgType;
+            orgType = (_.isArray(orgType))? orgType[0] : orgType;
+            window.terkait.util.dbpediaLoader(orgType, 
+            		function (e) {
+                        if (_.isArray(e) && e.length > 0 || e.isEntity)
+                            entity.trigger("rerender");
+    		        }, 
+    		        function (e) {
+    		        	console.warn(e);
+    		        });
+            
+            var lbl = window.terkait.rendering.getLabel(orgType);
+            if (lbl) {            
+            	orgTypeSentence = lbl;
+            }
+        }
+		orgTypeSentence = (orgTypeSentence && orgTypeSentence != '')? window.terkait.util.addIndefiniteArticle(orgTypeSentence): ' an organization';
+        var location = entity.get("dbpedia:location");
+		var locationSentence = '';
+		if (location) {
+            location = (location.isCollection)? location.at(0) : location;
+            location = (_.isArray(location))? location[0] : location;
+            window.terkait.util.dbpediaLoader(location, 
+            		function (e) {
+                        if (_.isArray(e) && e.length > 0 || e.isEntity)
+                            entity.trigger("rerender");
+    		        }, 
+    		        function (e) {
+    		        	console.warn(e);
+    		        });
+            
+            var lbl = window.terkait.rendering.getLabel(location);
+            if (lbl) {            
+            	locationSentence = ', located in <span class = "place">' + lbl + '</span>';
+            }
+        }
+		var industry = (entity.has("dbpedia:industry"))? entity.get("dbpedia:industry"): VIE.Util.extractLanguageString(entity, ["dbpedia:industry","dpprop: industry"], window.terkait.settings.language);
+		if(industry){
+			industry = jQuery.isArray(industry)? industry: [industry];
+			for(var i = 0; i < industry.length; i++){
+				var g = industry[i];
+				g = (VIE.Util.isUri(g))? g.substring(g.lastIndexOf("/")+1,g.length-1): g.replace(/["]/g, "").replace(/@[a-z]+/, '').trim();
+				g = g.replace(/_/gi, " ");
+				g = window.terkait.util.decapitaliseFirstLetter(g);
+				industry[i] = g;
+			}
+			industry = ", it operates in " + ((industry.length>1)? industry.join(", ") + " industries": industry[0] + " industry");
+		};
+		industry = (industry)? industry: "";
+		var revenue = VIE.Util.extractLanguageString(entity, ["dbprop:revenue"], window.terkait.settings.language);
+		revenue = (revenue)? window.terkait.util.decapitaliseFirstLetter(revenue): revenue;
+		revenue = (revenue)? ", it's revenue is " + revenue: "";
+		var abs = jQuery('<div class="abstract">');
+        abs.append(img);
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgTypeSentence + locationSentence + industry + revenue + ".</div>"));
         
+        div.append(abs);
+    },
+    
     renderMap : function(entity) {
         var res = jQuery('<div class="map_canvas"></div>');
         var latitude = entity.get("geo:lat");
@@ -1372,6 +1438,26 @@ jQuery.extend(window.terkait.rendering, {
             },
             right : function (entity, div) {
                 window.terkait.rendering.renderMilitaryPerson(entity, div);
+            }
+        },
+        'Organization' : {
+            label : function (entity, div) {
+            	div.append(jQuery('<div>')
+          		      .css({
+	          		    	"width": "16px",
+		          		    "height": "16px",
+		          		    "position": "absolute",
+		          		    "left": "24px",
+		          		    "top": "5px"//,
+          		            //"background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
+          		      }));
+                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+            },
+            left : function (entity, div) {
+                window.terkait.rendering.renderRecommendedContent(entity, div);
+            },
+            right : function (entity, div) {
+                window.terkait.rendering.renderOrganization(entity, div);
             }
         }/*,
         'Thing' : {
