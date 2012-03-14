@@ -1,0 +1,34 @@
+terkait uses semantic services to analyze the content on your webpage in order to present related content, e.g., images, videos or news articles to you. By default, the top 5 relevant entities that have been extracted are shown and filtered for persons and places which can be configured through the options pane.
+
+In the current version, terkait works best on english news articles and english webpages that deal with politics, sports and topics about music. However, we are currently working to broaden the field of application of terkait and make it more useful for you.
+
+## Attention ##
+terkait never sends information to any services without your permission. This means that it only starts to send content to services after you have pressed the icon in the browser - or triggered the analysis via the context menu of selected text. By default, the content from secure webpages (https://..) is never send to the backend service. This can also be configured via the options menu.
+
+## Acknowledgements ##
+
+- This work is supported by the European Union’s 7th Framework Programme under grant agreement FP7-ICT-2007-3/ No. 231527 (IKS).
+- **VIE** 
+    -- http://viejs.org -- 
+    All semantic correspondance and interactions are developed using VIE.
+- **Apache Stanbol** 
+    -- http://incubator.apache.org/stanbol/ --
+    The analysis for semantic entities is done using a server installation of Apache Stanbol. See the options page to configure your own Stanbol endpoint.
+- **DBPedia** 
+    -- http://dbpedia.org --
+    If an entity is found, the semantic database DBPedia is queried to provide detailled information to be processed further. 
+- **Fancy-Settings** 
+    -- https://github.com/frankkohlhepp/fancy-settings --
+    The options page is built using Fancy-Settings 
+- Hyphenator.js 
+    -- http://code.google.com/p/hyphenator/ --
+    Hyphenator.js is used to produce a better looking text-output.
+
+## Release Notes ##
+
+Version [1.2]: 
+ - [ADD] Basic rendering for organisations.
+ - [FIX] CSS to overlay all other elements (mostly advertisements).
+Version [1.1]: 
+ - [FIX] Default settings for terkait now make more sense.
+

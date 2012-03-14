@@ -699,7 +699,7 @@ jQuery.extend(window.terkait.rendering, {
     },
     
 	renderOrganization : function (entity, div) {
-    	div.addClass("organization");
+    	div.addClass("terkait-organization");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
 		var orgType = entity.get("dbpedia:type");
@@ -738,7 +738,7 @@ jQuery.extend(window.terkait.rendering, {
             
             var lbl = window.terkait.rendering.getLabel(location);
             if (lbl) {            
-            	locationSentence = ', located in <span class = "place">' + lbl + '</span>';
+            	locationSentence = ', located in <span class="">' + lbl + '</span>';
             }
         }
 		var industry = (entity.has("dbpedia:industry"))? entity.get("dbpedia:industry"): VIE.Util.extractLanguageString(entity, ["dbpedia:industry","dpprop: industry"], window.terkait.settings.language);
@@ -757,7 +757,7 @@ jQuery.extend(window.terkait.rendering, {
 		var revenue = VIE.Util.extractLanguageString(entity, ["dbprop:revenue"], window.terkait.settings.language);
 		revenue = (revenue)? window.terkait.util.decapitaliseFirstLetter(revenue): revenue;
 		revenue = (revenue)? ", it's revenue is " + revenue: "";
-		var abs = jQuery('<div class="abstract">');
+		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgTypeSentence + locationSentence + industry + revenue + ".</div>"));
         
@@ -1466,15 +1466,15 @@ jQuery.extend(window.terkait.rendering, {
         'Organization' : {
             label : function (entity, div) {
             	div.append(jQuery('<div>')
-          		      .css({
-	          		    	"width": "16px",
-		          		    "height": "16px",
-		          		    "position": "absolute",
-		          		    "left": "24px",
-		          		    "top": "5px"//,
-          		            //"background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
-          		      }));
-                div.append(jQuery("<div class=\"lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
+            		      .css({
+  	          		    	"width": "16px",
+  		          		    "height": "16px",
+  		          		    "position": "absolute",
+  		          		    "left": "24px",
+  		          		    "top": "5px",
+            		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
+            		      }));
+              div.append(jQuery("<div class=\"terkait-lbl\">" + window.terkait.rendering.getLabel(entity, 16) + "</div>"));
             },
             left : function (entity, div) {
                 window.terkait.rendering.renderRecommendedContent(entity, div);
