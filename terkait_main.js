@@ -27,7 +27,8 @@ jQuery.extend(window.terkait, {
     		
     		if (window.terkait.settings.stanbol) {
 	    		var stanbol = new window.terkait.vie.StanbolService({
-	    			url : window.terkait.settings.stanbol.split(",")
+	    			url : window.terkait.settings.stanbol.split(","),
+	    			timeout: 20000 /* 20 seconds */
 	    		});
 	            window.terkait.vie.use(stanbol);
 	    		stanbol.rules = jQuery.merge(stanbol.rules, window.terkait.getRules(stanbol));
@@ -47,7 +48,8 @@ jQuery.extend(window.terkait, {
             
             if (window.terkait.settings.zemanta) {
             	var zemanta = new window.terkait.vie.ZemantaService({
-	            	api_key : window.terkait.settings.zemanta
+	            	api_key : window.terkait.settings.zemanta,
+	    			timeout: 20000 /* 20 seconds */
 	            });
 	            window.terkait.vie.use(zemanta);
 	            zemanta.rules = jQuery.merge(zemanta.rules, window.terkait.getRules(zemanta));
@@ -55,7 +57,8 @@ jQuery.extend(window.terkait, {
             
             if (window.terkait.settings.opencalais) {
 	            var opencalais = new window.terkait.vie.OpenCalaisService({
-	            	api_key : window.terkait.settings.opencalais
+	            	api_key : window.terkait.settings.opencalais,
+	    			timeout: 20000 /* 20 seconds */
 	            });
 	            window.terkait.vie.use(opencalais);
 	            opencalais.rules = jQuery.merge(opencalais.rules, window.terkait.getRules(opencalais));
