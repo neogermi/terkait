@@ -980,7 +980,7 @@ jQuery.extend(window.terkait.rendering, {
                         		.appendTo("body")
                         		.css({
                         			"display": "none",
-	                            	"z-index" : 99999,
+	                            	"z-index" : 99999999,
 	                            	"position" : "absolute"
                         		})
                         		.load(function () {
