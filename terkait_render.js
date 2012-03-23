@@ -739,7 +739,7 @@ jQuery.extend(window.terkait.rendering, {
     },
 	
 	renderMilitaryUnit : function (entity, div) {
-    	div.addClass("terkait-company");
+    	div.addClass("terkait-militaryUnit");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
 		
@@ -752,7 +752,7 @@ jQuery.extend(window.terkait.rendering, {
     },
 	
 	renderSportsTeam : function (entity, div) {
-    	div.addClass("terkait-company");
+    	div.addClass("terkait-sportsTeam");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
 		
@@ -765,7 +765,7 @@ jQuery.extend(window.terkait.rendering, {
     },
 	
 	renderBand : function (entity, div) {
-    	div.addClass("terkait-company");
+    	div.addClass("terkait-band");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
 		
@@ -778,7 +778,7 @@ jQuery.extend(window.terkait.rendering, {
     },
 	
 	renderNonProfitOrganisation : function (entity, div) {
-    	div.addClass("terkait-company");
+    	div.addClass("terkait-nonProfitOrganisation");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
 		
@@ -791,7 +791,7 @@ jQuery.extend(window.terkait.rendering, {
     },
 	
 	renderEducationalInstitution : function (entity, div) {
-    	div.addClass("terkait-company");
+    	div.addClass("terkait-educationalInstitution");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
 		
@@ -803,8 +803,8 @@ jQuery.extend(window.terkait.rendering, {
         div.append(abs);
     },
 	
-	renderLigislature : function (entity, div) {
-    	div.addClass("terkait-company");
+	renderLegislature : function (entity, div) {
+    	div.addClass("terkait-legislature");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
 		
