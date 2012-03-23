@@ -16,6 +16,13 @@ jQuery.extend(window.terkait, {
 				window.terkait.vie.types.addOrOverwrite('MilitaryPerson', []).inherit("Person");
 				window.terkait.vie.types.addOrOverwrite('Scientist', []).inherit("Person");
 				window.terkait.vie.types.addOrOverwrite('Politician', []).inherit("Person");
+				window.terkait.vie.types.addOrOverwrite('Company', []).inherit("Organization");
+				window.terkait.vie.types.addOrOverwrite('Band', []).inherit("Organization");
+				window.terkait.vie.types.addOrOverwrite('SportsTeam', []).inherit("Organization");
+				window.terkait.vie.types.addOrOverwrite('MilitaryUnit', []).inherit("Organization");
+				window.terkait.vie.types.addOrOverwrite('Non-ProfitOrganisation', []).inherit("Organization");
+				window.terkait.vie.types.addOrOverwrite('EducationalInstitution', []).inherit("Organization");
+				window.terkait.vie.types.addOrOverwrite('Legislature', []).inherit("Organization");
 			}
 		});
 		

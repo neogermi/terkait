@@ -260,6 +260,160 @@ jQuery.extend(window.terkait, {
                              ];
                      };
                  }(service.vie.namespaces)
+             },
+			 {
+                'left' : [
+                    '?subject a dbpedia:Company',
+                    '?subject rdfs:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'Company>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
+             },
+			 {
+                'left' : [
+                    '?subject a dbpedia:MilitaryUnit',
+                    '?subject rdfs:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'MilitaryUnit>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
+             },
+			 {
+                'left' : [
+                    '?subject a dbpedia:Band',
+                    '?subject rdfs:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'Band>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
+             },
+			 {
+                'left' : [
+                    '?subject a dbpedia:SportsTeam',
+                    '?subject rdfs:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'SportsTeam>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
+             },
+			 {
+                'left' : [
+                    '?subject a dbpedia:Non-ProfitOrganisation',
+                    '?subject rdfs:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'Non-ProfitOrganisation>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
+             },
+			 {
+                'left' : [
+                    '?subject a dbpedia:EducationalInstitution',
+                    '?subject rdfs:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'EducationalInstitution>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
+             },
+			 {
+                'left' : [
+                    '?subject a dbpedia:Legislature',
+                    '?subject rdfs:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'Legislature>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(service.vie.namespaces)
              }
         ];
     }
