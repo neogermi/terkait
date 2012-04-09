@@ -701,7 +701,7 @@ jQuery.extend(window.terkait.rendering, {
     	div.addClass("terkait-organization");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
-		var orgBasics = window.terkait.rendering.renderOrgBasics(entity);
+		var orgBasics = " an organization" + window.terkait.rendering.renderOrgBasics(entity);
 		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + ".</div>"));
@@ -716,7 +716,7 @@ jQuery.extend(window.terkait.rendering, {
 		
 		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
-		var orgBasics = window.terkait.rendering.renderOrgBasics(entity);
+		var orgBasics = " a company" + window.terkait.rendering.renderOrgBasics(entity);
 		var industry = (entity.has("dbpedia:industry"))? entity.get("dbpedia:industry"): VIE.Util.extractLanguageString(entity, ["dbpedia:industry","dpprop: industry"], window.terkait.settings.language);
 		if(industry){
 			industry = jQuery.isArray(industry)? industry: [industry];
@@ -742,37 +742,74 @@ jQuery.extend(window.terkait.rendering, {
     	div.addClass("terkait-militaryUnit");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
-		
+		var branch = entity.get('dbprop:branch');
+		if(branch){
+			branch = (branch.isCollection)? branch.at(0): branch;
+			branch = jQuery.isArray(branch)? branch: [branch];
+			for(var i = 0; i < branch.length; i++){
+				var bra = branch[i];
+				bra = (VIE.Util.isUri(bra))? bra.substring(bra.lastIndexOf("/")+1,bra.length-1): bra.replace(/["]/g, "").replace(/@[a-z]+/, '').trim();
+				bra = bra.replace(/_/gi, " ");
+				branch[i] = bra;
+			}
+			branch = (branch.length>1)? branch.join(", "): branch[0];
+			branch = ' of ' + branch;
+		}
+		else{
+			branch = '';
+		}
 		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
-		var orgBasics = window.terkait.rendering.renderOrgBasics(entity);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + ".</div>"));
+		var orgBasics = " a military unit" + window.terkait.rendering.renderOrgBasics(entity);
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + branch + ".</div>"));
         
         div.append(abs);
     },
 	
 	renderSportsTeam : function (entity, div) {
     	div.addClass("terkait-sportsTeam");
-        //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
-		
+		var founded = VIE.Util.extractLanguageString(entity, ["dbprop:founded"], window.terkait.settings.language);
+		founded = (founded && founded!="")? ", founded in " + founded: "";
+		var division = VIE.Util.extractLanguageString(entity, ["dbpedia:league","dbprop:division"], window.terkait.settings.language);
+		division = (division && division!="" && !VIE.Util.isUri(division))? ", playing in " + division: ""; //TODO handle <dbpedia resources>
+		var coach = VIE.Util.extractLanguageString(entity, ["dbpedia:manager","dbprop:headCoach"], window.terkait.settings.language);
+		coach = (coach && coach!="")? ", its head coach is " + coach: "";
+		var position = VIE.Util.extractLanguageString(entity, ["dbpedia:position","dbprop:position"], window.terkait.settings.language);
+		position = (position && position!="")? ", its ranking is " + position: "";
 		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
-		var orgBasics = window.terkait.rendering.renderOrgBasics(entity);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + ".</div>"));
+		var orgBasics = " a sports team" + window.terkait.rendering.renderOrgBasics(entity);
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + division + position + founded + coach + ".</div>"));
         
         div.append(abs);
     },
 	
 	renderBand : function (entity, div) {
     	div.addClass("terkait-band");
-        //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
-		
+		var genre = entity.get("dbprop:genre");
+		if(genre){
+			genre = (genre.isCollection)? genre.at(0): genre;
+			genre = jQuery.isArray(genre)? genre: [genre];
+			for(var i = 0; i < genre.length; i++){
+				var g = genre[i];
+				g = (VIE.Util.isUri(g))? g.substring(g.lastIndexOf("/")+1,g.length-1): g.replace(/["]/g, "").replace(/@[a-z]+/, '').trim();
+				g = g.replace(/_/gi, " ");
+				g = window.terkait.util.decapitaliseFirstLetter(g);
+				genre[i] = g;
+			}
+			genre = (genre.length>1)? genre.join(", "): genre[0];
+			genre = ', performing in genre: ' + genre;
+			
+		}
+		else{
+			genre = '';
+		}
 		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
-		var orgBasics = window.terkait.rendering.renderOrgBasics(entity);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + ".</div>"));
+		var orgBasics = " a band" + window.terkait.rendering.renderOrgBasics(entity);
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + genre + ".</div>"));
         
         div.append(abs);
     },
@@ -781,11 +818,12 @@ jQuery.extend(window.terkait.rendering, {
     	div.addClass("terkait-nonProfitOrganisation");
         //var map = window.terkait.rendering.renderMap(entity);
 		var img = window.terkait.rendering.renderDepiction(entity);
-		
+		var founded = VIE.Util.extractLanguageString(entity, ["dbprop:foundedDate"], window.terkait.settings.language);
+		founded = (founded && founded!="")? ", founded " + founded: "";
 		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
-		var orgBasics = window.terkait.rendering.renderOrgBasics(entity);
-        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + ".</div>"));
+		var orgBasics = " a non profit organization" + window.terkait.rendering.renderOrgBasics(entity);
+        abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + founded + ".</div>"));
         
         div.append(abs);
     },
@@ -797,7 +835,7 @@ jQuery.extend(window.terkait.rendering, {
 		
 		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
-		var orgBasics = window.terkait.rendering.renderOrgBasics(entity);
+		var orgBasics = " an educational institution" + window.terkait.rendering.renderOrgBasics(entity);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + ".</div>"));
         
         div.append(abs);
@@ -810,34 +848,14 @@ jQuery.extend(window.terkait.rendering, {
 		
 		var abs = jQuery('<div class="terkait-abstract">');
         abs.append(img);
-		var orgBasics = window.terkait.rendering.renderOrgBasics(entity);
+		var orgBasics = " a ligislature" + window.terkait.rendering.renderOrgBasics(entity);
         abs.append(jQuery("<div>" + window.terkait.rendering.getLabel(entity) + " is " + orgBasics + ".</div>"));
         
         div.append(abs);
     },
 	
 	renderOrgBasics : function (entity) {
-		var orgType = entity.get("dbpedia:type");
-		var orgTypeSentence = '';
-		if (orgType) {
-            orgType = (orgType.isCollection)? orgType.at(0) : orgType;
-            orgType = (_.isArray(orgType))? orgType[0] : orgType;
-            window.terkait.util.dbpediaLoader(orgType, 
-            		function (e) {
-                        if (_.isArray(e) && e.length > 0 || e.isEntity)
-                            entity.trigger("rerender");
-    		        }, 
-    		        function (e) {
-    		        	console.warn(e);
-    		        });
-            
-            var lbl = window.terkait.rendering.getLabel(orgType);
-            if (lbl) {            
-            	orgTypeSentence = lbl;
-            }
-        }
-		orgTypeSentence = (orgTypeSentence && orgTypeSentence != '')? window.terkait.util.addIndefiniteArticle(orgTypeSentence): ' an organization';
-        var location = entity.get("dbpedia:location");
+		var location = entity.get("dbpedia:location");
 		var locationSentence = '';
 		if (location) {
             location = (location.isCollection)? location.at(0) : location;
@@ -856,7 +874,9 @@ jQuery.extend(window.terkait.rendering, {
             	locationSentence = ', located in <span class="">' + lbl + '</span>';
             }
         }
-		var orgBasics = orgTypeSentence + locationSentence; 
+		var areaServed = VIE.Util.extractLanguageString(entity, ["dbprop:areaServed"], window.terkait.settings.language);
+		areaServed = (areaServed && areaServed!="")? ", serving " + ((areaServed=="Worldwide")? areaServed: " worldwide"): "";
+		var orgBasics = locationSentence + areaServed; 
 		return orgBasics;
 	},
 	
