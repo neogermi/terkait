@@ -70,6 +70,14 @@ jQuery.extend(window.terkait, {
 	            window.terkait.vie.use(opencalais);
 	            opencalais.rules = jQuery.merge(opencalais.rules, window.terkait.getRules(opencalais));
             }
+            
+            if (window.terkait.settings["dbpediaspotlight"]) {
+                var dbpediaSpot = new window.terkait.vie.DBPediaSpotlightService({
+                    url : [ window.terkait.settings.dbpediaspotlight ]
+                });
+                window.terkait.vie.use(dbpediaSpot);
+                dbpediaSpot.rules = jQuery.merge(dbpediaSpot.rules, window.terkait.getRules(dbpediaSpot));
+            }
     	} catch (e) {
     		console.log(e);
     	}
@@ -93,6 +101,9 @@ jQuery.extend(window.terkait, {
 	},
 	
 	destroy : function () {
+
+        jQuery('style[title=terkait]').remove();
+	    
 		jQuery('#terkait-container')
         .animate({
             "left" : "350px"
@@ -104,6 +115,44 @@ jQuery.extend(window.terkait, {
 	},
 	
     create : function() {
+        //APPEND CSS!
+
+        jQuery('<style>').attr("title", "terkait")
+        .text("#terkait-container {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/terkait_transparent.png") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-loader {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/ajax-loader.gif") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-recommended-icon.correct-relevant {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_correct-relevant_sw.png") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-recommended-icon.correct-relevant.active {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_correct-relevant.png") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-recommended-icon.correct-relevant.hover {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_correct-relevant.png") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-recommended-icon.correct-notrelevant {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_correct-notrelevant_sw.png") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-recommended-icon.correct-notrelevant.active {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_correct-notrelevant_2.png") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-recommended-icon.correct-notrelevant.hover {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_correct-notrelevant_2.png") + ")\n" +
+                "}\n" + 
+                "#terkait-container .terkait-recommended-icon.incorrect {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_incorrect_sw.png") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-recommended-icon.incorrect.active {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_incorrect.png") + ")\n" +
+                "}\n" +
+                "#terkait-container .terkait-recommended-icon.incorrect.hover {\n" +
+                "background-image: url(" + chrome.extension.getURL("icons/icon_incorrect.png") + ")\n" +
+                "}\n")
+        .appendTo("head");
+        
     	window.terkait.vie.entities.each(function (e) {
         	if (e.has("terkaitRendered"))
     			e.unset("terkaitRendered");
@@ -145,15 +194,9 @@ jQuery.extend(window.terkait, {
         var loadIndicator = jQuery('<div>')
         .addClass("terkait-loader")
         .attr("title", chrome.i18n.getMessage("loaderMsg"))
-        .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/ajax-loader.gif") + ")"
-        })
         .hide();
         
         jQuery('<div id="terkait-container">')
-        .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/terkait_transparent.png") + ")"
-        })
         .append(description)
         .append(loadIndicator)
         .append(entities)
@@ -222,7 +265,7 @@ jQuery.extend(window.terkait, {
 			});
         };
         
-        var servicesToUse = ["stanbol"/*TODO: interpret response! , "zemanta", "opencalais"*/];
+        var servicesToUse = ["dbpedia-spotlight"];
         for (var s = 0; s < servicesToUse.length; s++) {
             window.terkait.util.updateActiveJobs(1);
 	        window.terkait.vie

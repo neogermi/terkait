@@ -23,6 +23,15 @@ this.manifest = {
             "text": "http://dev.iks-project.eu/stanbolfull",
             "masked": false
         },
+        {
+            "tab": i18n.get("information"),
+            "group": i18n.get("services"),
+            "name": "dbpediaspotlight",
+            "type": "text",
+            "label": "DBPedia Spotlight Annotate",
+            "text": "http://spotlight.dbpedia.org/rest/annotate",
+            "masked": false
+        },
         /*{
             "tab": i18n.get("information"),
             "group": i18n.get("services"),

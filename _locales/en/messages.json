@@ -20,14 +20,14 @@
   "foldButtonMsg" : {
   	"message" : "Click to (un)fold this card."
   },
-  "imagesButtonMsg" : {
-  	"message" : "Click to browse related images."
+  "correctRelevantButtonMsg" : {
+  	"message" : "Toggle this if it is correct and relevant."
   },
-  "videosButtonMsg" : {
-  	"message" : "Click to browse related videos."
+  "correctNotRelevantButtonMsg" : {
+    "message" : "Toggle this if it is correct but not relevant."
   },
-  "newsButtonMsg" : {
-  	"message" : "Click to browse related news articles."
+  "incorrectButtonMsg" : {
+    "message" : "Toggle this if it is incorrect."
   },
   "hundredUnit" : {
   	"message" : "hundred"

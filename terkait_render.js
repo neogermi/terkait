@@ -57,33 +57,9 @@ jQuery.extend(window.terkait.rendering, {
                 .append(labelElem)
                 .append(leftElem)
                 .append(rightElem);
-                
-                front
-                .hover(function () {
-                	jQuery(this).find(".terkait-button").fadeIn(500);
-                }, function () {
-                	jQuery(this).find(".terkait-button").fadeOut(500);
-                });
-                
-                back
-                .css("display", "none")//.append(window.terkait.rendering._renderEntityEditor(this.model));
+                                
+                back.css("display", "none")//.append(window.terkait.rendering._renderEntityEditor(this.model));
                 ;
-                
-                var closeButton = window.terkait.rendering.createCloseButton();
-                closeButton
-                .hide()
-                .css({"position":"absolute", top: "0px", left: "0px"})
-                .appendTo(front)
-                .click(function (view) {
-                	return function () {
-                		var $accord = jQuery(view.el).parents('.terkait-accordion').first();
-		                $accord.slideUp(500, function () {
-			                view.remove();
-		                	jQuery(this).remove();
-		                });
-		                jQuery('.terkait-recommended-content-dialog').remove();
-		            };
-                }(this));
                 
                 var foldButton = window.terkait.rendering.createFoldButton();
                 var $accord = $el.parents('.terkait-accordion').first();
@@ -229,7 +205,7 @@ jQuery.extend(window.terkait.rendering, {
         
         if (accordionContainer) {
 	        // create the VIEW on that entity
-	        this.createContentView(entity, accordionContainer, (numEntitiesShown < 1));
+	        this.createContentView(entity, accordionContainer, (numEntitiesShown < 3));
         }
     },
     
@@ -971,79 +947,89 @@ jQuery.extend(window.terkait.rendering, {
     },
     
     renderRecommendedContent: function (entity, panel) {
-        
+                
         var images = jQuery('<div class="terkait-recommended-icon">')
-        .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_images_sw.png") + ")"
-        })
-        .attr("title", chrome.i18n.getMessage("imagesButtonMsg"))
+        .addClass("correct-relevant")
+        .attr("title", chrome.i18n.getMessage("correctRelevantButtonMsg"))
         .hover(function () {
             var $this = jQuery(this);
-            $this
-            .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_images.png") + ")"
-            });
+            $this.addClass("hover");
         }, function () {
             var $this = jQuery(this);
-            $this
-            .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_images_sw.png") + ")"
-            });
+            $this.removeClass("hover");
         })
-        .click(function () {
+        .click(function (e) { return function () {
             var $this = jQuery(this);
-            var $parent = $this.parents('.terkait-accordion').first();
+            var $parent = $this.parents('.terkait-recommended-content').first();
             
-            terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderImages, entity);
-        });
+            if ($this.hasClass("active")) {
+                $this.removeClass("active");
+            } else {
+                $parent.find('.active').removeClass('active');
+                $this.addClass("active");
+                e.set("terkait-status", "correctRelevant");
+            }
+            //TODO: terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderImages, entity);
+        }; } (entity));
         var videos = jQuery('<div class="terkait-recommended-icon">')
-        .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_videos_sw.png") + ")"
-        })
-        .attr("title", chrome.i18n.getMessage("videosButtonMsg"))
-        .hover(function () {
-            var $this = jQuery(this);
-            $this
-            .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_videos.png") + ")"
-            });
-        }, function () {
-            var $this = jQuery(this);
-            $this
-            .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_videos_sw.png") + ")"
-            });
-        })
-        .click(function () {
-            var $this = jQuery(this);
-            var $parent = $this.parents('.terkait-accordion').first();
-            
-            terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderVideos, entity);
-        });
+        .addClass("correct-notrelevant")
+          .attr("title", chrome.i18n.getMessage("correctNotRelevantButtonMsg"))
+          .hover(function () {
+              var $this = jQuery(this);
+              $this.addClass("hover");
+          }, function () {
+              var $this = jQuery(this);
+              $this.removeClass("hover");
+          })
+          .click(function (e) { return function () {
+              var $this = jQuery(this);
+              var $parent = $this.parents('.terkait-recommended-content').first();
+              
+              if ($this.hasClass("active")) {
+                  $this.removeClass("active");
+              } else {
+                  $parent.find('.active').removeClass('active');
+                  $this.addClass("active");
+                  e.set("terkait-status", "correctNotRelevant");
+              }
+          //TODO: terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderVideos, entity);
+        }; } (entity));
         var news = jQuery('<div class="terkait-recommended-icon">')
-        .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_news_sw.png") + ")"
-        })
-        .attr("title", chrome.i18n.getMessage("newsButtonMsg"))
-        .hover(function () {
-            var $this = jQuery(this);
-            $this
-            .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_news.png") + ")"
-            });
-        }, function () {
-            var $this = jQuery(this);
-            $this
-            .css({
-              "background-image" : "url(" + chrome.extension.getURL("icons/icon_news_sw.png") + ")"
-            });
-        })
-        .click(function () {
-            var $this = jQuery(this);
-            var $parent = $this.parents('.terkait-accordion').first();
-            
-            terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderNews, entity);
-        });
+        .addClass("incorrect")
+          .attr("title", chrome.i18n.getMessage("incorrectButtonMsg"))
+          .hover(function () {
+              var $this = jQuery(this);
+              $this.addClass("hover");
+          }, function () {
+              var $this = jQuery(this);
+              $this.removeClass("hover");
+          })
+          .click(function (e) { return function () {
+              var $this = jQuery(this);
+              var $parent = $this.parents('.terkait-recommended-content').first();
+              
+              if ($this.hasClass("active")) {
+                  $this.removeClass("active");
+              } else {
+                  $parent.find('.active').removeClass('active');
+                  $this.addClass("active");
+                  e.set("terkait-status", "incorrect");
+              }
+          //TODO: terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderNews, entity);
+        }; } (entity));
+        
+
+        var status = entity.get("terkait-status");
+        status = (status)? status : "";
+        if (status === "correctRelevant") {
+            images.addClass("active");
+        }
+        if (status === "correctNotRelevant") {
+            images.addClass("active");
+        }
+        if (status === "incorrect") {
+            images.addClass("active");
+        }
         
         panel
             .append(images)
@@ -1366,7 +1352,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
           		      }));
@@ -1386,7 +1372,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_country.png") + ")"
           		      }));
@@ -1406,7 +1392,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
           		      }));
@@ -1426,7 +1412,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
           		      }));
@@ -1446,7 +1432,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_place.png") + ")"
           		      }));
@@ -1466,7 +1452,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
@@ -1486,7 +1472,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
@@ -1506,7 +1492,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
@@ -1526,7 +1512,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_politics.gif") + ")"
           		      }));
@@ -1546,7 +1532,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
@@ -1566,7 +1552,7 @@ jQuery.extend(window.terkait.rendering, {
 	          		    	"width": "16px",
 		          		    "height": "16px",
 		          		    "position": "absolute",
-		          		    "left": "24px",
+		          		    "left": "6px",
 		          		    "top": "5px",
           		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_person.png") + ")"
           		      }));
@@ -1586,7 +1572,7 @@ jQuery.extend(window.terkait.rendering, {
   	          		    	"width": "16px",
   		          		    "height": "16px",
   		          		    "position": "absolute",
-  		          		    "left": "24px",
+  		          		    "left": "6px",
   		          		    "top": "5px",
             		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
             		      }));
@@ -1606,7 +1592,7 @@ jQuery.extend(window.terkait.rendering, {
   	          		    	"width": "16px",
   		          		    "height": "16px",
   		          		    "position": "absolute",
-  		          		    "left": "24px",
+  		          		    "left": "6px",
   		          		    "top": "5px",
             		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
             		      }));
@@ -1626,7 +1612,7 @@ jQuery.extend(window.terkait.rendering, {
   	          		    	"width": "16px",
   		          		    "height": "16px",
   		          		    "position": "absolute",
-  		          		    "left": "24px",
+  		          		    "left": "6px",
   		          		    "top": "5px",
             		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
             		      }));
@@ -1646,7 +1632,7 @@ jQuery.extend(window.terkait.rendering, {
   	          		    	"width": "16px",
   		          		    "height": "16px",
   		          		    "position": "absolute",
-  		          		    "left": "24px",
+  		          		    "left": "6px",
   		          		    "top": "5px",
             		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
             		      }));
@@ -1666,7 +1652,7 @@ jQuery.extend(window.terkait.rendering, {
   	          		    	"width": "16px",
   		          		    "height": "16px",
   		          		    "position": "absolute",
-  		          		    "left": "24px",
+  		          		    "left": "6px",
   		          		    "top": "5px",
             		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
             		      }));
@@ -1686,7 +1672,7 @@ jQuery.extend(window.terkait.rendering, {
   	          		    	"width": "16px",
   		          		    "height": "16px",
   		          		    "position": "absolute",
-  		          		    "left": "24px",
+  		          		    "left": "6px",
   		          		    "top": "5px",
             		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
             		      }));
@@ -1706,7 +1692,7 @@ jQuery.extend(window.terkait.rendering, {
   	          		    	"width": "16px",
   		          		    "height": "16px",
   		          		    "position": "absolute",
-  		          		    "left": "24px",
+  		          		    "left": "6px",
   		          		    "top": "5px",
             		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
             		      }));
@@ -1726,7 +1712,7 @@ jQuery.extend(window.terkait.rendering, {
   	          		    	"width": "16px",
   		          		    "height": "16px",
   		          		    "position": "absolute",
-  		          		    "left": "24px",
+  		          		    "left": "6px",
   		          		    "top": "5px",
             		            "background-image" : "url(" + chrome.extension.getURL("icons/icon_organization.png") + ")"
             		      }));
