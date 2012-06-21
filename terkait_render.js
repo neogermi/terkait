@@ -969,7 +969,7 @@ jQuery.extend(window.terkait.rendering, {
                 $this.addClass("active");
                 e.set("terkait-status", "correctRelevant");
             }
-            //TODO: terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderImages, entity);
+            //TODO: window.terkait.util.sendFeedbackLREC12(uri, text, surface, offset, 0);
         }; } (entity));
         var videos = jQuery('<div class="terkait-recommended-icon">')
         .addClass("correct-notrelevant")
@@ -992,7 +992,7 @@ jQuery.extend(window.terkait.rendering, {
                   $this.addClass("active");
                   e.set("terkait-status", "correctNotRelevant");
               }
-          //TODO: terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderVideos, entity);
+            //TODO: window.terkait.util.sendFeedbackLREC12(uri, text, surface, offset, 1);
         }; } (entity));
         var news = jQuery('<div class="terkait-recommended-icon">')
         .addClass("incorrect")
@@ -1015,7 +1015,7 @@ jQuery.extend(window.terkait.rendering, {
                   $this.addClass("active");
                   e.set("terkait-status", "incorrect");
               }
-          //TODO: terkait.rendering.registerRecommendedContentDialog($this, $parent, terkait.rendering._renderNews, entity);
+            //TODO: window.terkait.util.sendFeedbackLREC12(uri, text, surface, offset, 2);
         }; } (entity));
         
 

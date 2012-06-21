@@ -232,6 +232,22 @@ jQuery.extend(window.terkait.util, {
     	}
     },
     
+    sendFeedbackLREC12 : function (uri, text, surfaceForm, offset, feedback) {
+        jQuery.ajax({
+            type : "POST",
+            url : "http://spotlight.dbpedia.org/lrec2012/feedback",
+            data : {
+                text : text,
+                feedback : feedback,
+                uri : uri,
+                surfaceForm : surfaceForm,
+                offsest : offset
+            },
+            dataType : "json",
+            contentType : 'application/x-www-form-urlencoded'
+        });
+    },
+    
     getMapZoomFactor : function (entity) {
 		var zoom = 12;
         var areaKm = entity.get("dbprop:areaKm");
