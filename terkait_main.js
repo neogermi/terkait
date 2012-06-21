@@ -73,7 +73,8 @@ jQuery.extend(window.terkait, {
             
             if (window.terkait.settings["dbpediaspotlight"]) {
                 var dbpediaSpot = new window.terkait.vie.DBPediaSpotlightService({
-                    url : [ window.terkait.settings.dbpediaspotlight ]
+                    url : [ window.terkait.settings.dbpediaspotlight ],
+                    timeout: 120000 /* 120 seconds */
                 });
                 window.terkait.vie.use(dbpediaSpot);
                 dbpediaSpot.rules = jQuery.merge(dbpediaSpot.rules, window.terkait.getRules(dbpediaSpot));

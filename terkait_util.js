@@ -20,8 +20,12 @@ jQuery.extend(window.terkait.util, {
 	},
 	
 	selectCOI : function() {
+        if (jQuery('#detail_abstract').size() > 0)
+            return jQuery('#detail_abstract');
+        if (jQuery('.posts .postbody .content').size() > 0)
+            return jQuery('.posts .postbody .content');
         var res = jQuery(
-                ':header,header,section,article,div,span,p,q,i,b,u,em,th,td,strong,font')
+                ':header,header,section,article,div,span,p,q,i,b,u,em,th,td,strong,font,#detail_abstract')
                 .filter(
                         function() {
                             var self = jQuery(this);
@@ -47,7 +51,7 @@ jQuery.extend(window.terkait.util, {
                             return (isShown && hasText && numWords > 5 && (children
                                     .size() === emptyChildren.size()));
                         })
-                    .not('#terkait-container *');
+                    .not('#terkait-wrapper *');
         return res;
     },
 	
