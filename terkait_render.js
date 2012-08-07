@@ -122,7 +122,7 @@ jQuery.extend(window.terkait.rendering, {
                     window.terkait.util.hyphenateElem(rightElem.find(".terkait-abstract"));
                     $el.parent().show();
                     } catch (e) {
-                    	console.warn("Error during rendering", this.model);
+                    	console.warn("Error during rendering", this.model, e);
                         $el.parent().hide();
                     }
                 } else {
@@ -221,7 +221,7 @@ jQuery.extend(window.terkait.rendering, {
         types = window.terkait.vie.types.sort(types, false);
         
         var whiteTypes = window.terkait.settings.filterTypes;
-                
+        whiteTypes.push("owl:Thing");        
         for (var t = 0, tlen = types.length; t < tlen; t++) {
             var type = window.terkait.vie.types.get(types[t]);
             if (type) {
@@ -1724,18 +1724,19 @@ jQuery.extend(window.terkait.rendering, {
             right : function (entity, div) {
                 window.terkait.rendering.renderLegislature(entity, div);
             }
-        }/*,
-        'Thing' : {
+        },
+        'owl:Thing' : {
             label : function (entity, div) {
                 div.text(window.terkait.rendering.getLabel(entity, 16));
             },
             left : function (entity, div) {
-                window.terkait.renderRecommendedContent(entity, div);
+                window.terkait.rendering.renderRecommendedContent(entity, div);
             },
             right : function (entity, div) {
-                div.text("Thing");
+console.log(entity);
+                div.text("TODO: render more information of entity: " + entity.getSubjectUri() + "(see console for more information)");
             }
-        }*/
+        }
     }
     
 });

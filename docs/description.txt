@@ -29,6 +29,7 @@ terkait never sends information to any services without your permission. This me
 Version [1.2]: 
  - [ADD] Basic rendering for organisations.
  - [FIX] CSS to overlay all other elements (mostly advertisements).
+ - [FIX] Using uncompressed libs to avoid compat errors with editor.
 Version [1.1]: 
  - [FIX] Default settings for terkait now make more sense.
 

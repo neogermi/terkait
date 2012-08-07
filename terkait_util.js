@@ -152,7 +152,7 @@ jQuery.extend(window.terkait.util, {
 		}
 		isEntityOfInterest = isEntityOfInterest && !entity.isof("enhancer:Enhancement");
 
-        return isEntityOfInterest;
+        return true;
     },
     
     filterDups: function (entities, properties) {

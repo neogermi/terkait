@@ -8,7 +8,8 @@ jQuery.extend(window.terkait, {
 	
 	vie : function () {
 		var v = new VIE();
-		v.loadSchema(chrome.extension.getURL(window.terkait.settings.schemaDefintion), {
+		v.namespaces.add("w3prov", "http://www.w3.org/ns/prov#");
+                v.loadSchema(chrome.extension.getURL(window.terkait.settings.schemaDefintion), {
 			baseNS : window.terkait.settings.baseNamespace,
 			success : function () {
 				window.terkait.vie.types.addOrOverwrite('Artist', []).inherit("Person");
